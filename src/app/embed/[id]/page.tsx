@@ -1,8 +1,25 @@
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { type WallStyle, type WallConfig, defaultWallConfig } from "@/lib/wall-config";
 import { type DbTestimonial, toShowcaseTestimonial } from "@/lib/transform-testimonials";
 import { getThemeVars } from "@/lib/showcase-helpers";
 import { EmbedShowcase } from "./embed-showcase";
+import { EmbedResize } from "./embed-resize";
+
+function isDomainAllowed(allowedDomains: string[], referer: string | null): boolean {
+  if (allowedDomains.length === 0) return true; // no restrictions
+  if (!referer) return true; // direct access / no referer is OK (preview, dev)
+  try {
+    const hostname = new URL(referer).hostname;
+    return allowedDomains.some((domain) => {
+      const d = domain.toLowerCase().trim();
+      // Exact match or subdomain match (e.g. "example.com" allows "www.example.com")
+      return hostname === d || hostname.endsWith(`.${d}`);
+    });
+  } catch {
+    return false;
+  }
+}
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -40,6 +57,27 @@ export default async function EmbedPage({ params }: Props) {
 
   const style = wall.style as WallStyle;
   const config: WallConfig = { ...defaultWallConfig, ...(wall.config as Partial<WallConfig>) };
+
+  // Domain lock check
+  const headersList = await headers();
+  const referer = headersList.get("referer");
+  if (!isDomainAllowed(config.allowedDomains ?? [], referer)) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "200px",
+          fontFamily: "system-ui, sans-serif",
+          color: "#888",
+          fontSize: "14px",
+        }}
+      >
+        This embed is not authorized for this domain.
+      </div>
+    );
+  }
   const tagFilter: string[] = wall.tag_filter ?? [];
 
   // Fetch testimonials for this wall's project
@@ -141,6 +179,7 @@ export default async function EmbedPage({ params }: Props) {
           />
         </div>
       )}
+      <EmbedResize />
     </div>
   );
 }

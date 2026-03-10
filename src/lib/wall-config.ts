@@ -27,6 +27,7 @@ export interface WallConfig {
   autoplay: boolean;
   pauseOnHover: boolean;
   onlyWithPhotos: boolean;
+  allowedDomains: string[];
 }
 
 export const defaultWallConfig: WallConfig = {
@@ -48,6 +49,7 @@ export const defaultWallConfig: WallConfig = {
   autoplay: true,
   pauseOnHover: true,
   onlyWithPhotos: false,
+  allowedDomains: [],
 };
 
 export const styleLabels: Record<WallStyle, string> = {

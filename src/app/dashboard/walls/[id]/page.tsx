@@ -34,10 +34,8 @@ import {
   Tablet,
   Smartphone,
   Eye,
-  ChevronDown,
   Copy,
   Check,
-  Code2,
 } from "lucide-react";
 
 type Tag = { id: string; name: string; color: string };
@@ -555,6 +553,19 @@ export default function WallEditorPage() {
               </Section>
             )}
 
+            {/* Domain lock */}
+            {!isNew && (
+              <Section title="Allowed Domains">
+                <p className="mb-2 text-xs text-muted-foreground">
+                  Restrict which websites can embed this wall. Leave empty to allow all.
+                </p>
+                <DomainList
+                  domains={config.allowedDomains ?? []}
+                  onChange={(domains) => updateConfig("allowedDomains", domains)}
+                />
+              </Section>
+            )}
+
             {/* Active toggle */}
             <Section title="Status">
               <Toggle
@@ -630,107 +641,110 @@ function Toggle({
   );
 }
 
+function DomainList({
+  domains,
+  onChange,
+}: {
+  domains: string[];
+  onChange: (domains: string[]) => void;
+}) {
+  const [input, setInput] = useState("");
+
+  function addDomain() {
+    const d = input.trim().toLowerCase();
+    if (!d || domains.includes(d)) return;
+    onChange([...domains, d]);
+    setInput("");
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-1.5">
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addDomain())}
+          placeholder="example.com"
+          className="min-w-0 flex-1 rounded-lg border border-input bg-background px-3 py-1.5 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
+        />
+        <button
+          type="button"
+          onClick={addDomain}
+          className="rounded-lg bg-muted px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted/80"
+        >
+          Add
+        </button>
+      </div>
+      {domains.length > 0 && (
+        <ul className="space-y-1">
+          {domains.map((d) => (
+            <li
+              key={d}
+              className="flex items-center justify-between rounded-md bg-muted/50 px-2.5 py-1.5 text-xs"
+            >
+              <span className="truncate">{d}</span>
+              <button
+                type="button"
+                onClick={() => onChange(domains.filter((x) => x !== d))}
+                className="ml-2 flex-shrink-0 text-muted-foreground transition-colors hover:text-destructive"
+              >
+                &times;
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function EmbedCodePanel({ wallId }: { wallId: string }) {
-  const [copiedIframe, setCopiedIframe] = useState(false);
-  const [copiedScript, setCopiedScript] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const embedUrl = `${origin}/embed/${wallId}`;
 
-  const iframeSnippet = `<iframe src="${embedUrl}" width="100%" height="500" frameborder="0" style="border:none;"></iframe>`;
+  const snippet = `<div data-proofwall="${wallId}"></div>\n<script src="${origin}/embed.js" async></script>`;
 
-  const scriptSnippet = `<script>
-(function(){
-  var d=document,f=d.createElement('iframe');
-  f.src='${embedUrl}';
-  f.width='100%';f.height='500';
-  f.frameBorder='0';f.style.border='none';
-  d.currentScript.parentNode.insertBefore(f,d.currentScript);
-})();
-</script>`;
-
-  async function copyToClipboard(text: string, type: "iframe" | "script") {
+  async function copyToClipboard() {
     try {
-      await navigator.clipboard.writeText(text);
-      if (type === "iframe") {
-        setCopiedIframe(true);
-        setTimeout(() => setCopiedIframe(false), 2000);
-      } else {
-        setCopiedScript(true);
-        setTimeout(() => setCopiedScript(false), 2000);
-      }
+      await navigator.clipboard.writeText(snippet);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback: select text
+      // Fallback: textarea select
     }
   }
 
   return (
-    <div className="space-y-3">
-      {/* Iframe embed */}
-      <div>
-        <div className="mb-1 flex items-center justify-between">
-          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Code2 className="size-3" />
-            iframe
-          </label>
-          <button
-            onClick={() => copyToClipboard(iframeSnippet, "iframe")}
-            className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            {copiedIframe ? (
-              <>
-                <Check className="size-3 text-success" />
-                Copied
-              </>
-            ) : (
-              <>
-                <Copy className="size-3" />
-                Copy
-              </>
-            )}
-          </button>
-        </div>
-        <textarea
-          readOnly
-          rows={3}
-          value={iframeSnippet}
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-mono outline-none focus:border-ring focus:ring-2 focus:ring-ring/30 resize-none"
-          onFocus={(e) => e.target.select()}
-        />
+    <div>
+      <p className="mb-2 text-xs text-muted-foreground">
+        Paste this wherever you want the wall to appear.
+      </p>
+      <div className="mb-1 flex items-center justify-end">
+        <button
+          onClick={copyToClipboard}
+          className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          {copied ? (
+            <>
+              <Check className="size-3 text-success" />
+              Copied
+            </>
+          ) : (
+            <>
+              <Copy className="size-3" />
+              Copy
+            </>
+          )}
+        </button>
       </div>
-
-      {/* Script embed */}
-      <div>
-        <div className="mb-1 flex items-center justify-between">
-          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Code2 className="size-3" />
-            Script tag
-          </label>
-          <button
-            onClick={() => copyToClipboard(scriptSnippet, "script")}
-            className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            {copiedScript ? (
-              <>
-                <Check className="size-3 text-success" />
-                Copied
-              </>
-            ) : (
-              <>
-                <Copy className="size-3" />
-                Copy
-              </>
-            )}
-          </button>
-        </div>
-        <textarea
-          readOnly
-          rows={5}
-          value={scriptSnippet}
-          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-mono outline-none focus:border-ring focus:ring-2 focus:ring-ring/30 resize-none"
-          onFocus={(e) => e.target.select()}
-        />
-      </div>
+      <textarea
+        readOnly
+        rows={3}
+        value={snippet}
+        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-mono outline-none focus:border-ring focus:ring-2 focus:ring-ring/30 resize-none"
+        onFocus={(e) => e.target.select()}
+      />
     </div>
   );
 }

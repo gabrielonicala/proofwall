@@ -4,7 +4,8 @@ import { Suspense, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Shield, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { LogoIcon } from "@/components/logo";
 
 export default function LoginPage() {
   return (
@@ -65,9 +66,7 @@ function LoginForm() {
       <div className="relative z-10 w-full max-w-sm">
         {/* Logo */}
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-gradient-primary">
-            <Shield className="size-5 text-primary-foreground" />
-          </div>
+          <LogoIcon className="size-9" />
           <span className="text-xl font-bold tracking-tight">
             Proof<span className="text-gradient">Wall</span>
           </span>

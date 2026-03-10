@@ -14,11 +14,11 @@ import {
   Upload,
   BarChart3,
   Settings,
-  Shield,
   ChevronsLeft,
   ChevronsRight,
   LogOut,
 } from "lucide-react";
+import { LogoIcon } from "@/components/logo";
 import {
   Tooltip,
   TooltipContent,
@@ -66,10 +66,8 @@ export function Sidebar() {
                 transition={{ duration: 0.15 }}
               >
                 <Link href="/" className="flex items-center gap-2">
-                  <div className="flex size-7 items-center justify-center rounded-md bg-gradient-primary">
-                    <Shield className="size-3.5 text-primary-foreground" />
-                  </div>
-                  <span className="text-sm font-bold">
+                  <LogoIcon className="size-7" />
+                  <span className="text-2xl font-bold">
                     Proof<span className="text-gradient">Wall</span>
                   </span>
                 </Link>

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Shield, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { LogoIcon } from "@/components/logo";
 import Link from "next/link";
 
 const navLinks = [
@@ -24,10 +25,8 @@ export function Navbar() {
       <div className="container-wide flex h-16 items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-gradient-primary">
-            <Shield className="size-4 text-primary-foreground" />
-          </div>
-          <span className="text-lg font-bold tracking-tight text-foreground">
+          <LogoIcon className="size-8" />
+          <span className="text-2xl font-bold tracking-tight text-foreground">
             Proof<span className="text-gradient">Wall</span>
           </span>
         </Link>

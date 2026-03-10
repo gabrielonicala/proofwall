@@ -1,4 +1,4 @@
-import { Shield } from "lucide-react";
+import { LogoIcon } from "@/components/logo";
 import Link from "next/link";
 
 const footerLinks = [
@@ -13,9 +13,7 @@ export function Footer() {
       <div className="container-wide">
         <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-gradient-primary">
-              <Shield className="size-3.5 text-primary-foreground" />
-            </div>
+            <LogoIcon className="size-7" />
             <span className="text-sm font-bold text-foreground">
               Proof<span className="text-gradient">Wall</span>
             </span>
