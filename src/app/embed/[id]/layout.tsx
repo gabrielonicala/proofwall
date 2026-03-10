@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -15,31 +15,27 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "ProofWall — Social proof that sells",
-    template: "%s | ProofWall",
-  },
-  description:
-    "Collect stunning social proof. Deploy it strategically. Watch your conversions climb. 8 beautiful showcase styles, smart contextual walls, and paste-to-import.",
-  keywords: [
-    "testimonials",
-    "social proof",
-    "reviews",
-    "conversion",
-    "wall of love",
-    "embed testimonials",
-  ],
+  title: "ProofWall Embed",
+  robots: "noindex, nofollow",
 };
 
-export default function RootLayout({
+export default function EmbedLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `body { margin: 0; padding: 0; background: transparent; overflow-x: hidden; }`,
+          }}
+        />
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
+        style={{ background: "transparent" }}
       >
         {children}
       </body>
