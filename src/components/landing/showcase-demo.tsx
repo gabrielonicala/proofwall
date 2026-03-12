@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { sampleTestimonials } from "@/data/sample-testimonials";
 import { CardsGrid } from "@/components/showcase/cards-grid";
@@ -53,6 +53,36 @@ const componentMap: Record<StyleKey, React.ComponentType<{ testimonials: typeof 
 export function ShowcaseDemo() {
   const [active, setActive] = useState<StyleKey>("cards");
   const Component = componentMap[active];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const hasInitRef = useRef(false);
+
+  // Smooth container height via ResizeObserver + direct DOM updates (no React re-renders)
+  useEffect(() => {
+    const content = contentRef.current;
+    const container = containerRef.current;
+    if (!content || !container) return;
+
+    const ro = new ResizeObserver(() => {
+      const h = content.getBoundingClientRect().height;
+      const style = getComputedStyle(container);
+      const py = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+      const total = Math.max(h + py, 400);
+
+      if (!hasInitRef.current) {
+        container.style.height = `${total}px`;
+        hasInitRef.current = true;
+        requestAnimationFrame(() => {
+          container.style.transition = "height 0.2s ease-out";
+        });
+      } else {
+        container.style.height = `${total}px`;
+      }
+    });
+
+    ro.observe(content);
+    return () => ro.disconnect();
+  }, []);
 
   return (
     <section id="showcase" className="py-16 md:py-20">
@@ -94,26 +124,31 @@ export function ShowcaseDemo() {
         </div>
 
         {/* Preview area */}
-        <div className="min-h-[400px] rounded-2xl border border-border bg-card/30 p-4 sm:p-6 md:p-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={active}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.3 }}
-            >
-              {active === "cards" ? (
-                <CardsGrid testimonials={sampleTestimonials} fillRows />
-              ) : (
-                <Component
-                  testimonials={sampleTestimonials}
-                  autoplay
-                  speed="normal"
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
+        <div
+          ref={containerRef}
+          className="rounded-2xl border border-border bg-card/30 p-4 sm:p-6 md:p-8"
+        >
+          <div ref={contentRef}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={active}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                {active === "cards" ? (
+                  <CardsGrid testimonials={sampleTestimonials} fillRows />
+                ) : (
+                  <Component
+                    testimonials={sampleTestimonials}
+                    autoplay
+                    speed="fast"
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
         </div>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">

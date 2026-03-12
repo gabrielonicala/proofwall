@@ -97,6 +97,7 @@ export const animatedStyles: WallStyle[] = [
   "ticker-tape",
   "fade-rotator",
   "marquee",
+  "spotlight-stack",
   "orbit",
 ];
 

@@ -40,18 +40,20 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop links */}
-        <div className="hidden items-center gap-8 md:flex">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="group relative text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {link.label}
-              <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
-            </a>
-          ))}
+        {/* Desktop links — absolutely centered */}
+        <div className="absolute inset-x-0 hidden justify-center md:flex">
+          <div className="flex items-center gap-8">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="group relative text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+                <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-primary transition-all duration-300 group-hover:w-full" />
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Desktop CTAs */}

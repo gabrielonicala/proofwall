@@ -112,7 +112,7 @@ export function Hero() {
             <Carousel
               testimonials={sampleTestimonials.slice(0, 5)}
               autoplay
-              speed="normal"
+              speed="fast"
             />
           </div>
         </motion.div>

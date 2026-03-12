@@ -43,7 +43,7 @@ export function EmbedShowcase({ style, config, testimonials }: EmbedShowcaseProp
     case "marquee":
       return <VerticalMarquee {...animProps} />;
     case "spotlight-stack":
-      return <SpotlightStack {...props} />;
+      return <SpotlightStack {...animProps} />;
     case "orbit":
       return <Orbit {...animProps} />;
     default:

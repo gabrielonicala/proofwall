@@ -8,6 +8,9 @@ import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDa
 
 interface Props {
   testimonials: Testimonial[];
+  autoplay?: boolean;
+  speed?: "slow" | "normal" | "fast";
+  pauseOnHover?: boolean;
   config?: ShowcaseConfig;
 }
 
@@ -53,7 +56,7 @@ function SpotlightCardContent({ t, config }: { t: Testimonial; config?: Showcase
   );
 }
 
-export function SpotlightStack({ testimonials, config }: Props) {
+export function SpotlightStack({ testimonials, autoplay = false, speed = "normal", pauseOnHover = true, config }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [cardHeight, setCardHeight] = useState<number | undefined>(undefined);
@@ -145,8 +148,24 @@ export function SpotlightStack({ testimonials, config }: Props) {
     resetToCenter();
   }, [activeIndex, resetToCenter]);
 
+  // Autoplay
+  const [hovered, setHovered] = useState(false);
+  const autoplayInterval = speed === "slow" ? 7000 : speed === "fast" ? 3000 : 5000;
+
+  useEffect(() => {
+    if (!autoplay) return;
+    if (pauseOnHover && hovered) return;
+    const id = setInterval(() => go(1), autoplayInterval);
+    return () => clearInterval(id);
+  }, [autoplay, autoplayInterval, pauseOnHover, hovered, go]);
+
   return (
-    <div className={`mx-auto max-w-3xl ${getFontClass(config)}`} style={{ perspective: "1200px" }}>
+    <div
+      className={`mx-auto max-w-3xl ${getFontClass(config)}`}
+      style={{ perspective: "1200px" }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       {/* Hidden measurement container */}
       <div ref={measureRef} aria-hidden className="pointer-events-none absolute left-0 right-0 -z-10 opacity-0">
         {testimonials.map((item) => (

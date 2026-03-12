@@ -94,7 +94,7 @@ export function Carousel({ testimonials, autoplay = true, speed = "normal", paus
   const card = getCardClasses(config);
 
   return (
-    <div className={`relative mx-auto w-full max-w-2xl ${getFontClass(config)}`}>
+    <div className={`relative mx-auto flex min-h-[340px] w-full max-w-2xl flex-col justify-center ${getFontClass(config)}`}>
       {/* Hidden measurement container */}
       <div ref={measureRef} aria-hidden className="pointer-events-none absolute left-0 right-0 -z-10 opacity-0">
         {testimonials.map((item) => (
@@ -125,6 +125,15 @@ export function Carousel({ testimonials, autoplay = true, speed = "normal", paus
         </AnimatePresence>
       </div>
 
+      {/* Position progress bar */}
+      <div className="mt-3 h-0.5 w-full overflow-hidden rounded-full bg-muted-foreground/10">
+        <motion.div
+          className="h-full rounded-full bg-primary/50"
+          animate={{ width: `${((current + 1) / testimonials.length) * 100}%` }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        />
+      </div>
+
       {/* Nav arrows */}
       <button
         onClick={prev}
@@ -141,22 +150,6 @@ export function Carousel({ testimonials, autoplay = true, speed = "normal", paus
         <ChevronRight className="size-4 text-foreground" />
       </button>
 
-      {/* Dot indicators */}
-      <div className="mt-4 flex justify-center gap-2">
-        {testimonials.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => {
-              setDirection(i > current ? 1 : -1);
-              setCurrent(i);
-            }}
-            className={`h-2 rounded-full transition-all duration-200 ${
-              i === current ? "w-6 bg-primary" : "w-2 bg-muted-foreground/30"
-            }`}
-            aria-label={`Go to testimonial ${i + 1}`}
-          />
-        ))}
-      </div>
       {shouldShow("showBranding", config) && (
         <div className="pt-3 text-center text-[10px] text-muted-foreground/50">
           Powered by ProofWall

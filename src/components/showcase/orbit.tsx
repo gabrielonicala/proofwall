@@ -2,7 +2,7 @@
 
 import { type Testimonial } from "@/data/sample-testimonials";
 import { Star } from "lucide-react";
-import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useRef, useEffect, useCallback, useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
 import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
@@ -78,10 +78,9 @@ export function Orbit({
   const count = testimonials.length;
   const card = getCardClasses(config);
   const swiperRef = useRef<SwiperType | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [cardHeight, setCardHeight] = useState<number | undefined>(undefined);
+  const cardHeightRef = useRef<number>(0);
   const measureRef = useRef<HTMLDivElement>(null);
-  const activeIndexRef = useRef(0);
+  const maskRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const radiusRef = useRef(420);
   const directionRef = useRef(1);
@@ -125,7 +124,21 @@ export function Orbit({
       for (let i = 0; i < el.children.length; i++) {
         max = Math.max(max, (el.children[i] as HTMLElement).offsetHeight);
       }
-      if (max > 0) setCardHeight(max);
+      if (max > 0 && max !== cardHeightRef.current) {
+        cardHeightRef.current = max;
+        // Update mask container height
+        if (maskRef.current) {
+          maskRef.current.style.height = `${max + 48}px`;
+        }
+        // Update all card heights directly
+        const swiper = swiperRef.current;
+        if (swiper) {
+          for (let i = 0; i < swiper.slides.length; i++) {
+            const cardEl = swiper.slides[i]?.firstElementChild as HTMLElement | null;
+            if (cardEl) cardEl.style.height = `${max}px`;
+          }
+        }
+      }
     };
     measure();
     const ro = new ResizeObserver(measure);
@@ -174,12 +187,6 @@ export function Orbit({
       slide.style.visibility = depthNorm < 0.08 ? "hidden" : "visible";
     }
 
-    // Map active index back to original testimonial index
-    const realIdx = swiper.activeIndex % count;
-    if (realIdx !== activeIndexRef.current) {
-      activeIndexRef.current = realIdx;
-      setActiveIndex(realIdx);
-    }
   }, [count, ANGLE_STEP]);
 
   // Setup: enable native 3D depth sorting on the wrapper
@@ -235,6 +242,7 @@ export function Orbit({
       directionRef.current = velocity >= 0 ? 1 : -1;
 
       if (velocity > 0) {
+        if (swiper.destroyed) { return; }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const s = swiper as any;
         const newTranslate = s.getTranslate() + velocity * delta;
@@ -276,7 +284,7 @@ export function Orbit({
   }, [autoplay, speed, pauseOnHover, applyTransforms, count, middleStart]);
 
   return (
-    <div ref={containerRef} className={`relative mx-auto w-full ${getFontClass(config)}`}>
+    <div ref={containerRef} className={`relative mx-auto flex min-h-[340px] w-full flex-col justify-center ${getFontClass(config)}`}>
       {/* Hidden measurement container */}
       <div
         ref={measureRef}
@@ -296,10 +304,11 @@ export function Orbit({
 
       {/* Mask container for edge fading */}
       <div
+        ref={maskRef}
         style={{
           maskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
           WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%)",
-          height: cardHeight ? cardHeight + 48 : 380,
+          height: 380,
           display: "flex",
           alignItems: "center",
         }}
@@ -324,7 +333,7 @@ export function Orbit({
             <SwiperSlide key={key} style={{ width: "340px", maxWidth: "85vw" }}>
               <div
                 className={`flex flex-col ${card} p-5 sm:p-6`}
-                style={{ height: cardHeight || "auto" }}
+                style={{ height: "auto" }}
               >
                 <CardContent t={t} config={config} />
               </div>
@@ -333,26 +342,6 @@ export function Orbit({
         </Swiper>
       </div>
 
-      {/* Dot indicators */}
-      <div className="mt-4 flex justify-center gap-2">
-        {testimonials.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => {
-              const swiper = swiperRef.current;
-              if (!swiper) return;
-              // Find the closest instance of this testimonial index near current position
-              const currentIdx = swiper.activeIndex;
-              const currentCycle = Math.round(currentIdx / count);
-              swiper.slideTo(currentCycle * count + i, 400);
-            }}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              i === activeIndex ? "w-6 bg-primary" : "w-2 bg-muted-foreground/30"
-            }`}
-            aria-label={`Go to testimonial ${i + 1}`}
-          />
-        ))}
-      </div>
       {shouldShow("showBranding", config) && (
         <div className="pt-3 text-center text-[10px] text-muted-foreground/50">
           Powered by ProofWall
