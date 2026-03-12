@@ -26,6 +26,7 @@ import { MinimalList } from "@/components/showcase/minimal-list";
 import { MasonryGrid } from "@/components/showcase/masonry-grid";
 import { VerticalMarquee } from "@/components/showcase/vertical-marquee";
 import { SpotlightStack } from "@/components/showcase/spotlight-stack";
+import { Orbit } from "@/components/showcase/orbit";
 import {
   ArrowLeft,
   Save,
@@ -176,7 +177,7 @@ export default function WallEditorPage() {
 
     const payload = {
       name: name.trim(),
-      style,
+      style: style as string,
       config: JSON.parse(JSON.stringify(config)),
       tag_filter: tagFilter.length > 0 ? tagFilter : null,
       max_testimonials: maxTestimonials,
@@ -185,13 +186,15 @@ export default function WallEditorPage() {
     };
 
     if (isNew) {
-      const { data } = await supabase.from("walls").insert(payload).select("id").single();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- style may include values not yet in DB enum
+      const { data } = await supabase.from("walls").insert(payload as any).select("id").single();
       setSaving(false);
       if (data) {
         router.replace(`/dashboard/walls/${data.id}`);
       }
     } else {
-      await supabase.from("walls").update(payload).eq("id", params.id);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await supabase.from("walls").update(payload as any).eq("id", params.id);
       setSaving(false);
     }
   }
@@ -236,6 +239,8 @@ export default function WallEditorPage() {
         return <VerticalMarquee {...animProps} />;
       case "spotlight-stack":
         return <SpotlightStack {...props} />;
+      case "orbit":
+        return <Orbit {...animProps} />;
       default:
         return null;
     }

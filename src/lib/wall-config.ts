@@ -6,7 +6,8 @@ export type WallStyle =
   | "minimal-list"
   | "masonry"
   | "marquee"
-  | "spotlight-stack";
+  | "spotlight-stack"
+  | "orbit";
 
 export interface WallConfig {
   theme: "dark" | "light" | "auto";
@@ -63,6 +64,7 @@ export const styleLabels: Record<WallStyle, string> = {
   masonry: "Masonry",
   marquee: "Marquee",
   "spotlight-stack": "Spotlight Stack",
+  orbit: "Orbit",
 };
 
 export const styleDescriptions: Record<WallStyle, string> = {
@@ -74,6 +76,7 @@ export const styleDescriptions: Record<WallStyle, string> = {
   masonry: "Pinterest-style staggered grid",
   marquee: "Vertical continuous scroll",
   "spotlight-stack": "Large featured card with stack",
+  orbit: "3D orbital carousel with depth",
 };
 
 export const allStyles: WallStyle[] = [
@@ -85,6 +88,7 @@ export const allStyles: WallStyle[] = [
   "masonry",
   "marquee",
   "spotlight-stack",
+  "orbit",
 ];
 
 /** Styles that support speed/autoplay controls */
@@ -93,6 +97,7 @@ export const animatedStyles: WallStyle[] = [
   "ticker-tape",
   "fade-rotator",
   "marquee",
+  "orbit",
 ];
 
 /** Styles that render cards (support card style & border radius) */
@@ -103,6 +108,7 @@ export const cardBasedStyles: WallStyle[] = [
   "masonry",
   "marquee",
   "spotlight-stack",
+  "orbit",
 ];
 
 /** Styles that render star ratings */
@@ -114,6 +120,7 @@ export const ratingStyles: WallStyle[] = [
   "masonry",
   "marquee",
   "spotlight-stack",
+  "orbit",
 ];
 
 /** Styles that render author photos */
@@ -125,4 +132,5 @@ export const photoStyles: WallStyle[] = [
   "masonry",
   "marquee",
   "spotlight-stack",
+  "orbit",
 ];

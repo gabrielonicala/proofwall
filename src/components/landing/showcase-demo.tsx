@@ -11,6 +11,7 @@ import { MinimalList } from "@/components/showcase/minimal-list";
 import { MasonryGrid } from "@/components/showcase/masonry-grid";
 import { VerticalMarquee } from "@/components/showcase/vertical-marquee";
 import { SpotlightStack } from "@/components/showcase/spotlight-stack";
+import { Orbit } from "@/components/showcase/orbit";
 import {
   Grid3X3,
   GalleryHorizontal,
@@ -20,6 +21,7 @@ import {
   Columns3,
   MoveVertical,
   Layers,
+  Globe,
 } from "lucide-react";
 
 const styles = [
@@ -31,6 +33,7 @@ const styles = [
   { key: "masonry", label: "Masonry", icon: Columns3 },
   { key: "marquee", label: "Marquee", icon: MoveVertical },
   { key: "spotlight", label: "Spotlight", icon: Layers },
+  { key: "orbit", label: "Orbit", icon: Globe },
 ] as const;
 
 type StyleKey = (typeof styles)[number]["key"];
@@ -44,6 +47,7 @@ const componentMap: Record<StyleKey, React.ComponentType<{ testimonials: typeof 
   masonry: MasonryGrid,
   marquee: VerticalMarquee,
   spotlight: SpotlightStack,
+  orbit: Orbit,
 };
 
 export function ShowcaseDemo() {
@@ -64,7 +68,7 @@ export function ShowcaseDemo() {
             className="font-display mb-4 tracking-tight"
             style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)" }}
           >
-            <span className="text-gradient">8 ways</span> to show off
+            <span className="text-gradient">9 ways</span> to show off
           </h2>
           <p className="text-base text-muted-foreground sm:text-lg">
             Every style animates. Every style is free. Click to preview.

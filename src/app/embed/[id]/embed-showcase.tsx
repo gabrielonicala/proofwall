@@ -10,6 +10,7 @@ import { MinimalList } from "@/components/showcase/minimal-list";
 import { MasonryGrid } from "@/components/showcase/masonry-grid";
 import { VerticalMarquee } from "@/components/showcase/vertical-marquee";
 import { SpotlightStack } from "@/components/showcase/spotlight-stack";
+import { Orbit } from "@/components/showcase/orbit";
 
 interface EmbedShowcaseProps {
   style: WallStyle;
@@ -43,6 +44,8 @@ export function EmbedShowcase({ style, config, testimonials }: EmbedShowcaseProp
       return <VerticalMarquee {...animProps} />;
     case "spotlight-stack":
       return <SpotlightStack {...props} />;
+    case "orbit":
+      return <Orbit {...animProps} />;
     default:
       return null;
   }
