@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
+import { importTestimonials } from "../actions";
 import {
   Upload,
   FileText,
@@ -353,31 +353,27 @@ export default function ImportPage() {
     setImporting(true);
     setResult(null);
 
-    const supabase = createClient();
-
     const rows = pending.map((p) => ({
-      project_id: project.id,
       author_name: p.author_name || "Anonymous",
-      author_title: p.author_title || null,
-      author_company: p.author_company || null,
+      author_title: p.author_title || "",
+      author_company: p.author_company || "",
       text: p.text,
       rating: p.rating,
       source: p.source,
-      source_url: p.source_url || null,
-      status: "pending" as const,
+      source_url: p.source_url || "",
     }));
 
-    const { error } = await supabase.from("testimonials").insert(rows);
+    const response = await importTestimonials(project.id, rows);
 
-    if (error) {
+    if (response.error) {
       setResult({
         type: "error",
-        message: `Import failed: ${error.message}`,
+        message: response.error,
       });
     } else {
       setResult({
         type: "success",
-        message: `Successfully imported ${rows.length} testimonial${rows.length === 1 ? "" : "s"}!`,
+        message: `Successfully imported ${response.count} testimonial${response.count === 1 ? "" : "s"}!`,
       });
       setPending([]);
       setCsvText("");

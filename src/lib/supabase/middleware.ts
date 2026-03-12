@@ -45,5 +45,34 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Security headers
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+
+  supabaseResponse.headers.set(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline' 'unsafe-eval'`,
+      `style-src 'self' 'unsafe-inline'`,
+      `img-src 'self' data: blob: https://api.dicebear.com ${supabaseUrl} https:`,
+      `font-src 'self'`,
+      `connect-src 'self' ${supabaseUrl} https://*.supabase.co`,
+      `frame-src 'self'`,
+      `frame-ancestors 'self' *`, // Allow embedding in iframes for the embed feature
+      `object-src 'none'`,
+      `base-uri 'self'`,
+      `form-action 'self'`,
+    ].join("; ")
+  );
+
+  supabaseResponse.headers.set("X-Content-Type-Options", "nosniff");
+  supabaseResponse.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  supabaseResponse.headers.set("X-Frame-Options", "SAMEORIGIN");
+
+  // Remove X-Frame-Options for embed routes (they need to be iframed)
+  if (request.nextUrl.pathname.startsWith("/embed/")) {
+    supabaseResponse.headers.delete("X-Frame-Options");
+  }
+
   return supabaseResponse;
 }

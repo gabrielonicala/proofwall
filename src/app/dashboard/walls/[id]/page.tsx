@@ -151,7 +151,11 @@ export default function WallEditorPage() {
     if (config.sort === "highest") {
       filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
     } else if (config.sort === "random") {
-      filtered.sort(() => Math.random() - 0.5);
+      // Fisher-Yates shuffle for uniform distribution
+      for (let i = filtered.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+      }
     }
     // "newest" is default from DB order
 

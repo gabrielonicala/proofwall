@@ -85,8 +85,16 @@ export function PublicForm({
       }
 
       if (redirectUrl) {
-        window.location.href = redirectUrl;
-        return;
+        // Validate redirect URL to prevent open redirect attacks
+        try {
+          const parsed = new URL(redirectUrl);
+          if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+            window.location.href = redirectUrl;
+            return;
+          }
+        } catch {
+          // Invalid URL — fall through to thank-you page
+        }
       }
 
       setSubmitted(true);
@@ -198,6 +206,7 @@ export function PublicForm({
                   onChange={(e) => setValue(field.id, e.target.value)}
                   placeholder={field.placeholder}
                   rows={4}
+                  maxLength={5000}
                   className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-transparent focus:ring-2"
                   style={{ "--tw-ring-color": accentColor } as React.CSSProperties}
                 />
@@ -207,6 +216,7 @@ export function PublicForm({
                   value={values[field.id] ?? ""}
                   onChange={(e) => setValue(field.id, e.target.value)}
                   placeholder={field.placeholder}
+                  maxLength={200}
                   className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-transparent focus:ring-2"
                   style={{ "--tw-ring-color": accentColor } as React.CSSProperties}
                 />

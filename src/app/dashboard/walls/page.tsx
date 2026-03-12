@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
 import { useRouter } from "next/navigation";
+import { toggleWallActive, deleteWall } from "../actions";
 import {
   Plus,
   Layers,
@@ -78,17 +79,18 @@ export default function WallsPage() {
   }, [fetchWalls]);
 
   async function handleToggleActive(id: string, current: boolean) {
-    const supabase = createClient();
-    await supabase.from("walls").update({ is_active: !current }).eq("id", id);
+    if (!project) return;
+    const result = await toggleWallActive(project.id, id, !current);
+    if (result.error) return;
     setWalls((prev) =>
       prev.map((w) => (w.id === id ? { ...w, is_active: !current } : w))
     );
   }
 
   async function handleDelete(id: string) {
-    const supabase = createClient();
-    await supabase.from("wall_views").delete().eq("wall_id", id);
-    await supabase.from("walls").delete().eq("id", id);
+    if (!project) return;
+    const result = await deleteWall(project.id, id);
+    if (result.error) return;
     setWalls((prev) => prev.filter((w) => w.id !== id));
   }
 

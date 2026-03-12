@@ -18,6 +18,7 @@ import {
   UserMinus,
 } from "lucide-react";
 import { inviteMemberByEmail, deleteProject } from "./actions";
+import { updateProjectSettings, removeMember } from "../actions";
 
 type ProjectRole = "owner" | "admin" | "member";
 
@@ -179,17 +180,13 @@ export default function SettingsPage() {
     setSavingProject(true);
     setProjectSaveMessage("");
 
-    const supabase = createClient();
-    const { error } = await supabase
-      .from("projects")
-      .update({
-        name: projectName.trim(),
-        website_url: websiteUrl.trim() || null,
-      })
-      .eq("id", project.id);
+    const result = await updateProjectSettings(project.id, {
+      name: projectName.trim(),
+      websiteUrl: websiteUrl.trim(),
+    });
 
-    if (error) {
-      setProjectSaveMessage("Failed to save. Please try again.");
+    if (result.error) {
+      setProjectSaveMessage(result.error);
     } else {
       setProjectSaveMessage("Settings saved successfully.");
       refetch();
@@ -233,8 +230,11 @@ export default function SettingsPage() {
     if (!project) return;
     setRemovingId(memberId);
 
-    const supabase = createClient();
-    await supabase.from("project_members").delete().eq("id", memberId);
+    const result = await removeMember(project.id, memberId);
+    if (result.error) {
+      setRemovingId(null);
+      return;
+    }
 
     await fetchMembers();
     setRemovingId(null);
@@ -316,6 +316,7 @@ export default function SettingsPage() {
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               placeholder="My Project"
+              maxLength={100}
               className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
             />
           </div>
@@ -333,6 +334,7 @@ export default function SettingsPage() {
               value={websiteUrl}
               onChange={(e) => setWebsiteUrl(e.target.value)}
               placeholder="https://example.com"
+              maxLength={2000}
               className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
             />
           </div>

@@ -10,11 +10,19 @@ function isDomainAllowed(allowedDomains: string[], referer: string | null): bool
   if (allowedDomains.length === 0) return true; // no restrictions
   if (!referer) return true; // direct access / no referer is OK (preview, dev)
   try {
-    const hostname = new URL(referer).hostname;
+    const hostname = new URL(referer).hostname.toLowerCase();
     return allowedDomains.some((domain) => {
       const d = domain.toLowerCase().trim();
-      // Exact match or subdomain match (e.g. "example.com" allows "www.example.com")
-      return hostname === d || hostname.endsWith(`.${d}`);
+      if (!d) return false;
+      // Validate the allowed domain is a proper domain (not empty, no protocol)
+      // Must not contain path separators or protocol markers
+      if (d.includes("/") || d.includes(":")) return false;
+      // Exact match
+      if (hostname === d) return true;
+      // Subdomain match — ensure the dot is at a boundary
+      // e.g. "example.com" allows "www.example.com" but NOT "fakeexample.com"
+      if (hostname.endsWith(`.${d}`)) return true;
+      return false;
     });
   } catch {
     return false;
@@ -133,7 +141,11 @@ export default async function EmbedPage({ params }: Props) {
   if (config.sort === "highest") {
     filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
   } else if (config.sort === "random") {
-    filtered.sort(() => Math.random() - 0.5);
+    // Fisher-Yates shuffle for uniform distribution
+    for (let i = filtered.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+    }
   }
   // "newest" is default from DB order
 

@@ -25,7 +25,7 @@ export function toShowcaseTestimonial(t: DbTestimonial): Testimonial {
     authorPhoto: t.author_photo ?? "",
     text: t.text,
     rating: t.rating ?? 5,
-    tags: t.tags.map((tag) => tag.name),
+    tags: (t.tags ?? []).map((tag) => tag.name),
     createdAt: t.created_at,
   };
 }

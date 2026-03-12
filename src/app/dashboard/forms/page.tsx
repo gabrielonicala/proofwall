@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
 import { useRouter } from "next/navigation";
+import { toggleFormActive, deleteForm } from "../actions";
 import {
   Plus,
   FileText,
@@ -55,16 +56,18 @@ export default function FormsPage() {
   }, [fetchForms]);
 
   async function handleToggleActive(id: string, current: boolean) {
-    const supabase = createClient();
-    await supabase.from("collection_forms").update({ is_active: !current }).eq("id", id);
+    if (!project) return;
+    const result = await toggleFormActive(project.id, id, !current);
+    if (result.error) return;
     setForms((prev) =>
       prev.map((f) => (f.id === id ? { ...f, is_active: !current } : f))
     );
   }
 
   async function handleDelete(id: string) {
-    const supabase = createClient();
-    await supabase.from("collection_forms").delete().eq("id", id);
+    if (!project) return;
+    const result = await deleteForm(project.id, id);
+    if (result.error) return;
     setForms((prev) => prev.filter((f) => f.id !== id));
   }
 

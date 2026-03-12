@@ -6,6 +6,11 @@ import { useProject } from "@/hooks/use-project";
 import { AddTestimonialDialog } from "@/components/dashboard/add-testimonial-dialog";
 import { TestimonialCard } from "@/components/dashboard/testimonial-card";
 import {
+  updateTestimonialStatus,
+  deleteTestimonial,
+  toggleTestimonialTag,
+} from "../actions";
+import {
   Search,
   Plus,
   Grid3X3,
@@ -91,38 +96,34 @@ export default function TestimonialsPage() {
   }, [fetchData]);
 
   async function handleStatusChange(id: string, status: Testimonial["status"]) {
-    const supabase = createClient();
-    await supabase.from("testimonials").update({ status }).eq("id", id);
+    if (!project) return;
+    const result = await updateTestimonialStatus(project.id, id, status);
+    if (result.error) return;
     setTestimonials((prev) =>
       prev.map((t) => (t.id === id ? { ...t, status } : t))
     );
   }
 
   async function handleDelete(id: string) {
-    const supabase = createClient();
-    await supabase.from("testimonial_tags").delete().eq("testimonial_id", id);
-    await supabase.from("testimonials").delete().eq("id", id);
+    if (!project) return;
+    const result = await deleteTestimonial(project.id, id);
+    if (result.error) return;
     setTestimonials((prev) => prev.filter((t) => t.id !== id));
   }
 
   async function handleTagToggle(testimonialId: string, tagId: string) {
-    const supabase = createClient();
+    if (!project) return;
     const testimonial = testimonials.find((t) => t.id === testimonialId);
     if (!testimonial) return;
 
     const hasTag = testimonial.tags.some((t) => t.id === tagId);
-
-    if (hasTag) {
-      await supabase
-        .from("testimonial_tags")
-        .delete()
-        .eq("testimonial_id", testimonialId)
-        .eq("tag_id", tagId);
-    } else {
-      await supabase
-        .from("testimonial_tags")
-        .insert({ testimonial_id: testimonialId, tag_id: tagId });
-    }
+    const result = await toggleTestimonialTag(
+      project.id,
+      testimonialId,
+      tagId,
+      hasTag ? "remove" : "add"
+    );
+    if (result.error) return;
 
     // Update local state
     const tag = tags.find((t) => t.id === tagId);
