@@ -62,15 +62,15 @@ export function SmartWalls() {
     <section className="py-16 md:py-20">
       <div className="container-wide">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.96 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
           className="mb-12 text-center sm:mb-16"
         >
           <h2
-            className="mb-4 font-bold tracking-tight"
-            style={{ fontSize: "clamp(1.5rem, 4vw, 2.25rem)" }}
+            className="font-display mb-4 tracking-tight"
+            style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)" }}
           >
             The right proof, on the{" "}
             <span className="text-gradient">right page</span>
@@ -91,10 +91,10 @@ export function SmartWalls() {
           {pages.map((page, pi) => (
             <motion.div
               key={page.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: pi * 0.1 }}
+              transition={{ duration: 0.5, delay: pi * 0.12 }}
               className="overflow-hidden rounded-xl border border-border bg-card/50 hover-lift"
             >
               {/* Browser bar */}

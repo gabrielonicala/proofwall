@@ -77,7 +77,7 @@ export function FadeRotator({ testimonials, speed = "normal", autoplay = true, p
     if (pauseOnHover && hovered) return;
     const id = setInterval(next, interval);
     return () => clearInterval(id);
-  }, [autoplay, interval, next, pauseOnHover, hovered]);
+  }, [autoplay, interval, next, pauseOnHover, hovered, current]);
 
   const t = testimonials[current];
 

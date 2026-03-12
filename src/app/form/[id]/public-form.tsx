@@ -68,7 +68,6 @@ export function PublicForm({
     setSubmitting(true);
 
     try {
-      // TODO: Photo upload support — requires storage bucket setup
       const result = await submitTestimonial({
         formId,
         projectId,
@@ -108,16 +107,16 @@ export function PublicForm({
   // Thank-you state
   if (submitted) {
     return (
-      <div className="flex min-h-svh items-center justify-center bg-gray-50 px-4">
-        <div className="w-full max-w-lg rounded-2xl bg-white p-8 text-center shadow-lg">
+      <div className="light flex min-h-svh items-center justify-center bg-background px-4">
+        <div className="w-full max-w-lg rounded-2xl bg-card p-8 text-center shadow-lg">
           <CheckCircle2
             className="mx-auto mb-4 size-14"
             style={{ color: accentColor }}
           />
-          <h2 className="mb-2 text-xl font-semibold text-gray-900">
+          <h2 className="mb-2 text-xl font-semibold text-foreground">
             {thankYouMessage || "Thank you!"}
           </h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             Your testimonial has been submitted and is pending review.
           </p>
         </div>
@@ -126,10 +125,10 @@ export function PublicForm({
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="light flex min-h-svh items-center justify-center bg-background px-4 py-12">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-lg sm:p-8"
+        className="w-full max-w-lg rounded-2xl bg-card p-6 shadow-lg sm:p-8"
       >
         {/* Logo */}
         {logoUrl && (
@@ -145,7 +144,7 @@ export function PublicForm({
 
         {/* Welcome */}
         {welcomeMessage && (
-          <h1 className="mb-6 text-center text-xl font-semibold text-gray-900">
+          <h1 className="mb-6 text-center text-xl font-semibold text-foreground">
             {welcomeMessage}
           </h1>
         )}
@@ -154,7 +153,7 @@ export function PublicForm({
         <div className="space-y-4">
           {enabledFields.map((field) => (
             <div key={field.id}>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">
+              <label className="mb-1.5 block text-sm font-medium text-foreground">
                 {field.label}
                 {field.required && (
                   <span className="ml-0.5" style={{ color: accentColor }}> *</span>
@@ -173,7 +172,7 @@ export function PublicForm({
                       <Star
                         className="size-8"
                         style={{
-                          color: i < rating ? accentColor : "#D1D5DB",
+                          color: i < rating ? accentColor : "var(--muted)",
                           fill: i < rating ? accentColor : "none",
                         }}
                         strokeWidth={i < rating ? 0 : 1.5}
@@ -183,14 +182,14 @@ export function PublicForm({
                 </div>
               ) : field.type === "photo" ? (
                 <label className="group flex cursor-pointer items-center gap-3">
-                  <div className="relative flex size-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-gray-300 bg-gray-50 transition-colors group-hover:border-gray-400">
+                  <div className="relative flex size-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-input bg-muted/30 transition-colors group-hover:border-muted-foreground">
                     {photoPreview ? (
                       <img src={photoPreview} alt="Preview" className="size-full object-cover" />
                     ) : (
-                      <Upload className="size-5 text-gray-400" />
+                      <Upload className="size-5 text-muted-foreground" />
                     )}
                   </div>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-muted-foreground">
                     {photoPreview ? "Change photo" : "Upload a photo"}
                   </span>
                   <input
@@ -207,7 +206,7 @@ export function PublicForm({
                   placeholder={field.placeholder}
                   rows={4}
                   maxLength={5000}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-transparent focus:ring-2"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-transparent focus:ring-2"
                   style={{ "--tw-ring-color": accentColor } as React.CSSProperties}
                 />
               ) : (
@@ -217,7 +216,7 @@ export function PublicForm({
                   onChange={(e) => setValue(field.id, e.target.value)}
                   placeholder={field.placeholder}
                   maxLength={200}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-transparent focus:ring-2"
+                  className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-transparent focus:ring-2"
                   style={{ "--tw-ring-color": accentColor } as React.CSSProperties}
                 />
               )}
@@ -227,7 +226,7 @@ export function PublicForm({
 
         {/* Error */}
         {error && (
-          <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          <p className="mt-4 rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}

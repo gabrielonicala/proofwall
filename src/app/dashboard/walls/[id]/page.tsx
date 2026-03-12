@@ -36,6 +36,7 @@ import {
   Eye,
   Copy,
   Check,
+  Info,
 } from "lucide-react";
 
 type Tag = { id: string; name: string; color: string };
@@ -488,6 +489,19 @@ export default function WallEditorPage() {
                   checked={config.showBranding}
                   onChange={(v) => updateConfig("showBranding", v)}
                 />
+                {style === "cards-grid" && (
+                  <div>
+                    <Toggle
+                      label="Fill rows evenly"
+                      checked={config.fillRows}
+                      onChange={(v) => updateConfig("fillRows", v)}
+                    />
+                    <p className="mt-1 flex items-start gap-1 text-[10px] leading-relaxed text-muted-foreground">
+                      <Info className="mt-0.5 size-3 flex-shrink-0" />
+                      When enabled, testimonials that don&apos;t complete a full row are hidden so every row has the same number of cards. The count adjusts automatically based on screen width.
+                    </p>
+                  </div>
+                )}
               </div>
             </Section>
 

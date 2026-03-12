@@ -8,27 +8,38 @@ import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden pt-28 sm:pt-32">
-      {/* Gradient mesh background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-8rem] top-1/4 size-96 rounded-full bg-primary/10 blur-[120px] animate-gradient-mesh" />
+    <section className="relative flex min-h-[100svh] flex-col items-center justify-center overflow-hidden pt-28 pb-4 sm:pt-32 sm:pb-6">
+      {/* Gradient mesh background – masked to fade out at bottom */}
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{
+          maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
+        }}
+      >
         <div
-          className="absolute right-0 top-1/3 size-80 rounded-full bg-secondary/10 blur-[100px] animate-gradient-mesh"
-          style={{ animationDelay: "-5s" }}
+          className="absolute left-[-8rem] top-1/4 size-96 rounded-full bg-primary/15 blur-[120px] animate-gradient-mesh"
+          style={{ animation: "gradient-mesh 22s ease-in-out infinite, mesh-breathe 8s ease-in-out infinite" }}
         />
         <div
-          className="absolute bottom-1/4 left-1/3 size-72 rounded-full bg-primary/5 blur-[80px] animate-gradient-mesh"
-          style={{ animationDelay: "-10s" }}
+          className="absolute right-0 top-1/3 size-80 rounded-full bg-secondary/15 blur-[100px] animate-gradient-mesh"
+          style={{ animation: "gradient-mesh 18s ease-in-out infinite reverse, mesh-breathe 6s ease-in-out infinite -3s" }}
+        />
+        <div
+          className="absolute bottom-1/4 left-1/3 size-72 rounded-full bg-primary/10 blur-[80px] animate-gradient-mesh"
+          style={{ animation: "gradient-mesh 25s ease-in-out infinite -8s, mesh-breathe 10s ease-in-out infinite -5s" }}
         />
         {/* Dot pattern */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.06]"
           style={{
             backgroundImage:
               "radial-gradient(circle, currentColor 1px, transparent 1px)",
             backgroundSize: "32px 32px",
           }}
         />
+        {/* Grain overlay – inside masked container so it fades with everything else */}
+        <div className="grain absolute inset-0 pointer-events-none" />
       </div>
 
       <div className="container-wide relative z-10 text-center">
@@ -44,8 +55,8 @@ export function Hero() {
           </div>
 
           <h1
-            className="mx-auto max-w-4xl font-extrabold leading-[0.9] tracking-tight"
-            style={{ fontSize: "clamp(2.5rem, 7vw, 6rem)" }}
+            className="font-display mx-auto max-w-4xl leading-[0.95] tracking-tight"
+            style={{ fontSize: "clamp(2.75rem, 7.5vw, 6.5rem)" }}
           >
             Testimonials
             <br />

@@ -15,7 +15,9 @@ export default function Home() {
       <main>
         <Hero />
         <ProblemSolution />
+        <div className="section-divider mx-auto max-w-xl" />
         <HowItWorks />
+        <div className="section-divider mx-auto max-w-xl" />
         <ShowcaseDemo />
         <SmartWalls />
         <Pricing />

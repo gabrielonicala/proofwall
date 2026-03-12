@@ -67,7 +67,7 @@ export function Sidebar() {
               >
                 <Link href="/" className="flex items-center gap-2">
                   <LogoIcon className="size-7" />
-                  <span className="text-2xl font-bold">
+                  <span className="font-display text-[1.85rem] leading-none">
                     Proof<span className="text-gradient">Wall</span>
                   </span>
                 </Link>

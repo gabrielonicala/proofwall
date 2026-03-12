@@ -88,7 +88,7 @@ export function Carousel({ testimonials, autoplay = true, speed = "normal", paus
     if (pauseOnHover && hovered) return;
     const id = setInterval(next, interval);
     return () => clearInterval(id);
-  }, [autoplay, interval, next, pauseOnHover, hovered]);
+  }, [autoplay, interval, next, pauseOnHover, hovered, current]);
 
   const t = testimonials[current];
   const card = getCardClasses(config);

@@ -43,6 +43,7 @@
 
   --font-sans: var(--font-inter);
   --font-mono: var(--font-jetbrains-mono);
+  --font-display: var(--font-display);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -75,9 +76,15 @@
 
   @keyframes gradient-mesh {
     0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(30px, -50px) scale(1.1); }
-    50% { transform: translate(-20px, 20px) scale(0.95); }
-    75% { transform: translate(50px, 30px) scale(1.05); }
+    20% { transform: translate(60px, -80px) scale(1.15); }
+    40% { transform: translate(-40px, 40px) scale(0.9); }
+    60% { transform: translate(80px, 20px) scale(1.1); }
+    80% { transform: translate(-30px, -60px) scale(0.95); }
+  }
+
+  @keyframes mesh-breathe {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
   }
 
   @keyframes float {
@@ -296,6 +303,37 @@
 }
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* Display font for headings */
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  font-style: normal;
+}
+
+/* Grain texture overlay */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Section divider (subtle gradient line) */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    oklch(0.457 0.24 277 / 0.2),
+    oklch(0.457 0.257 293 / 0.2),
+    transparent
+  );
 }
 
 /* Container utility */

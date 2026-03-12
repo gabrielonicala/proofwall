@@ -13,16 +13,22 @@ export function FinalCTA() {
         <div className="absolute bottom-0 right-1/4 size-80 rounded-full bg-secondary/10 blur-[100px]" />
       </div>
 
+      {/* Grain overlay */}
+      <div className="grain absolute inset-0 pointer-events-none" />
+
+      {/* Section divider at top */}
+      <div className="section-divider absolute inset-x-0 top-0" />
+
       <div className="container-wide relative z-10 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.96 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
           <h2
-            className="mb-6 font-extrabold tracking-tight"
-            style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}
+            className="font-display mb-6 tracking-tight"
+            style={{ fontSize: "clamp(1.75rem, 5vw, 3.25rem)" }}
           >
             Your next customer is one
             <br />

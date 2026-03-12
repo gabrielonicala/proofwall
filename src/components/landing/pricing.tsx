@@ -67,8 +67,8 @@ export function Pricing() {
           className="mb-10 text-center sm:mb-12"
         >
           <h2
-            className="mb-4 font-bold tracking-tight"
-            style={{ fontSize: "clamp(1.5rem, 4vw, 2.25rem)" }}
+            className="font-display mb-4 tracking-tight"
+            style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)" }}
           >
             Simple, <span className="text-gradient">transparent</span> pricing
           </h2>
@@ -122,7 +122,7 @@ export function Pricing() {
                 </div>
               )}
 
-              <h3 className="mb-1 text-xl font-bold text-foreground">
+              <h3 className="font-display mb-1 text-2xl text-foreground">
                 {plan.name}
               </h3>
               <p className="mb-4 text-sm text-muted-foreground">{plan.desc}</p>

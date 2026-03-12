@@ -61,8 +61,8 @@ export function ShowcaseDemo() {
           className="mb-10 text-center sm:mb-12"
         >
           <h2
-            className="mb-4 font-bold tracking-tight"
-            style={{ fontSize: "clamp(1.5rem, 4vw, 2.25rem)" }}
+            className="font-display mb-4 tracking-tight"
+            style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)" }}
           >
             <span className="text-gradient">8 ways</span> to show off
           </h2>
@@ -99,11 +99,15 @@ export function ShowcaseDemo() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
             >
-              <Component
-                testimonials={sampleTestimonials}
-                autoplay
-                speed="normal"
-              />
+              {active === "cards" ? (
+                <CardsGrid testimonials={sampleTestimonials} fillRows />
+              ) : (
+                <Component
+                  testimonials={sampleTestimonials}
+                  autoplay
+                  speed="normal"
+                />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

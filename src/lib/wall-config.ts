@@ -27,6 +27,7 @@ export interface WallConfig {
   autoplay: boolean;
   pauseOnHover: boolean;
   onlyWithPhotos: boolean;
+  fillRows: boolean;
   allowedDomains: string[];
 }
 
@@ -49,6 +50,7 @@ export const defaultWallConfig: WallConfig = {
   autoplay: true,
   pauseOnHover: true,
   onlyWithPhotos: false,
+  fillRows: false,
   allowedDomains: [],
 };
 

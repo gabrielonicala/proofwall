@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { LogoIcon } from "@/components/logo";
+import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 
 const navLinks = [
@@ -14,6 +15,14 @@ const navLinks = [
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAuthed, setIsAuthed] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthed(!!session);
+    });
+  }, []);
 
   return (
     <motion.nav
@@ -26,7 +35,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <LogoIcon className="size-8" />
-          <span className="text-2xl font-bold tracking-tight text-foreground">
+          <span className="font-display text-[2rem] leading-none tracking-tight text-foreground">
             Proof<span className="text-gradient">Wall</span>
           </span>
         </Link>
@@ -47,18 +56,29 @@ export function Navbar() {
 
         {/* Desktop CTAs */}
         <div className="hidden items-center gap-3 md:flex">
-          <Link
-            href="/login"
-            className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/signup"
-            className="rounded-lg bg-gradient-primary px-4 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-          >
-            Start Free
-          </Link>
+          {isAuthed ? (
+            <Link
+              href="/dashboard"
+              className="rounded-lg bg-gradient-primary px-4 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-lg bg-gradient-primary px-4 py-1.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                Start Free
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile toggle */}
@@ -93,18 +113,29 @@ export function Navbar() {
                 </a>
               ))}
               <div className="flex gap-2 pt-3">
-                <Link
-                  href="/login"
-                  className="flex-1 rounded-lg border border-border py-2.5 text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/signup"
-                  className="flex-1 rounded-lg bg-gradient-primary py-2.5 text-center text-sm font-medium text-primary-foreground"
-                >
-                  Start Free
-                </Link>
+                {isAuthed ? (
+                  <Link
+                    href="/dashboard"
+                    className="flex-1 rounded-lg bg-gradient-primary py-2.5 text-center text-sm font-medium text-primary-foreground"
+                  >
+                    Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href="/login"
+                      className="flex-1 rounded-lg border border-border py-2.5 text-center text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                      Log in
+                    </Link>
+                    <Link
+                      href="/signup"
+                      className="flex-1 rounded-lg bg-gradient-primary py-2.5 text-center text-sm font-medium text-primary-foreground"
+                    >
+                      Start Free
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

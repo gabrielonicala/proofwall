@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Link2, Tags, LayoutGrid, ArrowRight } from "lucide-react";
+import { Link2, Tags, LayoutGrid } from "lucide-react";
 
 const steps = [
   {
@@ -36,8 +36,8 @@ export function HowItWorks() {
           className="mb-12 text-center sm:mb-16"
         >
           <h2
-            className="mb-4 font-bold tracking-tight"
-            style={{ fontSize: "clamp(1.5rem, 4vw, 2.25rem)" }}
+            className="font-display mb-4 tracking-tight"
+            style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)" }}
           >
             How <span className="text-gradient">ProofWall</span> works
           </h2>
@@ -47,8 +47,16 @@ export function HowItWorks() {
         </motion.div>
 
         <div className="relative grid grid-cols-1 gap-8 md:grid-cols-3">
-          {/* Connecting line (desktop only) */}
-          <div className="pointer-events-none absolute left-[20%] right-[20%] top-16 hidden h-px bg-gradient-to-r from-primary/30 via-primary/60 to-primary/30 md:block" />
+          {/* Connecting dots trail (desktop only) */}
+          <div className="pointer-events-none absolute left-[20%] right-[20%] top-[2.1rem] hidden items-center justify-between md:flex">
+            {Array.from({ length: 15 }).map((_, i) => (
+              <div
+                key={i}
+                className="size-1 rounded-full bg-primary"
+                style={{ opacity: 0.15 + 0.35 * Math.sin((i / 14) * Math.PI) }}
+              />
+            ))}
+          </div>
 
           {steps.map((s, i) => (
             <motion.div
@@ -73,9 +81,6 @@ export function HowItWorks() {
               <p className="mx-auto max-w-xs text-sm leading-relaxed text-muted-foreground">
                 {s.desc}
               </p>
-              {i < steps.length - 1 && (
-                <ArrowRight className="absolute -right-4 top-16 hidden size-5 text-primary/40 md:block" />
-              )}
             </motion.div>
           ))}
         </div>
