@@ -13,6 +13,7 @@ import {
   FileText,
   Upload,
   BarChart3,
+  CreditCard,
   Settings,
   ChevronsLeft,
   ChevronsRight,
@@ -33,6 +34,7 @@ const navLinks = [
   { label: "Forms", href: "/dashboard/forms", icon: FileText },
   { label: "Import", href: "/dashboard/import", icon: Upload },
   { label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+  { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { label: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
