@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import Link from "next/link";
 
@@ -106,10 +106,11 @@ export function Pricing() {
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
+              layout
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              transition={{ duration: 0.5, delay: i * 0.1, layout: { duration: 0.25, ease: "easeInOut" } }}
               className={`relative rounded-2xl border p-5 sm:p-6 md:p-8 ${
                 plan.highlight
                   ? "border-primary/50 bg-card shadow-lg shadow-primary/5 md:-mt-4 md:mb-4"
@@ -128,9 +129,18 @@ export function Pricing() {
               <p className="mb-4 text-sm text-muted-foreground">{plan.desc}</p>
 
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-foreground">
-                  ${annual ? plan.price.annual : plan.price.monthly}
-                </span>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={annual ? "annual" : "monthly"}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                    className="inline-block text-4xl font-extrabold text-foreground"
+                  >
+                    ${annual ? plan.price.annual : plan.price.monthly}
+                  </motion.span>
+                </AnimatePresence>
                 {plan.price.monthly > 0 ? (
                   <span className="text-sm text-muted-foreground">/mo</span>
                 ) : (
@@ -138,6 +148,32 @@ export function Pricing() {
                     forever
                   </span>
                 )}
+                <AnimatePresence initial={false}>
+                  {annual && plan.price.monthly > 0 && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-2 inline-block overflow-hidden whitespace-nowrap text-sm text-muted-foreground/60 line-through"
+                    >
+                      ${plan.price.monthly}/mo
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                <AnimatePresence initial={false}>
+                  {annual && plan.price.monthly > 0 && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, height: "auto", marginTop: 4 }}
+                      exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                      className="overflow-hidden text-xs text-muted-foreground"
+                    >
+                      billed annually
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
 
               <Link

@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Check, CreditCard, ExternalLink, Loader2, X } from "lucide-react";
 import { usePlan } from "@/hooks/use-plan";
 import { useProject } from "@/hooks/use-project";
@@ -223,9 +223,10 @@ function BillingContent() {
           return (
             <motion.div
               key={p.key}
+              layout
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              transition={{ duration: 0.5, delay: i * 0.1, layout: { duration: 0.25, ease: "easeInOut" } }}
               className={`relative rounded-2xl border p-5 sm:p-6 md:p-8 ${
                 p.highlight
                   ? "border-primary/50 bg-card shadow-lg shadow-primary/5 md:-mt-4 md:mb-4"
@@ -250,9 +251,18 @@ function BillingContent() {
               <p className="mb-4 text-sm text-muted-foreground">{p.desc}</p>
 
               <div className="mb-6">
-                <span className="text-4xl font-extrabold text-foreground">
-                  ${annual ? p.price.annual : p.price.monthly}
-                </span>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={annual ? "annual" : "monthly"}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                    className="inline-block text-4xl font-extrabold text-foreground"
+                  >
+                    ${annual ? p.price.annual : p.price.monthly}
+                  </motion.span>
+                </AnimatePresence>
                 {p.price.monthly > 0 ? (
                   <span className="text-sm text-muted-foreground">/mo</span>
                 ) : (
@@ -260,16 +270,32 @@ function BillingContent() {
                     forever
                   </span>
                 )}
-                {annual && p.price.monthly > 0 && (
-                  <span className="ml-2 text-sm text-muted-foreground/60 line-through">
-                    ${p.price.monthly}/mo
-                  </span>
-                )}
-                {annual && p.price.monthly > 0 && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    billed annually
-                  </p>
-                )}
+                <AnimatePresence initial={false}>
+                  {annual && p.price.monthly > 0 && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="ml-2 inline-block overflow-hidden whitespace-nowrap text-sm text-muted-foreground/60 line-through"
+                    >
+                      ${p.price.monthly}/mo
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                <AnimatePresence initial={false}>
+                  {annual && p.price.monthly > 0 && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, height: "auto", marginTop: 4 }}
+                      exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                      className="overflow-hidden text-xs text-muted-foreground"
+                    >
+                      billed annually
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* CTA */}
