@@ -38,6 +38,9 @@ import {
   Copy,
   Check,
   Info,
+  Code,
+  Globe,
+  ExternalLink,
 } from "lucide-react";
 
 type Tag = { id: string; name: string; color: string };
@@ -721,53 +724,131 @@ function DomainList({
   );
 }
 
-function EmbedCodePanel({ wallId }: { wallId: string }) {
+type EmbedTab = "html" | "iframe" | "react" | "preview";
+
+const embedTabs: { id: EmbedTab; label: string; icon: React.ElementType }[] = [
+  { id: "html", label: "HTML/JS", icon: Code },
+  { id: "iframe", label: "iFrame", icon: Globe },
+  { id: "react", label: "React", icon: Code },
+  { id: "preview", label: "Preview", icon: ExternalLink },
+];
+
+function highlightHtml(code: string) {
+  // Simple syntax highlighter for HTML/JSX snippets
+  const parts: { text: string; cls: string }[] = [];
+  // Match HTML tags, attributes, strings, and plain text
+  const regex = /(<\/?[\w-]+)|(\s[\w-]+)(?==)|("[^"]*")|('(?:[^'\\]|\\.)*')|(\/?>)|(\{[^}]*\})|(\/\/[^\n]*)|([^<"'{/]+)/g;
+  let match;
+  while ((match = regex.exec(code)) !== null) {
+    if (match[1]) parts.push({ text: match[1], cls: "text-[#7cacf8]" }); // tag
+    else if (match[2]) parts.push({ text: match[2], cls: "text-[#d4a0f5]" }); // attr name
+    else if (match[3]) parts.push({ text: match[3], cls: "text-[#a8d4a2]" }); // double-quoted string
+    else if (match[4]) parts.push({ text: match[4], cls: "text-[#a8d4a2]" }); // single-quoted string
+    else if (match[5]) parts.push({ text: match[5], cls: "text-[#7cacf8]" }); // closing bracket
+    else if (match[6]) parts.push({ text: match[6], cls: "text-[#e8c882]" }); // JSX expression
+    else if (match[7]) parts.push({ text: match[7], cls: "text-[#6a6a7a]" }); // comment
+    else if (match[8]) parts.push({ text: match[8], cls: "text-[#c8c8d0]" }); // plain text
+  }
+  return parts;
+}
+
+function CodeBlock({ code, onCopy }: { code: string; onCopy: () => void }) {
   const [copied, setCopied] = useState(false);
+  const highlighted = highlightHtml(code);
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-
-  const snippet = `<div data-proofwall="${wallId}"></div>\n<script src="${origin}/embed.js" async></script>`;
-
-  async function copyToClipboard() {
+  async function handleCopy() {
     try {
-      await navigator.clipboard.writeText(snippet);
+      await navigator.clipboard.writeText(code);
       setCopied(true);
+      onCopy();
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback: textarea select
+      // Fallback: noop
     }
   }
 
   return (
-    <div>
-      <p className="mb-2 text-xs text-muted-foreground">
-        Paste this wherever you want the wall to appear.
-      </p>
-      <div className="mb-1 flex items-center justify-end">
-        <button
-          onClick={copyToClipboard}
-          className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          {copied ? (
-            <>
-              <Check className="size-3 text-success" />
-              Copied
-            </>
-          ) : (
-            <>
-              <Copy className="size-3" />
-              Copy
-            </>
-          )}
-        </button>
+    <div className="group relative rounded-lg border border-[#1e1e2a] bg-[#0d0d12] overflow-hidden">
+      <button
+        onClick={handleCopy}
+        className="absolute right-1.5 top-1.5 z-10 inline-flex items-center gap-1 rounded-md bg-[#1e1e2a] px-2 py-1 text-[10px] font-medium text-[#9ca3af] opacity-0 transition-all hover:bg-[#2a2a3a] hover:text-[#e0e0e8] group-hover:opacity-100"
+      >
+        {copied ? (
+          <>
+            <Check className="size-3 text-emerald-400" />
+            Copied!
+          </>
+        ) : (
+          <>
+            <Copy className="size-3" />
+            Copy
+          </>
+        )}
+      </button>
+      <pre className="overflow-x-auto p-3 text-[11px] leading-relaxed font-mono">
+        <code>
+          {highlighted.map((part, i) => (
+            <span key={i} className={part.cls}>{part.text}</span>
+          ))}
+        </code>
+      </pre>
+    </div>
+  );
+}
+
+function EmbedCodePanel({ wallId }: { wallId: string }) {
+  const [tab, setTab] = useState<EmbedTab>("html");
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const embedUrl = `${origin}/embed/${wallId}`;
+
+  const snippets: Record<EmbedTab, { code: string; hint: string }> = {
+    html: {
+      code: `<div data-proofwall="${wallId}"></div>\n<script src="${origin}/embed.js" async></script>`,
+      hint: "Add this to any HTML page. The script handles rendering and resizing automatically.",
+    },
+    iframe: {
+      code: `<iframe\n  src="${embedUrl}"\n  style="width:100%;border:none;min-height:400px"\n  loading="lazy"\n  title="ProofWall testimonials"\n></iframe>`,
+      hint: "Self-contained embed. No JavaScript needed — works anywhere iframes are supported.",
+    },
+    react: {
+      code: `function ProofWall() {\n  return (\n    <iframe\n      src="${embedUrl}"\n      style={{ width: '100%', border: 'none', minHeight: 400 }}\n      loading="lazy"\n      title="ProofWall testimonials"\n    />\n  );\n}`,
+      hint: "Drop this component into your React or Next.js app.",
+    },
+    preview: {
+      code: embedUrl,
+      hint: "Open this URL to preview your wall. Domain restrictions still apply when embedded on websites.",
+    },
+  };
+
+  const current = snippets[tab];
+
+  return (
+    <div className="space-y-2">
+      {/* Tab bar */}
+      <div className="flex rounded-lg border border-border bg-muted/30 p-0.5">
+        {embedTabs.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`flex-1 rounded-md px-1.5 py-1.5 text-[10px] font-medium transition-all ${
+              tab === t.id
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
-      <textarea
-        readOnly
-        rows={3}
-        value={snippet}
-        className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs font-mono outline-none focus:border-ring focus:ring-2 focus:ring-ring/30 resize-none"
-        onFocus={(e) => e.target.select()}
-      />
+
+      {/* Code block */}
+      <CodeBlock code={current.code} onCopy={() => {}} />
+
+      {/* Hint */}
+      <p className="text-[10px] leading-relaxed text-muted-foreground">
+        {current.hint}
+      </p>
     </div>
   );
 }

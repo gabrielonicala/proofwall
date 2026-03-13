@@ -19,7 +19,9 @@ export default function Home() {
         <HowItWorks />
         <div className="section-divider mx-auto max-w-xl" />
         <ShowcaseDemo />
+        <div className="section-divider mx-auto max-w-xl" />
         <SmartWalls />
+        <div className="section-divider mx-auto max-w-xl" />
         <Pricing />
         <FinalCTA />
       </main>

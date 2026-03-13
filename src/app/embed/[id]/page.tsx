@@ -86,6 +86,12 @@ export default async function EmbedPage({ params }: Props) {
       </div>
     );
   }
+  // Track view (fire-and-forget — don't block render)
+  supabase
+    .from("wall_views")
+    .insert({ wall_id: id, referrer: referer ?? null })
+    .then(() => {});
+
   const tagFilter: string[] = wall.tag_filter ?? [];
 
   // Fetch testimonials for this wall's project

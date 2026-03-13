@@ -53,7 +53,7 @@ export function Sidebar() {
       <motion.aside
         animate={{ width: collapsed ? 64 : 240 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
-        className="fixed inset-y-0 left-0 z-40 flex flex-col border-r border-border bg-sidebar"
+        className="sticky top-0 z-40 flex h-screen flex-shrink-0 flex-col border-r border-border bg-sidebar"
       >
         {/* Logo + collapse */}
         <div className="flex h-14 items-center justify-between border-b border-border px-3">

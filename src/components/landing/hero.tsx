@@ -101,7 +101,7 @@ export function Hero() {
         >
           <div className="rounded-2xl border border-border/50 bg-card/40 p-4 shadow-2xl backdrop-blur-sm sm:p-6">
             {/* Browser chrome */}
-            <div className="mb-4 flex items-center gap-2 px-1">
+            <div className="mb-3.5 flex items-center gap-2 px-1">
               <div className="size-2.5 rounded-full bg-destructive/60" />
               <div className="size-2.5 rounded-full bg-accent/60" />
               <div className="size-2.5 rounded-full bg-success/60" />
@@ -109,11 +109,13 @@ export function Hero() {
                 yoursite.com/pricing
               </span>
             </div>
-            <Carousel
-              testimonials={sampleTestimonials.slice(0, 5)}
-              autoplay
-              speed="fast"
-            />
+            <div className="[&>div]:min-h-0">
+              <Carousel
+                testimonials={sampleTestimonials.slice(0, 5)}
+                autoplay
+                speed="fast"
+              />
+            </div>
           </div>
         </motion.div>
       </div>

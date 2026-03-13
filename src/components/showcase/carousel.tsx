@@ -41,7 +41,7 @@ function CardContent({ t, config }: { t: Testimonial; config?: ShowcaseConfig })
             className="size-10 rounded-full bg-muted"
           />
         )}
-        <div className="min-w-0">
+        <div className="min-w-0 text-left">
           <p className="truncate font-medium text-foreground">{t.authorName}</p>
           {shouldShow("showCompany", config) && (
             <p className="truncate text-sm text-muted-foreground">

@@ -9,15 +9,15 @@ const productLinks = [
 ];
 
 const resourceLinks = [
-  { label: "Documentation", href: "#" },
-  { label: "API Reference", href: "#" },
+  { label: "Documentation", href: "/docs" },
+  { label: "API Reference", href: "/docs#embedding" },
   { label: "Status", href: "#" },
-  { label: "Support", href: "#" },
+  { label: "Support", href: "mailto:support@proofwall.com" },
 ];
 
 const legalLinks = [
-  { label: "Privacy Policy", href: "#" },
-  { label: "Terms of Service", href: "#" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
 ];
 
 export function Footer() {
@@ -25,22 +25,24 @@ export function Footer() {
     <footer className="border-t border-border/50 pt-12 pb-8 sm:pt-16">
       <div className="container-wide">
         {/* Main footer grid */}
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 md:gap-12">
+        <div className="grid grid-cols-2 gap-8 sm:grid-cols-9 md:gap-12">
           {/* Brand column */}
-          <div className="col-span-2 sm:col-span-1">
-            <Link href="/" className="mb-4 inline-flex items-center gap-2">
-              <LogoIcon className="size-7" />
-              <span className="font-display text-base leading-none text-foreground">
+          <div className="col-span-2 sm:col-span-3">
+            <Link href="/" className="mb-1 inline-flex items-center gap-2">
+              <LogoIcon className="size-8" />
+              <span className="font-display text-[2rem] leading-none tracking-tight text-foreground">
                 Proof<span className="text-gradient">Wall</span>
               </span>
             </Link>
-            <p className="mt-3 max-w-xs text-xs leading-relaxed text-muted-foreground">
-              The social proof engine for modern SaaS. Collect, organize, and deploy testimonials that convert.
+            <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-muted-foreground">
+              The social proof engine for modern SaaS.
+              <br />
+              Collect, organize, and deploy testimonials that convert.
             </p>
           </div>
 
           {/* Product links */}
-          <div>
+          <div className="sm:col-span-2">
             <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Product
             </h4>
@@ -59,7 +61,7 @@ export function Footer() {
           </div>
 
           {/* Resource links */}
-          <div>
+          <div className="sm:col-span-2">
             <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Resources
             </h4>
@@ -78,7 +80,7 @@ export function Footer() {
           </div>
 
           {/* Legal links */}
-          <div>
+          <div className="sm:col-span-2">
             <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Legal
             </h4>

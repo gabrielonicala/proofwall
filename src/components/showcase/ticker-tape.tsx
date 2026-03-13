@@ -60,7 +60,7 @@ export function TickerTape({ testimonials, speed = "normal", autoplay = true, pa
 
   // Row 1: scrolls LEFT
   useEffect(() => {
-    const track = row1Ref.current;
+    const track = row1Ref.current!;
     if (!track || !autoplay) return;
 
     let offset = 0;
@@ -106,7 +106,7 @@ export function TickerTape({ testimonials, speed = "normal", autoplay = true, pa
 
   // Row 2: scrolls RIGHT
   useEffect(() => {
-    const track = row2Ref.current;
+    const track = row2Ref.current!;
     if (!track || !autoplay) return;
 
     let offset = 0;

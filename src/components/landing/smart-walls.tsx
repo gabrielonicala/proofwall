@@ -76,8 +76,9 @@ export function SmartWalls() {
             <span className="text-gradient">right page</span>
           </h2>
           <p className="mx-auto max-w-2xl text-base text-muted-foreground sm:text-lg">
-            Tag testimonials by context. Deploy filtered walls per page. Every
-            page gets the perfect social proof.
+            Tag testimonials by context. Deploy filtered walls per page.
+            <br />
+            Every page gets the perfect social proof.
           </p>
         </motion.div>
 

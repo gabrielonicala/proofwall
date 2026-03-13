@@ -26,16 +26,9 @@ export default function EmbedLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `body { margin: 0; padding: 0; background: transparent; overflow-x: hidden; }`,
-          }}
-        />
-      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}
-        style={{ background: "transparent" }}
+        style={{ margin: 0, padding: 0, background: "transparent", overflowX: "hidden" }}
       >
         {children}
       </body>

@@ -56,7 +56,7 @@ export function VerticalMarquee({ testimonials, speed = "normal", autoplay = tru
   const targetPxPerSec = speed === "slow" ? 30 : speed === "fast" ? 90 : 50;
 
   const rafLoop = useCallback(() => {
-    const track = trackRef.current;
+    const track = trackRef.current!;
     if (!track || !autoplay) return;
 
     let velocity = 0;
