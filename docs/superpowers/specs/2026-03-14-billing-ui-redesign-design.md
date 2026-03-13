@@ -135,7 +135,7 @@ Moved from Settings page to billing page:
 
 ## Non-Goals
 
-- No changes to Stripe integration or API routes
+- No changes to Stripe integration logic (the only API route change is updating return URLs from `/dashboard/settings` to `/dashboard/billing`)
 - No changes to plan limits or pricing
 - No changes to upgrade banners on other dashboard pages
 - No mobile-specific layout (existing responsive grid handles this)
