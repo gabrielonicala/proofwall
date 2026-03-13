@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createServerClient } from "@supabase/ssr";
 import type { Database } from "@/lib/supabase/types";
+import { getPlanLimits, withinLimit } from "@/lib/plans";
 
 interface ActionResult {
   success?: boolean;
@@ -56,6 +57,27 @@ export async function inviteMemberByEmail(
     (currentMember.role !== "owner" && currentMember.role !== "admin")
   ) {
     return { error: "You don't have permission to invite members" };
+  }
+
+  // Check seat limit
+  const { data: project } = await supabase
+    .from("projects")
+    .select("plan")
+    .eq("id", projectId)
+    .single();
+
+  const planLimits = getPlanLimits((project?.plan ?? "free") as "free" | "pro" | "business");
+  if (planLimits.maxTeamSeats !== -1) {
+    const { count } = await supabase
+      .from("project_members")
+      .select("*", { count: "exact", head: true })
+      .eq("project_id", projectId);
+
+    if (!withinLimit(planLimits.maxTeamSeats, count ?? 0)) {
+      return {
+        error: `Your ${project?.plan ?? "free"} plan allows ${planLimits.maxTeamSeats} team seat${planLimits.maxTeamSeats === 1 ? "" : "s"}. Upgrade to add more members.`,
+      };
+    }
   }
 
   // Use admin client to look up user by email
