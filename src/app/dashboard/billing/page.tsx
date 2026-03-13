@@ -156,7 +156,8 @@ function BillingContent() {
               : "border-border bg-muted/30 text-muted-foreground"
           }`}
         >
-          <span>
+          <span className="flex items-center gap-2">
+            {billingStatus === "success" && <Check className="size-4" />}
             {billingStatus === "success"
               ? "Your plan has been upgraded! It may take a moment to update."
               : "Checkout was cancelled. No charges were made."}
