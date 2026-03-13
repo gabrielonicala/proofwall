@@ -57,8 +57,8 @@ export async function POST(req: NextRequest) {
       mode: "subscription",
       payment_method_types: ["card"],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${req.nextUrl.origin}/dashboard/settings?billing=success`,
-      cancel_url: `${req.nextUrl.origin}/dashboard/settings?billing=cancelled`,
+      success_url: `${req.nextUrl.origin}/dashboard/billing?billing=success`,
+      cancel_url: `${req.nextUrl.origin}/dashboard/billing?billing=cancelled`,
       metadata: {
         project_id: projectId,
         user_id: user.id,
