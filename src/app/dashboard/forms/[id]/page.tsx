@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
+import { usePlan } from "@/hooks/use-plan";
 import {
   type FormField,
   type FormConfig,
@@ -22,6 +23,7 @@ export default function FormEditorPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { project } = useProject();
+  const { limits } = usePlan();
   const isNew = params.id === "new";
 
   const [name, setName] = useState("New Form");
@@ -246,6 +248,17 @@ export default function FormEditorPage() {
                     placeholder="https://yoursite.com/logo.png"
                   />
                 </div>
+              </div>
+            </Section>
+
+            {/* Form URL / Custom Domain */}
+            <Section title="Form URL">
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  {limits.hasCustomFormDomain
+                    ? "Custom domain support — configure in project settings."
+                    : "Custom domains available on the Business plan."}
+                </p>
               </div>
             </Section>
 

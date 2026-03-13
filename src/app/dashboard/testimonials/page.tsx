@@ -190,16 +190,34 @@ export default function TestimonialsPage() {
             {testimonials.length}{limits.maxTestimonials !== -1 ? ` / ${limits.maxTestimonials}` : ""} total · {testimonials.filter((t) => t.status === "pending").length} pending
           </p>
         </div>
-        <button
-          onClick={() => {
-            setEditingId(null);
-            setDialogOpen(true);
-          }}
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-        >
-          <Plus className="size-4" />
-          Add Testimonial
-        </button>
+        <div className="flex items-center gap-2">
+          {limits.hasExport && project && (
+            <div className="flex gap-2">
+              <a
+                href={`/api/export?projectId=${project.id}&format=csv`}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted"
+              >
+                Export CSV
+              </a>
+              <a
+                href={`/api/export?projectId=${project.id}&format=json`}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted"
+              >
+                Export JSON
+              </a>
+            </div>
+          )}
+          <button
+            onClick={() => {
+              setEditingId(null);
+              setDialogOpen(true);
+            }}
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <Plus className="size-4" />
+            Add Testimonial
+          </button>
+        </div>
       </div>
 
       {/* Toolbar */}
