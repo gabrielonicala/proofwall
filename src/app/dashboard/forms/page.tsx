@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
+import { usePlan } from "@/hooks/use-plan";
+import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import { useRouter } from "next/navigation";
 import { toggleFormActive, deleteForm } from "../actions";
 import {
@@ -34,6 +36,7 @@ type Form = {
 
 export default function FormsPage() {
   const { project } = useProject();
+  const { limits } = usePlan();
   const router = useRouter();
   const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
@@ -93,12 +96,17 @@ export default function FormsPage() {
 
   return (
     <div>
+      {/* Upgrade banner */}
+      {limits.maxForms !== -1 && forms.length >= limits.maxForms && (
+        <UpgradeBanner message="You've reached your form limit." />
+      )}
+
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Collection Forms</h1>
           <p className="text-sm text-muted-foreground">
-            {forms.length} form{forms.length !== 1 ? "s" : ""} ·{" "}
+            {forms.length}{limits.maxForms !== -1 ? ` / ${limits.maxForms}` : ""} form{forms.length !== 1 ? "s" : ""} ·{" "}
             {forms.filter((f) => f.is_active).length} active
           </p>
         </div>

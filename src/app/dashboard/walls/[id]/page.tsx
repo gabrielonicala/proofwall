@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
+import { usePlan } from "@/hooks/use-plan";
 import {
   type WallStyle,
   type WallConfig,
@@ -49,6 +50,7 @@ export default function WallEditorPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { project } = useProject();
+  const { limits } = usePlan();
   const isNew = params.id === "new";
 
   // Wall state
@@ -576,6 +578,15 @@ export default function WallEditorPage() {
             {!isNew && (
               <Section title="Embed Code">
                 <EmbedCodePanel wallId={params.id} />
+                {!limits.hasWhiteLabel && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Embeds include ProofWall branding.{" "}
+                    <a href="/dashboard/settings?tab=billing" className="text-primary underline">
+                      Upgrade to Business
+                    </a>{" "}
+                    for white-label embeds.
+                  </p>
+                )}
               </Section>
             )}
 

@@ -66,6 +66,15 @@ export default async function EmbedPage({ params }: Props) {
   const style = wall.style as WallStyle;
   const config: WallConfig = { ...defaultWallConfig, ...(wall.config as Partial<WallConfig>) };
 
+  // Check if branding should be shown (free plan only)
+  const { data: project } = await supabase
+    .from("projects")
+    .select("plan")
+    .eq("id", wall.project_id)
+    .single();
+
+  const showBranding = project?.plan === "free";
+
   // Domain lock check
   const headersList = await headers();
   const referer = headersList.get("referer");
@@ -196,6 +205,24 @@ export default async function EmbedPage({ params }: Props) {
             testimonials={testimonials}
           />
         </div>
+      )}
+      {showBranding && (
+        <a
+          href="https://proofwall.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "block",
+            textAlign: "center",
+            padding: "8px 0 4px",
+            fontSize: "11px",
+            color: "#888",
+            textDecoration: "none",
+            opacity: 0.6,
+          }}
+        >
+          Powered by ProofWall
+        </a>
       )}
       <EmbedResize />
     </div>

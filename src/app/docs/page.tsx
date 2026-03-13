@@ -11,6 +11,7 @@ const sections = [
   { id: "managing", label: "Managing Testimonials" },
   { id: "walls", label: "Creating Walls" },
   { id: "embedding", label: "Embedding Walls" },
+  { id: "api", label: "API Access" },
   { id: "analytics", label: "Analytics" },
 ];
 
@@ -534,6 +535,89 @@ export default function Testimonials() {
                   All embeds are fully responsive. They automatically resize to
                   fit their container and adapt their layout for mobile, tablet,
                   and desktop viewports. No additional configuration needed.
+                </p>
+              </section>
+
+              {/* ---- API Access ---- */}
+              <section id="api" className="scroll-mt-24 space-y-6">
+                <h2 className="text-2xl font-semibold text-foreground">
+                  API Access
+                </h2>
+                <p className="leading-relaxed text-muted-foreground">
+                  Business plan users can access testimonials programmatically via
+                  a REST API. This is useful for custom integrations, mobile apps,
+                  or server-side rendering.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground">
+                  GET /api/v1/testimonials
+                </h3>
+                <p className="leading-relaxed text-muted-foreground">
+                  Retrieve testimonials for a project. Supports filtering and
+                  pagination.
+                </p>
+
+                <h3 className="text-lg font-medium text-foreground">
+                  Query parameters
+                </h3>
+                <ul className="ml-1 list-inside list-disc space-y-2 text-muted-foreground">
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground">
+                      projectId
+                    </code>{" "}
+                    (required) &mdash; Your project ID.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground">
+                      status
+                    </code>{" "}
+                    &mdash; Filter by status: pending, approved, featured, or
+                    archived.
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground">
+                      limit
+                    </code>{" "}
+                    &mdash; Maximum results per request, up to 100 (default: 50).
+                  </li>
+                  <li>
+                    <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-foreground">
+                      offset
+                    </code>{" "}
+                    &mdash; Pagination offset (default: 0).
+                  </li>
+                </ul>
+
+                <h3 className="text-lg font-medium text-foreground">
+                  Response format
+                </h3>
+                <pre className="overflow-x-auto rounded-lg bg-[#0d0d12] p-4 font-mono text-sm leading-relaxed text-muted-foreground">
+                  <code>{`{
+  "data": [
+    {
+      "id": "...",
+      "author_name": "Jane Doe",
+      "text": "Great product!",
+      "rating": 5,
+      "status": "approved",
+      ...
+    }
+  ],
+  "pagination": {
+    "limit": 50,
+    "offset": 0,
+    "count": 12
+  }
+}`}</code>
+                </pre>
+
+                <h3 className="text-lg font-medium text-foreground">
+                  Authentication
+                </h3>
+                <p className="leading-relaxed text-muted-foreground">
+                  Requests require an active session (cookie-based
+                  authentication). The API is available on the Business plan only.
+                  Users on Free or Pro plans will receive a 403 response.
                 </p>
               </section>
 

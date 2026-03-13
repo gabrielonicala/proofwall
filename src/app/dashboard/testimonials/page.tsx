@@ -10,6 +10,8 @@ import {
   deleteTestimonial,
   toggleTestimonialTag,
 } from "../actions";
+import { usePlan } from "@/hooks/use-plan";
+import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import {
   Search,
   Plus,
@@ -37,6 +39,7 @@ const STATUS_OPTIONS = ["all", "pending", "approved", "featured", "archived"] as
 
 export default function TestimonialsPage() {
   const { project } = useProject();
+  const { limits } = usePlan();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [search, setSearch] = useState("");
@@ -174,24 +177,47 @@ export default function TestimonialsPage() {
 
   return (
     <div>
+      {/* Upgrade banner */}
+      {limits.maxTestimonials !== -1 && testimonials.length >= limits.maxTestimonials && (
+        <UpgradeBanner message="You've reached your testimonial limit." />
+      )}
+
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Testimonials</h1>
           <p className="text-sm text-muted-foreground">
-            {testimonials.length} total · {testimonials.filter((t) => t.status === "pending").length} pending
+            {testimonials.length}{limits.maxTestimonials !== -1 ? ` / ${limits.maxTestimonials}` : ""} total · {testimonials.filter((t) => t.status === "pending").length} pending
           </p>
         </div>
-        <button
-          onClick={() => {
-            setEditingId(null);
-            setDialogOpen(true);
-          }}
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
-        >
-          <Plus className="size-4" />
-          Add Testimonial
-        </button>
+        <div className="flex items-center gap-2">
+          {limits.hasExport && project && (
+            <div className="flex gap-2">
+              <a
+                href={`/api/export?projectId=${project.id}&format=csv`}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted"
+              >
+                Export CSV
+              </a>
+              <a
+                href={`/api/export?projectId=${project.id}&format=json`}
+                className="inline-flex items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-sm text-foreground transition-colors hover:bg-muted"
+              >
+                Export JSON
+              </a>
+            </div>
+          )}
+          <button
+            onClick={() => {
+              setEditingId(null);
+              setDialogOpen(true);
+            }}
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            <Plus className="size-4" />
+            Add Testimonial
+          </button>
+        </div>
       </div>
 
       {/* Toolbar */}

@@ -130,6 +130,7 @@ export type Database = {
           id: string
           logo_url: string | null
           name: string
+          plan: Database["public"]["Enums"]["plan"]
           slug: string | null
           updated_at: string
           website_url: string | null
@@ -140,6 +141,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name: string
+          plan?: Database["public"]["Enums"]["plan"]
           slug?: string | null
           updated_at?: string
           website_url?: string | null
@@ -150,6 +152,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name?: string
+          plan?: Database["public"]["Enums"]["plan"]
           slug?: string | null
           updated_at?: string
           website_url?: string | null
@@ -353,6 +356,59 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          id: string
+          project_id: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          status: string
+          price_id: string
+          interval: string
+          current_period_start: string | null
+          current_period_end: string | null
+          cancel_at_period_end: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          status?: string
+          price_id: string
+          interval: string
+          current_period_start?: string | null
+          current_period_end?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          status?: string
+          price_id?: string
+          interval?: string
+          current_period_start?: string | null
+          current_period_end?: string | null
+          cancel_at_period_end?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -372,6 +428,7 @@ export type Database = {
       }
     }
     Enums: {
+      plan: "free" | "pro" | "business"
       project_role: "owner" | "admin" | "member"
       testimonial_source: "manual" | "form" | "twitter" | "csv" | "url"
       testimonial_status: "pending" | "approved" | "featured" | "archived"
@@ -511,6 +568,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      plan: ["free", "pro", "business"],
       project_role: ["owner", "admin", "member"],
       testimonial_source: ["manual", "form", "twitter", "csv", "url"],
       testimonial_status: ["pending", "approved", "featured", "archived"],

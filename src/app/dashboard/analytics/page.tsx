@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
 import type { Tables, Enums } from "@/lib/supabase/types";
+import { usePlan } from "@/hooks/use-plan";
+import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import {
   BarChart3,
   Eye,
@@ -95,6 +97,7 @@ const WALL_STYLE_LABELS: Record<WallStyle, string> = {
 
 export default function AnalyticsPage() {
   const { project, loading: projectLoading } = useProject();
+  const { limits } = usePlan();
   const [overview, setOverview] = useState<OverviewStats>({
     totalTestimonials: 0,
     approvedTestimonials: 0,
@@ -305,6 +308,10 @@ export default function AnalyticsPage() {
         <BarChart3 className="size-6 text-primary" />
         <h1 className="text-2xl font-bold">Analytics</h1>
       </div>
+
+      {!limits.hasAnalytics && (
+        <UpgradeBanner message="Detailed analytics are available on the Pro plan." />
+      )}
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
