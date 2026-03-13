@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
@@ -51,6 +51,14 @@ const ROLE_ICONS: Record<ProjectRole, typeof Crown> = {
 };
 
 export default function SettingsPage() {
+  return (
+    <Suspense>
+      <SettingsContent />
+    </Suspense>
+  );
+}
+
+function SettingsContent() {
   const { project, loading: projectLoading, refetch } = useProject();
   const router = useRouter();
   const searchParams = useSearchParams();
