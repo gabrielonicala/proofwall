@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useState, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
 import {
@@ -51,18 +51,8 @@ const ROLE_ICONS: Record<ProjectRole, typeof Crown> = {
 };
 
 export default function SettingsPage() {
-  return (
-    <Suspense>
-      <SettingsContent />
-    </Suspense>
-  );
-}
-
-function SettingsContent() {
   const { project, loading: projectLoading, refetch } = useProject();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const billingStatus = searchParams.get("billing");
 
   // Project settings state
   const [projectName, setProjectName] = useState("");
@@ -303,17 +293,6 @@ function SettingsContent() {
           Manage your project settings and team members.
         </p>
       </div>
-
-      {billingStatus === "success" && (
-        <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
-          Your subscription has been activated! It may take a moment to update.
-        </div>
-      )}
-      {billingStatus === "cancelled" && (
-        <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-          Checkout was cancelled. No charges were made.
-        </div>
-      )}
 
       {/* ─── Project Settings ─── */}
       <div className="rounded-xl border border-border bg-card p-6">
