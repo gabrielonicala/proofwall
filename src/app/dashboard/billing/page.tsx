@@ -261,6 +261,11 @@ function BillingContent() {
                   </span>
                 )}
                 {annual && p.price.monthly > 0 && (
+                  <span className="ml-2 text-sm text-muted-foreground/60 line-through">
+                    ${p.price.monthly}/mo
+                  </span>
+                )}
+                {annual && p.price.monthly > 0 && (
                   <p className="mt-1 text-xs text-muted-foreground">
                     billed annually
                   </p>
