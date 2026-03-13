@@ -10,6 +10,8 @@ import {
   deleteTestimonial,
   toggleTestimonialTag,
 } from "../actions";
+import { usePlan } from "@/hooks/use-plan";
+import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import {
   Search,
   Plus,
@@ -37,6 +39,7 @@ const STATUS_OPTIONS = ["all", "pending", "approved", "featured", "archived"] as
 
 export default function TestimonialsPage() {
   const { project } = useProject();
+  const { limits } = usePlan();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [search, setSearch] = useState("");
@@ -174,12 +177,17 @@ export default function TestimonialsPage() {
 
   return (
     <div>
+      {/* Upgrade banner */}
+      {limits.maxTestimonials !== -1 && testimonials.length >= limits.maxTestimonials && (
+        <UpgradeBanner message="You've reached your testimonial limit." />
+      )}
+
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Testimonials</h1>
           <p className="text-sm text-muted-foreground">
-            {testimonials.length} total · {testimonials.filter((t) => t.status === "pending").length} pending
+            {testimonials.length}{limits.maxTestimonials !== -1 ? ` / ${limits.maxTestimonials}` : ""} total · {testimonials.filter((t) => t.status === "pending").length} pending
           </p>
         </div>
         <button

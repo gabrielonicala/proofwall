@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
 import {
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { inviteMemberByEmail, deleteProject } from "./actions";
 import { updateProjectSettings, removeMember } from "../actions";
+import { BillingSection } from "./billing-section";
 
 type ProjectRole = "owner" | "admin" | "member";
 
@@ -52,6 +53,8 @@ const ROLE_ICONS: Record<ProjectRole, typeof Crown> = {
 export default function SettingsPage() {
   const { project, loading: projectLoading, refetch } = useProject();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const billingStatus = searchParams.get("billing");
 
   // Project settings state
   const [projectName, setProjectName] = useState("");
@@ -293,6 +296,17 @@ export default function SettingsPage() {
         </p>
       </div>
 
+      {billingStatus === "success" && (
+        <div className="rounded-lg border border-success/30 bg-success/10 px-4 py-3 text-sm text-success">
+          Your subscription has been activated! It may take a moment to update.
+        </div>
+      )}
+      {billingStatus === "cancelled" && (
+        <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+          Checkout was cancelled. No charges were made.
+        </div>
+      )}
+
       {/* ─── Project Settings ─── */}
       <div className="rounded-xl border border-border bg-card p-6">
         <div className="mb-5">
@@ -361,6 +375,11 @@ export default function SettingsPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* ─── Billing & Plan ─── */}
+      <div className="rounded-xl border border-border bg-card p-6">
+        <BillingSection />
       </div>
 
       {/* ─── Team Members ─── */}

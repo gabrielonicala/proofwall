@@ -141,7 +141,7 @@ export function Pricing() {
               </div>
 
               <Link
-                href="/signup"
+                href={plan.price.monthly === 0 ? "/signup" : `/signup?plan=${plan.name.toLowerCase()}`}
                 className={`mb-6 block w-full rounded-lg py-2.5 text-center text-sm font-medium transition-opacity ${
                   plan.highlight
                     ? "bg-gradient-primary text-primary-foreground hover:opacity-90"

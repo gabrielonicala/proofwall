@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
+import { usePlan } from "@/hooks/use-plan";
+import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import { useRouter } from "next/navigation";
 import { toggleWallActive, deleteWall } from "../actions";
 import {
@@ -58,6 +60,7 @@ const styleIcons: Record<string, string> = {
 
 export default function WallsPage() {
   const { project } = useProject();
+  const { limits } = usePlan();
   const router = useRouter();
   const [walls, setWalls] = useState<Wall[]>([]);
   const [loading, setLoading] = useState(true);
@@ -109,12 +112,17 @@ export default function WallsPage() {
 
   return (
     <div>
+      {/* Upgrade banner */}
+      {limits.maxWalls !== -1 && walls.length >= limits.maxWalls && (
+        <UpgradeBanner message="You've reached your wall limit." />
+      )}
+
       {/* Header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Walls</h1>
           <p className="text-sm text-muted-foreground">
-            {walls.length} wall{walls.length !== 1 ? "s" : ""} ·{" "}
+            {walls.length}{limits.maxWalls !== -1 ? ` / ${limits.maxWalls}` : ""} wall{walls.length !== 1 ? "s" : ""} ·{" "}
             {walls.filter((w) => w.is_active).length} active
           </p>
         </div>
