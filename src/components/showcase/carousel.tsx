@@ -2,7 +2,7 @@
 
 import { type Testimonial } from "@/data/sample-testimonials";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
 
@@ -58,20 +58,7 @@ export function Carousel({ testimonials, autoplay = true, speed = "normal", paus
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [hovered, setHovered] = useState(false);
-  const [cardHeight, setCardHeight] = useState<number | undefined>(undefined);
-  const measureRef = useRef<HTMLDivElement>(null);
   const interval = speed === "slow" ? 7000 : speed === "fast" ? 3000 : 5000;
-
-  // Measure tallest card
-  useEffect(() => {
-    const el = measureRef.current;
-    if (!el) return;
-    let max = 0;
-    for (let i = 0; i < el.children.length; i++) {
-      max = Math.max(max, (el.children[i] as HTMLElement).offsetHeight);
-    }
-    if (max > 0) setCardHeight(max);
-  }, [testimonials, config]);
 
   const next = useCallback(() => {
     setDirection(1);
@@ -95,34 +82,38 @@ export function Carousel({ testimonials, autoplay = true, speed = "normal", paus
 
   return (
     <div className={`relative mx-auto flex min-h-[340px] w-full max-w-2xl flex-col justify-center ${getFontClass(config)}`}>
-      {/* Hidden measurement container */}
-      <div ref={measureRef} aria-hidden className="pointer-events-none absolute left-0 right-0 -z-10 opacity-0">
-        {testimonials.map((item) => (
-          <div key={item.id} className={`flex flex-col ${card} p-6 sm:p-8`}>
-            <CardContent t={item} config={config} />
-          </div>
-        ))}
-      </div>
-
       <div
-        className={`flex flex-col overflow-hidden ${card} p-6 sm:p-8`}
-        style={cardHeight ? { height: cardHeight } : { minHeight: 280 }}
+        className={`grid ${card} p-6 sm:p-8`}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={t.id}
-            custom={direction}
-            initial={{ opacity: 0, x: direction * 60 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction * -60 }}
-            transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
-            className="flex flex-1 flex-col"
+        {/* Invisible cards stacked in same grid cell to establish tallest height */}
+        {testimonials.map((item) => (
+          <div
+            key={`size-${item.id}`}
+            aria-hidden
+            className="pointer-events-none invisible col-start-1 row-start-1 flex flex-col"
           >
-            <CardContent t={t} config={config} />
-          </motion.div>
-        </AnimatePresence>
+            <CardContent t={item} config={config} />
+          </div>
+        ))}
+
+        {/* Visible animated card */}
+        <div className="col-start-1 row-start-1 flex flex-col overflow-hidden">
+          <AnimatePresence mode="wait" custom={direction}>
+            <motion.div
+              key={t.id}
+              custom={direction}
+              initial={{ opacity: 0, x: direction * 60 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: direction * -60 }}
+              transition={{ duration: 0.5, ease: [0.25, 1, 0.5, 1] }}
+              className="flex flex-1 flex-col"
+            >
+              <CardContent t={t} config={config} />
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Position progress bar */}

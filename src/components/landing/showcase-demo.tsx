@@ -56,6 +56,21 @@ export function ShowcaseDemo() {
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const hasInitRef = useRef(false);
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [splitTabs, setSplitTabs] = useState(false);
+
+  // Detect if all style tabs fit in a single row
+  useEffect(() => {
+    const el = measureRef.current;
+    if (!el) return;
+
+    const ro = new ResizeObserver(() => {
+      setSplitTabs(el.scrollWidth > el.clientWidth);
+    });
+
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // Smooth container height via ResizeObserver + direct DOM updates (no React re-renders)
   useEffect(() => {
@@ -98,29 +113,71 @@ export function ShowcaseDemo() {
             className="font-display mb-4 tracking-tight"
             style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)" }}
           >
-            <span className="text-gradient">9 ways</span> to show off
+            <span className="text-gradient"><span className="sm:hidden">8 ways</span><span className="hidden sm:inline">9 ways</span></span> to show off
           </h2>
           <p className="text-base text-muted-foreground sm:text-lg">
-            Every style animates. Every style is free. Click to preview.
+            Every style animates. Every style is free.{" "}
+            <br className="sm:hidden" />
+            Click to preview.
           </p>
         </motion.div>
 
-        {/* Style tabs */}
-        <div className="-mx-1 mb-8 flex flex-wrap justify-center gap-2 px-1 sm:mb-10">
-          {styles.map((s) => (
-            <button
-              key={s.key}
-              onClick={() => setActive(s.key)}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 sm:px-4 ${
-                active === s.key
-                  ? "bg-gradient-primary text-primary-foreground shadow-lg"
-                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-            >
-              <s.icon className="size-4" />
-              <span className="hidden sm:inline">{s.label}</span>
-            </button>
-          ))}
+        {/* Style tabs — dynamically split into 4/5 rows when they don't fit in one line */}
+        <div className="relative -mx-1 mb-8 px-1 sm:mb-10">
+          {/* Hidden single-row measurement — always flex-nowrap so scrollWidth reveals overflow */}
+          <div
+            ref={measureRef}
+            className="pointer-events-none invisible absolute inset-x-0 flex flex-nowrap gap-2 overflow-hidden"
+            aria-hidden
+          >
+            {styles.map((s) => (
+              <span
+                key={s.key}
+                className={`items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium sm:px-4 ${
+                  s.key === "masonry" ? "hidden sm:inline-flex" : "inline-flex"
+                }`}
+              >
+                <s.icon className="size-4" />
+                <span className="hidden sm:inline">{s.label}</span>
+              </span>
+            ))}
+          </div>
+
+          {/* Visible tabs */}
+          <div className="flex flex-wrap justify-center gap-2">
+            {styles.slice(0, 4).map((s) => (
+              <button
+                key={s.key}
+                onClick={() => setActive(s.key)}
+                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 sm:px-4 ${
+                  active === s.key
+                    ? "bg-gradient-primary text-primary-foreground shadow-lg"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <s.icon className="size-4" />
+                <span className="hidden sm:inline">{s.label}</span>
+              </button>
+            ))}
+            {/* Flex line break — only inserted when buttons overflow a single row */}
+            {splitTabs && <div className="basis-full h-0" aria-hidden />}
+            {styles.slice(4).map((s) => (
+              <button
+                key={s.key}
+                onClick={() => setActive(s.key)}
+                className={`items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 sm:px-4 ${
+                  s.key === "masonry" ? "hidden sm:inline-flex" : "inline-flex"
+                } ${
+                  active === s.key
+                    ? "bg-gradient-primary text-primary-foreground shadow-lg"
+                    : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+              >
+                <s.icon className="size-4" />
+                <span className="hidden sm:inline">{s.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Preview area */}
