@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 const plans = [
   {
+    key: "free" as const,
     name: "Free",
     price: { monthly: 0, annual: 0 },
     desc: "Perfect for getting started",
@@ -21,6 +23,7 @@ const plans = [
     highlight: false,
   },
   {
+    key: "pro" as const,
     name: "Pro",
     price: { monthly: 29, annual: 23 },
     desc: "For growing businesses",
@@ -37,6 +40,7 @@ const plans = [
     highlight: true,
   },
   {
+    key: "business" as const,
     name: "Business",
     price: { monthly: 79, annual: 63 },
     desc: "For teams at scale",
@@ -55,6 +59,31 @@ const plans = [
 
 export function Pricing() {
   const [annual, setAnnual] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchPlan() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: member } = await supabase
+        .from("project_members")
+        .select("project_id")
+        .eq("user_id", user.id)
+        .limit(1)
+        .single();
+      if (!member) return;
+
+      const { data: project } = await supabase
+        .from("projects")
+        .select("plan")
+        .eq("id", member.project_id)
+        .single();
+      if (project) setCurrentPlan(project.plan);
+    }
+    fetchPlan();
+  }, []);
 
   return (
     <section id="pricing" className="py-16 md:py-20">
@@ -103,7 +132,9 @@ export function Pricing() {
         </motion.div>
 
         <div className="mx-auto grid max-w-5xl grid-cols-1 items-start gap-5 sm:gap-6 md:grid-cols-3">
-          {plans.map((plan, i) => (
+          {plans.map((plan, i) => {
+            const isCurrent = currentPlan === plan.key;
+            return (
             <motion.div
               key={plan.name}
               layout
@@ -112,16 +143,22 @@ export function Pricing() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1, layout: { duration: 0.25, ease: "easeInOut" } }}
               className={`relative rounded-2xl border p-5 sm:p-6 md:p-8 ${
-                plan.highlight
-                  ? "border-primary/50 bg-card shadow-lg shadow-primary/5 md:-mt-4 md:mb-4"
-                  : "border-border bg-card/50"
+                isCurrent
+                  ? "border-success/50 bg-card shadow-lg shadow-success/5 md:-mt-4 md:mb-4"
+                  : plan.highlight
+                    ? "border-primary/50 bg-card shadow-lg shadow-primary/5 md:-mt-4 md:mb-4"
+                    : "border-border bg-card/50"
               }`}
             >
-              {plan.highlight && (
+              {isCurrent ? (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-success px-3 py-1 text-xs font-medium text-white">
+                  Current Plan
+                </div>
+              ) : plan.highlight ? (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-primary px-3 py-1 text-xs font-medium text-primary-foreground">
                   Most Popular
                 </div>
-              )}
+              ) : null}
 
               <h3 className="font-display mb-1 text-2xl text-foreground">
                 {plan.name}
@@ -176,16 +213,25 @@ export function Pricing() {
                 </AnimatePresence>
               </div>
 
-              <Link
-                href={plan.price.monthly === 0 ? "/signup" : `/signup?plan=${plan.name.toLowerCase()}`}
-                className={`mb-6 block w-full rounded-lg py-2.5 text-center text-sm font-medium transition-opacity ${
-                  plan.highlight
-                    ? "bg-gradient-primary text-primary-foreground hover:opacity-90"
-                    : "border border-border text-foreground hover:bg-muted"
-                }`}
-              >
-                {plan.cta}
-              </Link>
+              {isCurrent ? (
+                <Link
+                  href="/dashboard"
+                  className="mb-6 block w-full rounded-lg border border-success/30 bg-success/10 py-2.5 text-center text-sm font-medium text-success transition-opacity hover:opacity-90"
+                >
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <Link
+                  href={plan.price.monthly === 0 ? "/signup" : `/signup?plan=${plan.name.toLowerCase()}`}
+                  className={`mb-6 block w-full rounded-lg py-2.5 text-center text-sm font-medium transition-opacity ${
+                    plan.highlight
+                      ? "bg-gradient-primary text-primary-foreground hover:opacity-90"
+                      : "border border-border text-foreground hover:bg-muted"
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
+              )}
 
               <ul className="space-y-2.5">
                 {plan.features.map((f) => (
@@ -199,7 +245,8 @@ export function Pricing() {
                 ))}
               </ul>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
 
         <p className="mt-10 text-center text-sm text-muted-foreground">
