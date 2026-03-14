@@ -42,8 +42,8 @@ export function Navbar() {
         </Link>
 
         {/* Desktop links — absolutely centered */}
-        <div className="absolute inset-x-0 hidden justify-center md:flex">
-          <div className="flex items-center gap-8">
+        <div className="pointer-events-none absolute inset-x-0 hidden justify-center md:flex">
+          <div className="pointer-events-auto flex items-center gap-8">
             {navLinks.map((link) => (
               <a
                 key={link.label}
