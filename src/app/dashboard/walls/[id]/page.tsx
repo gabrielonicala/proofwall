@@ -581,7 +581,7 @@ export default function WallEditorPage() {
                 {!limits.hasWhiteLabel && (
                   <p className="mt-2 text-xs text-muted-foreground">
                     Embeds include Laudica branding.{" "}
-                    <a href="/dashboard/settings?tab=billing" className="text-primary underline">
+                    <a href="/dashboard/billing" className="text-primary underline">
                       Upgrade to Business
                     </a>{" "}
                     for white-label embeds.
