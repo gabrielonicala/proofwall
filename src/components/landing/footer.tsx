@@ -11,6 +11,7 @@ const productLinks = [
 const resourceLinks = [
   { label: "Documentation", href: "/docs" },
   { label: "API Reference", href: "/docs#embedding" },
+  { label: "Integrations", href: "/integrations" },
   { label: "Status", href: "#" },
   { label: "Support", href: "mailto:support@laudica.com" },
 ];

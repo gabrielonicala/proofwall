@@ -536,6 +536,17 @@ export default function Testimonials() {
                   fit their container and adapt their layout for mobile, tablet,
                   and desktop viewports. No additional configuration needed.
                 </p>
+
+                <p className="leading-relaxed text-muted-foreground">
+                  For platform-specific step-by-step guides, see our{" "}
+                  <a
+                    href="/integrations"
+                    className="text-primary underline underline-offset-4 hover:text-primary/80"
+                  >
+                    Integrations
+                  </a>{" "}
+                  page.
+                </p>
               </section>
 
               {/* ---- API Access ---- */}
