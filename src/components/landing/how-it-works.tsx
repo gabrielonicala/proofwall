@@ -39,7 +39,7 @@ export function HowItWorks() {
             className="font-display mb-4 tracking-tight"
             style={{ fontSize: "clamp(1.5rem, 4vw, 2.5rem)" }}
           >
-            How <span className="text-gradient">ProofWall</span> works
+            How <span className="text-gradient">Laudica</span> works
           </h2>
           <p className="text-base text-muted-foreground sm:text-lg">
             Three steps to social proof that actually converts.

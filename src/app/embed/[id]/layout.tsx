@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ProofWall Embed",
+  title: "Laudica Embed",
   robots: "noindex, nofollow",
 };
 

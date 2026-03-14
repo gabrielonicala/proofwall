@@ -69,7 +69,7 @@ export default function DocsPage() {
             </h1>
             <p className="mt-3 max-w-2xl text-lg text-muted-foreground">
               Everything you need to collect, manage, and deploy social proof
-              with ProofWall.
+              with Laudica.
             </p>
           </div>
 
@@ -133,7 +133,7 @@ export default function DocsPage() {
                   Getting Started
                 </h2>
                 <p className="leading-relaxed text-muted-foreground">
-                  ProofWall helps you collect social proof from customers and
+                  Laudica helps you collect social proof from customers and
                   deploy it across your website to increase conversions. Here is
                   how to get up and running in a few minutes.
                 </p>
@@ -174,7 +174,7 @@ export default function DocsPage() {
                   Collecting Testimonials
                 </h2>
                 <p className="leading-relaxed text-muted-foreground">
-                  ProofWall gives you four ways to get testimonials into your
+                  Laudica gives you four ways to get testimonials into your
                   project. Use whichever works best for your workflow, or
                   combine them.
                 </p>
@@ -204,7 +204,7 @@ export default function DocsPage() {
                   Paste-to-Import
                 </h3>
                 <p className="leading-relaxed text-muted-foreground">
-                  Paste a tweet URL or any block of text and ProofWall will
+                  Paste a tweet URL or any block of text and Laudica will
                   parse it into a testimonial. For tweets, it automatically
                   extracts the author, handle, avatar, and content. For plain
                   text, you can assign the author details after import.
@@ -215,7 +215,7 @@ export default function DocsPage() {
                 </h3>
                 <p className="leading-relaxed text-muted-foreground">
                   Bulk import testimonials from a spreadsheet. Upload a CSV file
-                  and map your columns to ProofWall fields (name, company, role,
+                  and map your columns to Laudica fields (name, company, role,
                   content, rating, etc.). This is the fastest way to migrate
                   from another tool or import a large backlog.
                 </p>
@@ -304,7 +304,7 @@ export default function DocsPage() {
                   Showcase styles
                 </h3>
                 <p className="leading-relaxed text-muted-foreground">
-                  ProofWall offers 9 showcase styles. Each one is designed for a
+                  Laudica offers 9 showcase styles. Each one is designed for a
                   different use case and layout:
                 </p>
                 <ul className="ml-1 list-inside list-disc space-y-2 text-muted-foreground">
@@ -457,12 +457,12 @@ export default function DocsPage() {
                   asynchronously and renders the wall inside a container div.
                 </p>
                 <pre className="overflow-x-auto rounded-lg bg-[#0d0d12] p-4 font-mono text-sm leading-relaxed text-muted-foreground">
-                  <code>{`<!-- ProofWall Embed -->
-<div id="proofwall-embed"></div>
+                  <code>{`<!-- Laudica Embed -->
+<div id="laudica-embed"></div>
 <script
-  src="https://cdn.proofwall.com/embed.js"
+  src="https://cdn.laudica.com/embed.js"
   data-wall-id="YOUR_WALL_ID"
-  data-container="#proofwall-embed"
+  data-container="#laudica-embed"
   async
 ></script>`}</code>
                 </pre>
@@ -475,7 +475,7 @@ export default function DocsPage() {
                 </p>
                 <pre className="overflow-x-auto rounded-lg bg-[#0d0d12] p-4 font-mono text-sm leading-relaxed text-muted-foreground">
                   <code>{`<iframe
-  src="https://app.proofwall.com/embed/YOUR_WALL_ID"
+  src="https://app.laudica.com/embed/YOUR_WALL_ID"
   width="100%"
   height="500"
   frameborder="0"
@@ -488,18 +488,18 @@ export default function DocsPage() {
                   React component
                 </h3>
                 <p className="leading-relaxed text-muted-foreground">
-                  For React and Next.js projects, install the ProofWall package
+                  For React and Next.js projects, install the Laudica package
                   and use the component directly.
                 </p>
                 <pre className="overflow-x-auto rounded-lg bg-[#0d0d12] p-4 font-mono text-sm leading-relaxed text-muted-foreground">
-                  <code>{`npm install @proofwall/react`}</code>
+                  <code>{`npm install @laudica/react`}</code>
                 </pre>
                 <pre className="mt-3 overflow-x-auto rounded-lg bg-[#0d0d12] p-4 font-mono text-sm leading-relaxed text-muted-foreground">
-                  <code>{`import { ProofWall } from "@proofwall/react";
+                  <code>{`import { Laudica } from "@laudica/react";
 
 export default function Testimonials() {
   return (
-    <ProofWall
+    <Laudica
       wallId="YOUR_WALL_ID"
       theme="dark"
     />
@@ -515,7 +515,7 @@ export default function Testimonials() {
                   your team for review, or link to directly.
                 </p>
                 <pre className="overflow-x-auto rounded-lg bg-[#0d0d12] p-4 font-mono text-sm leading-relaxed text-muted-foreground">
-                  <code>{`https://app.proofwall.com/embed/YOUR_WALL_ID`}</code>
+                  <code>{`https://app.laudica.com/embed/YOUR_WALL_ID`}</code>
                 </pre>
 
                 <h3 className="text-lg font-medium text-foreground">
@@ -627,7 +627,7 @@ export default function Testimonials() {
                   Analytics
                 </h2>
                 <p className="leading-relaxed text-muted-foreground">
-                  ProofWall tracks how your testimonials perform so you can
+                  Laudica tracks how your testimonials perform so you can
                   measure the impact of your social proof.
                 </p>
 
@@ -663,7 +663,7 @@ export default function Testimonials() {
                   Privacy-friendly
                 </h3>
                 <p className="leading-relaxed text-muted-foreground">
-                  ProofWall analytics are privacy-friendly by design. No cookies
+                  Laudica analytics are privacy-friendly by design. No cookies
                   are set on embed viewers, no personal data is collected, and
                   no third-party trackers are used. View counts are simple
                   server-side increments &mdash; compliant with GDPR and similar

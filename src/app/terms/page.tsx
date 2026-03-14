@@ -3,9 +3,9 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | ProofWall",
+  title: "Terms of Service | Laudica",
   description:
-    "Terms of Service for ProofWall — the social proof engine for modern SaaS. GDPR compliant.",
+    "Terms of Service for Laudica — the social proof engine for modern SaaS. GDPR compliant.",
 };
 
 export default function TermsOfServicePage() {
@@ -31,7 +31,7 @@ export default function TermsOfServicePage() {
                 1. Acceptance of Terms
               </h2>
               <p>
-                By accessing or using ProofWall ("the Service"), you agree to be
+                By accessing or using Laudica ("the Service"), you agree to be
                 bound by these Terms of Service ("Terms"). If you do not agree
                 to all of these Terms, you may not access or use the Service. We
                 may update these Terms from time to time, and your continued use
@@ -46,7 +46,7 @@ export default function TermsOfServicePage() {
                 2. Description of Service
               </h2>
               <p>
-                ProofWall is a social proof and testimonial management platform
+                Laudica is a social proof and testimonial management platform
                 that enables businesses to:
               </p>
               <ul className="mt-3 list-disc space-y-1.5 pl-6">
@@ -95,12 +95,12 @@ export default function TermsOfServicePage() {
                   for all activity that occurs under your account.
                 </li>
                 <li>
-                  Notify ProofWall immediately of any unauthorized use of your
+                  Notify Laudica immediately of any unauthorized use of your
                   account.
                 </li>
               </ul>
               <p className="mt-3">
-                ProofWall reserves the right to suspend or terminate accounts
+                Laudica reserves the right to suspend or terminate accounts
                 that violate these Terms or that have been inactive for an
                 extended period.
               </p>
@@ -112,7 +112,7 @@ export default function TermsOfServicePage() {
                 4. Data Protection &amp; GDPR Compliance
               </h2>
               <p>
-                ProofWall processes personal data in accordance with the General
+                Laudica processes personal data in accordance with the General
                 Data Protection Regulation (GDPR) and applicable EU data
                 protection laws. Our full data processing practices are
                 described in our{" "}
@@ -125,9 +125,9 @@ export default function TermsOfServicePage() {
                 .
               </p>
               <p className="mt-3">
-                When you use ProofWall to collect testimonials from your
+                When you use Laudica to collect testimonials from your
                 customers (e.g., via collection forms), you act as a data
-                controller for that personal data, and ProofWall acts as a data
+                controller for that personal data, and Laudica acts as a data
                 processor on your behalf. You are responsible for:
               </p>
               <ul className="mt-3 list-disc space-y-1.5 pl-6">
@@ -146,13 +146,13 @@ export default function TermsOfServicePage() {
               </ul>
               <p className="mt-3">
                 For Business plan users processing personal data at scale,
-                ProofWall provides a Data Processing Agreement (DPA) upon
+                Laudica provides a Data Processing Agreement (DPA) upon
                 request. Contact{" "}
                 <a
-                  href="mailto:support@proofwall.com"
+                  href="mailto:support@laudica.com"
                   className="text-primary underline underline-offset-4 transition-colors hover:text-primary/80"
                 >
-                  support@proofwall.com
+                  support@laudica.com
                 </a>{" "}
                 to request a DPA.
               </p>
@@ -163,7 +163,7 @@ export default function TermsOfServicePage() {
               <h2 className="mb-3 text-xl font-semibold text-foreground">
                 5. Free and Paid Plans
               </h2>
-              <p>ProofWall offers the following subscription tiers:</p>
+              <p>Laudica offers the following subscription tiers:</p>
               <ul className="mt-3 list-disc space-y-1.5 pl-6">
                 <li>
                   <strong className="text-foreground">Free</strong> — Up to 15
@@ -185,9 +185,9 @@ export default function TermsOfServicePage() {
               <p className="mt-3">
                 Paid plans are billed monthly unless otherwise agreed. You may
                 cancel your subscription at any time; cancellation takes effect
-                at the end of the current billing period. ProofWall reserves the
+                at the end of the current billing period. Laudica reserves the
                 right to change pricing with at least 30 days&apos; notice.
-                Refunds are issued at ProofWall&apos;s sole discretion.
+                Refunds are issued at Laudica&apos;s sole discretion.
               </p>
             </section>
 
@@ -198,8 +198,8 @@ export default function TermsOfServicePage() {
               </h2>
               <p>
                 You retain full ownership of all testimonial content, media, and
-                data you submit to ProofWall ("User Content"). By submitting
-                User Content, you grant ProofWall a non-exclusive, worldwide,
+                data you submit to Laudica ("User Content"). By submitting
+                User Content, you grant Laudica a non-exclusive, worldwide,
                 royalty-free license to host, display, reproduce, and distribute
                 your User Content solely for the purpose of operating and
                 providing the Service — including embedding testimonial walls on
@@ -245,7 +245,7 @@ export default function TermsOfServicePage() {
                 </li>
               </ul>
               <p className="mt-3">
-                ProofWall reserves the right to remove content and suspend or
+                Laudica reserves the right to remove content and suspend or
                 terminate accounts that violate this Acceptable Use policy, at
                 our sole discretion and without prior notice.
               </p>
@@ -257,17 +257,17 @@ export default function TermsOfServicePage() {
                 8. Embed Usage &amp; Distribution
               </h2>
               <p>
-                ProofWall provides embed codes that allow you to display
+                Laudica provides embed codes that allow you to display
                 testimonial walls on external websites. When you use embed
                 codes, you agree that:
               </p>
               <ul className="mt-3 list-disc space-y-1.5 pl-6">
                 <li>
-                  Embeds may load content from ProofWall servers and are subject
+                  Embeds may load content from Laudica servers and are subject
                   to the availability of the Service.
                 </li>
                 <li>
-                  Free-tier embeds may include ProofWall branding. Paid plans
+                  Free-tier embeds may include Laudica branding. Paid plans
                   (Business tier) may remove or customize branding as described
                   in the plan features.
                 </li>
@@ -277,7 +277,7 @@ export default function TermsOfServicePage() {
                   which they are displayed.
                 </li>
                 <li>
-                  ProofWall is not liable for how embedded content is perceived
+                  Laudica is not liable for how embedded content is perceived
                   or used by visitors to your website.
                 </li>
               </ul>
@@ -291,7 +291,7 @@ export default function TermsOfServicePage() {
               <p>
                 The Service — including its software, design, logos, branding,
                 documentation, and all related intellectual property — is owned
-                by ProofWall and protected by copyright, trademark, and other
+                by Laudica and protected by copyright, trademark, and other
                 intellectual property laws. Nothing in these Terms grants you
                 any right, title, or interest in the Service beyond the limited
                 license to use it in accordance with these Terms.
@@ -309,7 +309,7 @@ export default function TermsOfServicePage() {
                 10. Limitation of Liability
               </h2>
               <p>
-                To the maximum extent permitted by applicable law, ProofWall and
+                To the maximum extent permitted by applicable law, Laudica and
                 its officers, directors, employees, and agents shall not be
                 liable for any indirect, incidental, special, consequential, or
                 punitive damages — including but not limited to loss of profits,
@@ -317,9 +317,9 @@ export default function TermsOfServicePage() {
                 related to your use of or inability to use the Service.
               </p>
               <p className="mt-3">
-                ProofWall&apos;s total aggregate liability for all claims
+                Laudica&apos;s total aggregate liability for all claims
                 related to the Service shall not exceed the amount you paid to
-                ProofWall in the twelve (12) months preceding the event giving
+                Laudica in the twelve (12) months preceding the event giving
                 rise to the claim. The Service is provided on an "as is" and "as
                 available" basis without warranties of any kind, whether express
                 or implied.
@@ -333,14 +333,14 @@ export default function TermsOfServicePage() {
               </h2>
               <p>
                 You may terminate your account at any time by contacting support
-                or using the account settings within the dashboard. ProofWall
+                or using the account settings within the dashboard. Laudica
                 may terminate or suspend your access to the Service immediately,
                 without prior notice or liability, for any reason — including if
                 you breach these Terms.
               </p>
               <p className="mt-3">
                 Upon termination, your right to use the Service will cease
-                immediately. ProofWall may retain or delete your data in
+                immediately. Laudica may retain or delete your data in
                 accordance with its data retention policies. Any provisions of
                 these Terms that by their nature should survive termination will
                 remain in effect, including ownership, warranty disclaimers,
@@ -354,7 +354,7 @@ export default function TermsOfServicePage() {
                 12. Changes to Terms
               </h2>
               <p>
-                ProofWall reserves the right to modify or replace these Terms at
+                Laudica reserves the right to modify or replace these Terms at
                 any time. If a revision is material, we will provide at least 30
                 days&apos; notice before the new terms take effect — for
                 example, by posting a notice within the Service or sending an
@@ -376,7 +376,7 @@ export default function TermsOfServicePage() {
               <p>
                 These Terms shall be governed by and construed in accordance
                 with the laws of the European Union and the applicable laws of
-                the member state in which ProofWall is established, without
+                the member state in which Laudica is established, without
                 regard to conflict of law provisions. Any disputes arising
                 under these Terms shall be subject to the exclusive
                 jurisdiction of the competent courts in that member state.
@@ -396,10 +396,10 @@ export default function TermsOfServicePage() {
               </p>
               <p className="mt-3">
                 <a
-                  href="mailto:support@proofwall.com"
+                  href="mailto:support@laudica.com"
                   className="text-primary underline underline-offset-4 transition-colors hover:text-primary/80"
                 >
-                  support@proofwall.com
+                  support@laudica.com
                 </a>
               </p>
             </section>

@@ -131,7 +131,7 @@ export function VerticalMarquee({ testimonials, speed = "normal", autoplay = tru
       </div>
       {shouldShow("showBranding", config) && (
         <div className="pt-3 text-center text-[10px] text-muted-foreground/50">
-          Powered by ProofWall
+          Powered by Laudica
         </div>
       )}
     </div>

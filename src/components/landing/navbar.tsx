@@ -35,8 +35,8 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <LogoIcon className="size-8" />
-          <span className="font-display text-[2rem] leading-none tracking-tight text-foreground">
-            Proof<span className="text-gradient">Wall</span>
+          <span className="font-display text-[2.25rem] leading-none tracking-tight text-foreground">
+            <span className="text-gradient-logo">Laudica</span>
           </span>
         </Link>
 

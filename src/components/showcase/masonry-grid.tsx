@@ -66,7 +66,7 @@ export function MasonryGrid({ testimonials, config }: Props) {
       ))}
       {shouldShow("showBranding", config) && (
         <div className="break-inside-avoid pt-2 text-center text-[10px] text-muted-foreground/50">
-          Powered by ProofWall
+          Powered by Laudica
         </div>
       )}
     </div>

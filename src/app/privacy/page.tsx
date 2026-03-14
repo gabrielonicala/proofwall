@@ -3,9 +3,9 @@ import { Footer } from "@/components/landing/footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — ProofWall",
+  title: "Privacy Policy — Laudica",
   description:
-    "Learn how ProofWall collects, uses, and protects your personal information. GDPR compliant.",
+    "Learn how Laudica collects, uses, and protects your personal information. GDPR compliant.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -25,9 +25,9 @@ export default function PrivacyPolicyPage() {
           <div className="mt-12 space-y-12 text-base leading-relaxed text-muted-foreground">
             {/* Intro */}
             <p>
-              ProofWall (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;)
+              Laudica (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;)
               is the data controller for your personal data and operates the
-              ProofWall platform, a social proof and testimonial management
+              Laudica platform, a social proof and testimonial management
               service. This Privacy Policy explains how we collect, use,
               disclose, and safeguard your information when you use our
               website, application, and related services, in accordance with the
@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
               </h2>
               <p className="mb-3">
                 We collect information that you provide directly and information
-                generated automatically when you use ProofWall:
+                generated automatically when you use Laudica:
               </p>
               <ul className="list-disc space-y-2 pl-5">
                 <li>
@@ -95,7 +95,7 @@ export default function PrivacyPolicyPage() {
                   <span className="font-medium text-foreground">
                     Contract performance
                   </span>{" "}
-                  — processing necessary to provide you with the ProofWall
+                  — processing necessary to provide you with the Laudica
                   service, manage your account, display your testimonials, and
                   fulfill our obligations under our Terms of Service.
                 </li>
@@ -131,7 +131,7 @@ export default function PrivacyPolicyPage() {
               </h2>
               <ul className="list-disc space-y-2 pl-5">
                 <li>
-                  To provide, operate, and maintain the ProofWall platform.
+                  To provide, operate, and maintain the Laudica platform.
                 </li>
                 <li>
                   To authenticate your identity and manage your account.
@@ -193,7 +193,7 @@ export default function PrivacyPolicyPage() {
                 Cookies
               </h2>
               <p>
-                ProofWall uses only{" "}
+                Laudica uses only{" "}
                 <span className="font-medium text-foreground">
                   strictly necessary cookies
                 </span>{" "}
@@ -214,7 +214,7 @@ export default function PrivacyPolicyPage() {
                 Third-Party Services (Sub-processors)
               </h2>
               <p className="mb-3">
-                We use the following sub-processors to operate ProofWall. Each
+                We use the following sub-processors to operate Laudica. Each
                 processes data on our behalf and under our instructions:
               </p>
               <ul className="list-disc space-y-2 pl-5">
@@ -350,10 +350,10 @@ export default function PrivacyPolicyPage() {
               <p className="mt-3">
                 To exercise any of these rights, contact us at{" "}
                 <a
-                  href="mailto:support@proofwall.com"
+                  href="mailto:support@laudica.com"
                   className="font-medium text-primary underline underline-offset-4 transition-colors hover:text-primary/80"
                 >
-                  support@proofwall.com
+                  support@laudica.com
                 </a>
                 . We will respond within 30 days as required by the GDPR.
               </p>
@@ -370,17 +370,17 @@ export default function PrivacyPolicyPage() {
                 Children&apos;s Privacy
               </h2>
               <p>
-                ProofWall is not intended for use by individuals under the age
+                Laudica is not intended for use by individuals under the age
                 of 16. We do not knowingly collect personal information from
                 children. If we discover that a child under 16 has provided us
                 with personal data, we will promptly delete it. If you believe a
                 child has provided us with their information, please contact us
                 at{" "}
                 <a
-                  href="mailto:support@proofwall.com"
+                  href="mailto:support@laudica.com"
                   className="font-medium text-primary underline underline-offset-4 transition-colors hover:text-primary/80"
                 >
-                  support@proofwall.com
+                  support@laudica.com
                 </a>
                 .
               </p>
@@ -396,7 +396,7 @@ export default function PrivacyPolicyPage() {
                 make material changes, we will notify you by updating the
                 &quot;Last updated&quot; date at the top of this page and, where
                 appropriate, sending you a notification via email or an in-app
-                alert. Your continued use of ProofWall after such changes
+                alert. Your continued use of Laudica after such changes
                 constitutes acceptance of the revised policy.
               </p>
             </section>
@@ -412,10 +412,10 @@ export default function PrivacyPolicyPage() {
               </p>
               <p className="mt-3">
                 <a
-                  href="mailto:support@proofwall.com"
+                  href="mailto:support@laudica.com"
                   className="font-medium text-primary underline underline-offset-4 transition-colors hover:text-primary/80"
                 >
-                  support@proofwall.com
+                  support@laudica.com
                 </a>
               </p>
             </section>

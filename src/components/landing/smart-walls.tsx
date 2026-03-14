@@ -10,7 +10,7 @@ const pages = [
     tags: ["trust", "quality"],
     testimonials: [
       {
-        text: "ProofWall completely transformed our conversion rate.",
+        text: "Laudica completely transformed our conversion rate.",
         author: "Sarah Chen",
         rating: 5,
       },

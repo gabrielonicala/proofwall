@@ -12,7 +12,7 @@ const resourceLinks = [
   { label: "Documentation", href: "/docs" },
   { label: "API Reference", href: "/docs#embedding" },
   { label: "Status", href: "#" },
-  { label: "Support", href: "mailto:support@proofwall.com" },
+  { label: "Support", href: "mailto:support@laudica.com" },
 ];
 
 const legalLinks = [
@@ -30,8 +30,8 @@ export function Footer() {
           <div className="col-span-2 sm:col-span-3">
             <Link href="/" className="mb-1 inline-flex items-center gap-2">
               <LogoIcon className="size-8" />
-              <span className="font-display text-[2rem] leading-none tracking-tight text-foreground">
-                Proof<span className="text-gradient">Wall</span>
+              <span className="font-display text-[2.25rem] leading-none tracking-tight text-foreground">
+                <span className="text-gradient-logo">Laudica</span>
               </span>
             </Link>
             <p className="mt-1.5 max-w-xs text-xs leading-relaxed text-muted-foreground">
@@ -102,7 +102,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border/30 pt-6 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} ProofWall. All rights reserved.
+            &copy; {new Date().getFullYear()} Laudica. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             {/* Twitter / X */}

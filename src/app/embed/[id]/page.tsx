@@ -208,7 +208,7 @@ export default async function EmbedPage({ params }: Props) {
       )}
       {showBranding && (
         <a
-          href="https://proofwall.com"
+          href="https://laudica.com"
           target="_blank"
           rel="noopener noreferrer"
           style={{
@@ -221,7 +221,7 @@ export default async function EmbedPage({ params }: Props) {
             opacity: 0.6,
           }}
         >
-          Powered by ProofWall
+          Powered by Laudica
         </a>
       )}
       <EmbedResize />

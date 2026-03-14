@@ -15,7 +15,7 @@ const plans = [
       "3 showcase walls",
       "All 8 display styles",
       "1 collection form",
-      "ProofWall branding on embeds",
+      "Laudica branding on embeds",
     ],
     cta: "Start Free",
     highlight: false,

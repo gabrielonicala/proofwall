@@ -82,8 +82,8 @@ export function Sidebar() {
               >
                 <Link href="/" className="flex items-center gap-2">
                   <LogoIcon className="size-7" />
-                  <span className="font-display text-[1.85rem] leading-none">
-                    Proof<span className="text-gradient">Wall</span>
+                  <span className="font-display text-[2.1rem] leading-none">
+                    <span className="text-gradient-logo">Laudica</span>
                   </span>
                 </Link>
               </motion.div>

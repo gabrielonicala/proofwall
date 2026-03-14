@@ -495,7 +495,7 @@ export default function WallEditorPage() {
                   onChange={(v) => updateConfig("showDate", v)}
                 />
                 <Toggle
-                  label="ProofWall branding"
+                  label="Laudica branding"
                   checked={config.showBranding}
                   onChange={(v) => updateConfig("showBranding", v)}
                 />
@@ -580,7 +580,7 @@ export default function WallEditorPage() {
                 <EmbedCodePanel wallId={params.id} />
                 {!limits.hasWhiteLabel && (
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Embeds include ProofWall branding.{" "}
+                    Embeds include Laudica branding.{" "}
                     <a href="/dashboard/settings?tab=billing" className="text-primary underline">
                       Upgrade to Business
                     </a>{" "}
@@ -815,15 +815,15 @@ function EmbedCodePanel({ wallId }: { wallId: string }) {
 
   const snippets: Record<EmbedTab, { code: string; hint: string }> = {
     html: {
-      code: `<div data-proofwall="${wallId}"></div>\n<script src="${origin}/embed.js" async></script>`,
+      code: `<div data-laudica="${wallId}"></div>\n<script src="${origin}/embed.js" async></script>`,
       hint: "Add this to any HTML page. The script handles rendering and resizing automatically.",
     },
     iframe: {
-      code: `<iframe\n  src="${embedUrl}"\n  style="width:100%;border:none;min-height:400px"\n  loading="lazy"\n  title="ProofWall testimonials"\n></iframe>`,
+      code: `<iframe\n  src="${embedUrl}"\n  style="width:100%;border:none;min-height:400px"\n  loading="lazy"\n  title="Laudica testimonials"\n></iframe>`,
       hint: "Self-contained embed. No JavaScript needed — works anywhere iframes are supported.",
     },
     react: {
-      code: `function ProofWall() {\n  return (\n    <iframe\n      src="${embedUrl}"\n      style={{ width: '100%', border: 'none', minHeight: 400 }}\n      loading="lazy"\n      title="ProofWall testimonials"\n    />\n  );\n}`,
+      code: `function Laudica() {\n  return (\n    <iframe\n      src="${embedUrl}"\n      style={{ width: '100%', border: 'none', minHeight: 400 }}\n      loading="lazy"\n      title="Laudica testimonials"\n    />\n  );\n}`,
       hint: "Drop this component into your React or Next.js app.",
     },
     preview: {

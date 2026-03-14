@@ -7,14 +7,14 @@ export function LogoIcon({ className }: { className?: string }) {
       className={className}
     >
       <defs>
-        <linearGradient id="pw-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+        <linearGradient id="la-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stopColor="#6C3FE8" />
           <stop offset="100%" stopColor="#7C3AED" />
         </linearGradient>
       </defs>
 
       {/* Rounded square background */}
-      <rect width="32" height="32" rx="7" fill="url(#pw-grad)" />
+      <rect width="32" height="32" rx="7" fill="url(#la-grad)" />
 
       {/* Three stacked card rows = the "wall" */}
       {/* Top row: two blocks */}

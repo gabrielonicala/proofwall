@@ -10,7 +10,7 @@ export function EmbedResize() {
       const height = document.documentElement.scrollHeight;
       if (height > 0) {
         window.parent.postMessage(
-          { type: "proofwall-resize", height },
+          { type: "laudica-resize", height },
           "*"
         );
       }

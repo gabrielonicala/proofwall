@@ -23,8 +23,8 @@ const dmSerifDisplay = DM_Serif_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: "ProofWall — Social proof that sells",
-    template: "%s | ProofWall",
+    default: "Laudica — Social proof that sells",
+    template: "%s | Laudica",
   },
   description:
     "Collect stunning social proof. Deploy it strategically. Watch your conversions climb. 8 beautiful showcase styles, smart contextual walls, and paste-to-import.",
