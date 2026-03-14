@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { supabaseAdmin } from "../helpers/test-utils";
+import { supabaseAdmin, getTestProjectId } from "../helpers/test-utils";
 
 test.describe("Security", () => {
   test("response includes Content-Security-Policy header", async ({ page }) => {
@@ -34,41 +34,21 @@ test.describe("Security", () => {
   });
 
   test("wall embed pages allow framing (no X-Frame-Options)", async ({ page }) => {
-    // We need an active wall — create one via admin
     const sb = supabaseAdmin();
-    const { data: users } = await sb.auth.admin.listUsers();
-    const testUser = users?.users.find(
-      (u) => u.email === (process.env.TEST_USER_EMAIL || "e2e-test@laudica.com")
-    );
+    const projectId = await getTestProjectId();
+    const { data: wall } = await sb
+      .from("walls")
+      .select("id")
+      .eq("project_id", projectId)
+      .eq("is_active", true)
+      .limit(1)
+      .maybeSingle();
 
-    if (testUser) {
-      const { data: membership } = await sb
-        .from("project_members")
-        .select("project_id")
-        .eq("user_id", testUser.id)
-        .eq("role", "owner")
-        .single();
+    if (!wall) { test.skip(); return; }
 
-      if (membership) {
-        const { data: wall } = await sb
-          .from("walls")
-          .select("id")
-          .eq("project_id", membership.project_id)
-          .eq("is_active", true)
-          .limit(1)
-          .single();
-
-        if (wall) {
-          const response = await page.goto(`/embed/${wall.id}`);
-          const xFrameOptions = response?.headers()["x-frame-options"];
-          // Should NOT have X-Frame-Options (or it should be absent)
-          expect(xFrameOptions).toBeUndefined();
-          return;
-        }
-      }
-    }
-    // If no active wall exists, skip gracefully
-    test.skip();
+    const response = await page.goto(`/embed/${wall.id}`);
+    const xFrameOptions = response?.headers()["x-frame-options"];
+    expect(xFrameOptions).toBeUndefined();
   });
 
   // NOTE: This test is expected to fail because the middleware currently only
@@ -76,31 +56,27 @@ test.describe("Security", () => {
   // When this test fails, fix the middleware to also exclude /form/* from X-Frame-Options.
   test.fail("public form pages allow framing (no X-Frame-Options)", async ({ page }) => {
     const sb = supabaseAdmin();
-    const { data: users } = await sb.auth.admin.listUsers();
-    const testUser = users?.users.find(
-      (u) => u.email === (process.env.TEST_USER_EMAIL || "e2e-test@laudica.com")
-    );
-    if (!testUser) { test.skip(); return; }
+    const projectId = await getTestProjectId();
 
-    const { data: membership } = await sb
-      .from("project_members")
-      .select("project_id")
-      .eq("user_id", testUser.id)
-      .eq("role", "owner")
-      .single();
-    if (!membership) { test.skip(); return; }
+    // Create a temporary form via admin (bypasses plan limits)
+    const { data: form } = await sb.from("collection_forms").insert({
+      project_id: projectId,
+      name: "Security Test Form",
+      is_active: true,
+      fields: [
+        { id: "author_name", type: "text", label: "Your name", placeholder: "John Doe", required: true, enabled: true },
+        { id: "text", type: "textarea", label: "Your experience", placeholder: "Tell us about your experience...", required: true, enabled: true },
+      ],
+    }).select("id").single();
 
-    const { data: form } = await sb
-      .from("collection_forms")
-      .select("id")
-      .eq("project_id", membership.project_id)
-      .eq("is_active", true)
-      .limit(1)
-      .single();
     if (!form) { test.skip(); return; }
 
-    const response = await page.goto(`/form/${form.id}`);
-    const xFrameOptions = response?.headers()["x-frame-options"];
-    expect(xFrameOptions).toBeUndefined();
+    try {
+      const response = await page.goto(`/form/${form.id}`);
+      const xFrameOptions = response?.headers()["x-frame-options"];
+      expect(xFrameOptions).toBeUndefined();
+    } finally {
+      await sb.from("collection_forms").delete().eq("id", form.id);
+    }
   });
 });

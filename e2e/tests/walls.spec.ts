@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createWall, deleteWall } from "../helpers/test-utils";
+import { createWall, deleteWall, setProjectPlan } from "../helpers/test-utils";
 
 test.describe("Walls", () => {
   test("create new wall with name and style", async ({ page }) => {
@@ -101,43 +101,62 @@ test.describe("Walls", () => {
 
   test("activate/deactivate wall toggle", async ({ page }) => {
     await page.goto("/dashboard/walls");
+    await expect(page.getByRole("heading", { name: "E2E Test Wall", level: 3 })).toBeVisible({ timeout: 5_000 });
 
-    // Use the dropdown menu on the wall card
-    const card = page.getByText("E2E Test Wall").first().locator("xpath=ancestor::*[contains(@class, 'card') or contains(@class, 'border')]").first();
-    await card.hover(); // Reveal dropdown trigger (opacity-0 until hover)
-    await card.locator("button").filter({ has: page.locator("svg") }).last().click();
+    // The dropdown trigger uses Lucide SVGs (<svg> in DOM, shown as img in ARIA tree).
+    // It has opacity-0 until group-hover, so we use force:true.
+    const editBtn = page.getByRole("button", { name: /Edit E2E Test Wall/i });
+    const card = editBtn.locator("..");
+    // Filter for buttons with SVG children (the dropdown trigger has MoreVertical SVG)
+    const dropdownBtn = card.locator("button").filter({ has: page.locator("svg") }).first();
+
+    await card.hover();
+    await dropdownBtn.evaluate((el) => (el as HTMLElement).click());
 
     // Click deactivate
     const deactivateBtn = page.getByRole("menuitem", { name: /Deactivate/i });
-    if (await deactivateBtn.isVisible()) {
+    if (await deactivateBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
       await deactivateBtn.click();
       await page.waitForTimeout(1_000);
       await expect(page.getByText(/Inactive/i)).toBeVisible();
-    }
 
-    // Reactivate
-    await card.locator("button").filter({ has: page.locator("svg") }).last().click();
-    const activateBtn = page.getByRole("menuitem", { name: /Activate/i });
-    if (await activateBtn.isVisible()) {
-      await activateBtn.click();
-      await page.waitForTimeout(1_000);
+      // Reactivate
+      await card.hover();
+      await dropdownBtn.evaluate((el) => (el as HTMLElement).click());
+      const activateBtn = page.getByRole("menuitem", { name: /Activate/i });
+      if (await activateBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        await activateBtn.click();
+        await page.waitForTimeout(1_000);
+      }
+    } else {
+      // Dismiss menu if Deactivate wasn't found
+      await page.keyboard.press("Escape");
     }
   });
 
   test("delete wall", async ({ page }) => {
+    // Ensure we're on a plan that allows creating walls
+    await setProjectPlan("pro");
+
     // Create a wall to delete
     await createWall(page, "Wall To Delete", "Cards Grid");
 
     await page.goto("/dashboard/walls");
     await expect(page.getByText("Wall To Delete").first()).toBeVisible({ timeout: 5_000 });
 
-    // Delete it — wall deletion has no confirmation dialog, it deletes immediately
-    const card = page.getByText("Wall To Delete").first().locator("xpath=ancestor::*[contains(@class, 'card') or contains(@class, 'border')]").first();
-    await card.hover(); // Reveal the dropdown trigger (opacity-0 until hover)
-    await card.locator("button").filter({ has: page.locator("svg") }).last().click();
+    // The dropdown trigger is behind the overlay button (position:absolute inset:0).
+    // Use evaluate to dispatch click directly, bypassing the overlay.
+    const editBtn = page.getByRole("button", { name: /Edit Wall To Delete/i }).first();
+    const card = editBtn.locator("..");
+    const dropdownBtn = card.locator("button").filter({ has: page.locator("svg") }).first();
+
+    await card.hover();
+    await dropdownBtn.evaluate((el) => (el as HTMLElement).click());
     await page.getByRole("menuitem", { name: /Delete/i }).click();
 
     await expect(page.getByText("Wall To Delete")).not.toBeVisible({ timeout: 5_000 });
+
+    await setProjectPlan("free");
   });
 
   test("apply tag filter in wall builder", async ({ page }) => {

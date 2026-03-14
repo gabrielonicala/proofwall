@@ -41,19 +41,15 @@ test.describe.serial("Testimonials", () => {
   });
 
   test("filter by status", async ({ page }) => {
-    // Try native select first, fall back to custom dropdown
-    const nativeSelect = page.locator("select").first();
-    if (await nativeSelect.isVisible()) {
-      await nativeSelect.selectOption({ label: "Pending" });
-    } else {
-      // Custom dropdown (Radix Select / combobox)
-      const filterBtn = page.getByRole("combobox").or(page.getByRole("button", { name: /All|Status|Filter/i })).first();
-      await filterBtn.click();
-      await page.getByRole("option", { name: /Pending/i }).click();
-    }
+    // The filter is a native <select> rendered as combobox in ARIA tree
+    const filterSelect = page.getByRole("combobox");
+    await expect(filterSelect).toBeVisible({ timeout: 5_000 });
+    await filterSelect.selectOption("Pending");
     await page.waitForTimeout(500);
     // Verify filter applied — page should not error
-    await expect(page.getByText("Testimonials")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Testimonials" })).toBeVisible();
+    // Reset to all
+    await filterSelect.selectOption("All Status");
   });
 
   test("search by author name", async ({ page }) => {
@@ -125,7 +121,7 @@ test.describe.serial("Testimonials", () => {
     }
   });
 
-  test("delete testimonial with confirmation", async ({ page }) => {
+  test("delete testimonial", async ({ page }) => {
     // Create a disposable testimonial first
     await createTestimonial(page, {
       name: "Delete Me",
@@ -133,16 +129,13 @@ test.describe.serial("Testimonials", () => {
     });
     await expect(page.getByText("Delete Me")).toBeVisible({ timeout: 5_000 });
 
-    // Find and delete it
-    const card = page.getByText("Delete Me").first().locator("xpath=ancestor::*[contains(@class, 'card') or contains(@class, 'border')]").first();
-    await card.locator("button").filter({ has: page.locator("svg") }).last().click();
+    // Find the card's dropdown trigger (MoreVertical SVG button)
+    const card = page.getByText("Delete Me").first().locator("xpath=ancestor::*[contains(@class, 'border')]").first();
+    const dropdownBtn = card.locator("button").filter({ has: page.locator("svg") }).last();
+    await dropdownBtn.click();
     await page.getByRole("menuitem", { name: /delete/i }).click();
 
-    // Confirm deletion
-    const confirmBtn = page.getByRole("button", { name: /delete|confirm/i }).last();
-    await confirmBtn.click();
-
-    // Testimonial should be gone
+    // App deletes immediately without confirmation dialog
     await expect(page.getByText("Delete Me")).not.toBeVisible({ timeout: 5_000 });
   });
 

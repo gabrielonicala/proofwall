@@ -1,14 +1,24 @@
 import { type Page, expect } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import path from "path";
+import dotenv from "dotenv";
+
+// Ensure env vars are loaded in worker processes
+dotenv.config({ path: path.resolve(__dirname, "../../.env.local") });
 
 // --- Supabase Admin Client ---
 
 export function supabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(
+      `Missing Supabase env vars. URL=${url ? "set" : "MISSING"}, KEY=${key ? "set" : "MISSING"}`
+    );
+  }
+  return createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 }
 
 // --- Testimonial Helpers ---
@@ -117,7 +127,8 @@ export async function getTestProjectId(): Promise<string> {
     .select("project_id")
     .eq("user_id", userId)
     .eq("role", "owner")
-    .single();
+    .limit(1)
+    .maybeSingle();
   if (!data) throw new Error("Test project not found");
   return data.project_id;
 }

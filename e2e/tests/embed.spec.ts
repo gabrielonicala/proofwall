@@ -79,7 +79,7 @@ test.describe("Embeds", () => {
       }
 
       await page.goto(`/embed/${wall.id}`);
-      await expect(page.getByText(/Powered by Laudica/i)).toBeVisible({ timeout: 5_000 });
+      await expect(page.getByRole("link", { name: /Powered by Laudica/i })).toBeVisible({ timeout: 5_000 });
     });
 
     test("inactive wall embed shows error state", async ({ page }) => {
@@ -148,81 +148,73 @@ test.describe("Embeds", () => {
   });
 
   test.describe("Form embeds", () => {
-    test("public form loads and renders fields", async ({ page }) => {
+    let tempFormId: string | null = null;
+
+    test.beforeAll(async () => {
       const sb = supabaseAdmin();
       const projectId = await getTestProjectId();
-      const { data: form } = await sb
-        .from("collection_forms")
-        .select("id")
-        .eq("project_id", projectId)
-        .eq("is_active", true)
-        .limit(1)
-        .single();
+      // Create a temporary form for embed tests (bypasses plan limits via admin)
+      const { data } = await sb.from("collection_forms").insert({
+        project_id: projectId,
+        name: "Embed Test Form",
+        is_active: true,
+        fields: [
+          { id: "author_name", type: "text", label: "Your name", placeholder: "John Doe", required: true, enabled: true },
+          { id: "rating", type: "rating", label: "Rating", required: true, enabled: true },
+          { id: "text", type: "textarea", label: "Your experience", placeholder: "Tell us about your experience...", required: true, enabled: true },
+        ],
+        welcome_message: "We'd love to hear from you!",
+        thank_you_message: "Thank you for your feedback!",
+      }).select("id").single();
+      tempFormId = data?.id ?? null;
+    });
 
-      if (!form) {
-        test.skip();
-        return;
+    test.afterAll(async () => {
+      if (tempFormId) {
+        const sb = supabaseAdmin();
+        await sb.from("collection_forms").delete().eq("id", tempFormId);
       }
+    });
 
-      await page.goto(`/form/${form.id}`);
-      // Form should have a submit button
+    test("public form loads and renders fields", async ({ page }) => {
+      if (!tempFormId) { test.skip(); return; }
+
+      await page.goto(`/form/${tempFormId}`);
       await expect(page.getByRole("button", { name: /Submit/i })).toBeVisible({ timeout: 10_000 });
     });
 
     test("form submission works", async ({ page }) => {
-      const sb = supabaseAdmin();
-      const projectId = await getTestProjectId();
-      const { data: form } = await sb
-        .from("collection_forms")
-        .select("id")
-        .eq("project_id", projectId)
-        .eq("is_active", true)
-        .limit(1)
-        .single();
+      if (!tempFormId) { test.skip(); return; }
 
-      if (!form) {
-        test.skip();
-        return;
+      await page.goto(`/form/${tempFormId}`);
+      await expect(page.getByRole("button", { name: /Submit/i })).toBeVisible({ timeout: 10_000 });
+
+      // Fill name (placeholder is "John Doe")
+      await page.getByPlaceholder("John Doe").fill("Embed Form Submitter");
+
+      // Set rating (click 5th star)
+      const starButtons = page.locator("form button[type='button']");
+      if (await starButtons.count() >= 5) {
+        await starButtons.nth(4).click();
       }
 
-      await page.goto(`/form/${form.id}`);
-
-      // Fill required fields
-      const nameInput = page.getByPlaceholder(/name/i).or(page.getByLabel(/name/i));
-      if (await nameInput.first().isVisible()) {
-        await nameInput.first().fill("Embed Form Submitter");
-      }
-
-      const textField = page.locator("textarea").first();
-      if (await textField.isVisible()) {
-        await textField.fill("Submitted via embed form test");
-      }
+      // Fill experience textarea
+      await page.locator("textarea").first().fill("Submitted via embed form test");
 
       await page.getByRole("button", { name: /Submit/i }).click();
-      await expect(page.getByText(/thank you|success/i)).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByText(/thank you/i)).toBeVisible({ timeout: 10_000 });
     });
 
     test("deactivated form shows inactive state", async ({ page }) => {
+      if (!tempFormId) { test.skip(); return; }
+
       const sb = supabaseAdmin();
-      const projectId = await getTestProjectId();
-      const { data: form } = await sb
-        .from("collection_forms")
-        .select("id")
-        .eq("project_id", projectId)
-        .limit(1)
-        .single();
-
-      if (!form) {
-        test.skip();
-        return;
-      }
-
-      await sb.from("collection_forms").update({ is_active: false }).eq("id", form.id);
-      const response = await page.goto(`/form/${form.id}`);
+      await sb.from("collection_forms").update({ is_active: false }).eq("id", tempFormId);
+      const response = await page.goto(`/form/${tempFormId}`);
       expect(response?.status()).toBeGreaterThanOrEqual(400);
 
       // Reactivate
-      await sb.from("collection_forms").update({ is_active: true }).eq("id", form.id);
+      await sb.from("collection_forms").update({ is_active: true }).eq("id", tempFormId);
     });
   });
 });
