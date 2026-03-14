@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
+import type { Database } from "@/lib/supabase/types";
 import { stripe } from "@/lib/stripe";
+
+// Admin client to bypass RLS for subscription lookup
+function createAdminClient() {
+  return createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { cookies: { getAll: () => [], setAll: () => {} } }
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,8 +39,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get Stripe customer ID
-    const { data: sub } = await supabase
+    // Get Stripe customer ID (admin client to bypass RLS)
+    const admin = createAdminClient();
+    const { data: sub } = await admin
       .from("subscriptions")
       .select("stripe_customer_id")
       .eq("project_id", projectId)

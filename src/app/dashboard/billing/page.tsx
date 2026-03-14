@@ -77,7 +77,7 @@ function BillingContent() {
   const billingStatus = searchParams.get("billing");
 
   async function handleCheckout(targetPlan: "pro" | "business") {
-    if (!project) return;
+    if (!project || loading) return;
     const interval = annual ? "year" : "month";
     setLoading(`${targetPlan}-checkout`);
 
@@ -102,7 +102,7 @@ function BillingContent() {
   }
 
   async function handleManageBilling() {
-    if (!project) return;
+    if (!project || loading) return;
     setLoading("portal");
 
     try {
