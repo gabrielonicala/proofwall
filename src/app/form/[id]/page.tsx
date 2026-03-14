@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { type FormField } from "@/lib/form-config";
 import { PublicForm } from "./public-form";
+
+export const metadata: Metadata = {
+  robots: "noindex, nofollow",
+};
 
 export default async function PublicFormPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
+import { JsonLd, breadcrumbSchema } from "@/components/json-ld";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
@@ -61,6 +62,24 @@ const platforms = [
 export default function IntegrationsPage() {
   return (
     <>
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", href: "/" },
+        { name: "Integrations" },
+      ])} />
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "Laudica Integrations",
+        description: "Platforms supported by Laudica for embedding testimonial walls.",
+        numberOfItems: 4,
+        itemListElement: platforms.map((p, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: p.name,
+          url: `https://laudica.com/integrations/${p.slug}`,
+          description: p.description,
+        })),
+      }} />
       <Navbar />
       <main className="pt-28 pb-20">
         <div className="mx-auto max-w-3xl px-6">

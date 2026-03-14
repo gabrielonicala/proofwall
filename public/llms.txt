@@ -1,0 +1,49 @@
+# Laudica
+
+> Laudica is a social proof engine for modern SaaS. It helps businesses collect, organize, and deploy customer testimonials to increase conversions.
+
+## What Laudica Does
+
+Laudica is a testimonial management platform that lets you:
+
+- Collect testimonials via customizable forms, paste-to-import, or CSV upload
+- Organize testimonials with tags, ratings, and approval workflows
+- Build showcase walls using 9 display styles (cards grid, carousel, ticker tape, masonry, vertical marquee, spotlight stack, orbit, fade rotator, minimal list)
+- Deploy contextual walls that show the right testimonials on the right page using tag-based filtering
+- Embed walls on any website via HTML/JS snippet, iframe, or React component
+- Track analytics on views and engagement
+
+## Key Features
+
+- 9 showcase display styles with live preview
+- Smart contextual walls with tag-based filtering
+- Embeddable on any platform (HTML, React, WordPress, Webflow)
+- Domain-locked embeds for security
+- GDPR-compliant analytics
+- API access for custom integrations (Business plan)
+- White-label embedding (Business plan)
+
+## Pricing
+
+- Free: $0/month — 15 testimonials, 3 walls, all display styles
+- Pro: $29/month — Unlimited testimonials and walls, custom branding, analytics
+- Business: $79/month — API access, white-label embeds, unlimited team seats
+
+## Links
+
+- Homepage: https://laudica.com
+- Documentation: https://laudica.com/docs
+- Integrations: https://laudica.com/integrations
+- Privacy Policy: https://laudica.com/privacy
+- Terms of Service: https://laudica.com/terms
+
+## Integration Guides
+
+- HTML/JavaScript: https://laudica.com/integrations/html
+- React / Next.js: https://laudica.com/integrations/react
+- WordPress: https://laudica.com/integrations/wordpress
+- Webflow: https://laudica.com/integrations/webflow
+
+## Contact
+
+- Support: support@laudica.com

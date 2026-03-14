@@ -3,7 +3,7 @@ import { Footer } from "@/components/landing/footer";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Laudica",
+  title: "Privacy Policy",
   description:
     "Learn how Laudica collects, uses, and protects your personal information. GDPR compliant.",
 };

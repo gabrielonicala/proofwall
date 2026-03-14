@@ -3,7 +3,7 @@ import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Laudica",
+  title: "Terms of Service",
   description:
     "Terms of Service for Laudica — the social proof engine for modern SaaS. GDPR compliant.",
 };

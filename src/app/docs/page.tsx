@@ -488,20 +488,26 @@ export default function DocsPage() {
                   React component
                 </h3>
                 <p className="leading-relaxed text-muted-foreground">
-                  For React and Next.js projects, install the Laudica package
-                  and use the component directly.
+                  For React and Next.js projects, create a reusable component
+                  that wraps the Laudica embed iframe. See the{" "}
+                  <a
+                    href="/integrations/react"
+                    className="text-primary underline underline-offset-4 hover:text-primary/80"
+                  >
+                    React integration guide
+                  </a>{" "}
+                  for a full walkthrough with auto-resize support.
                 </p>
                 <pre className="overflow-x-auto rounded-lg bg-[#0d0d12] p-4 font-mono text-sm leading-relaxed text-muted-foreground">
-                  <code>{`npm install @laudica/react`}</code>
-                </pre>
-                <pre className="mt-3 overflow-x-auto rounded-lg bg-[#0d0d12] p-4 font-mono text-sm leading-relaxed text-muted-foreground">
-                  <code>{`import { Laudica } from "@laudica/react";
-
-export default function Testimonials() {
+                  <code>{`export function LaudicaWall({ wallId }: { wallId: string }) {
   return (
-    <Laudica
-      wallId="YOUR_WALL_ID"
-      theme="dark"
+    <iframe
+      src={\`https://app.laudica.com/embed/\${wallId}\`}
+      width="100%"
+      height="500"
+      frameBorder="0"
+      style={{ border: "none", maxWidth: "100%" }}
+      loading="lazy"
     />
   );
 }`}</code>

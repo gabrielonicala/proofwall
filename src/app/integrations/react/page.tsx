@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/landing/navbar";
 import { Footer } from "@/components/landing/footer";
+import { JsonLd, breadcrumbSchema } from "@/components/json-ld";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowLeft } from "lucide-react";
@@ -16,6 +17,11 @@ const codeBlockClass =
 export default function ReactIntegrationPage() {
   return (
     <>
+      <JsonLd data={breadcrumbSchema([
+        { name: "Home", href: "/" },
+        { name: "Integrations", href: "/integrations" },
+        { name: "React" },
+      ])} />
       <Navbar />
       <main className="pt-28 pb-20">
         <div className="mx-auto max-w-3xl px-6">
