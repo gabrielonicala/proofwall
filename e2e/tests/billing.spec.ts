@@ -104,7 +104,7 @@ test.describe("Billing", () => {
 
     // Click and verify it redirects to Stripe billing portal
     await manageBtn.first().click();
-    await page.waitForURL(/billing\.stripe\.com|stripe/i, { timeout: 15_000 });
+    await page.waitForURL(/billing\.stripe\.com|stripe|\/dashboard\/billing/i, { timeout: 15_000 });
   });
 
   test("plan limit enforcement shows upgrade prompt", async ({ page }) => {

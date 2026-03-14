@@ -17,7 +17,7 @@ test.describe("Walls", () => {
   test("wall builder loads with configuration panel", async ({ page }) => {
     await page.goto("/dashboard/walls");
     // Click into the first wall (E2E Test Wall)
-    await page.getByText("E2E Test Wall").first().click();
+    await page.getByRole("button", { name: /Edit E2E Test Wall/i }).click();
     await page.waitForURL("**/dashboard/walls/**");
 
     // Config panel should have key sections
@@ -28,7 +28,7 @@ test.describe("Walls", () => {
 
   test("change showcase style", async ({ page }) => {
     await page.goto("/dashboard/walls");
-    await page.getByText("E2E Test Wall").first().click();
+    await page.getByRole("button", { name: /Edit E2E Test Wall/i }).click();
     await page.waitForURL("**/dashboard/walls/**");
 
     // Switch to Carousel
@@ -41,7 +41,7 @@ test.describe("Walls", () => {
 
   test("change theme", async ({ page }) => {
     await page.goto("/dashboard/walls");
-    await page.getByText("E2E Test Wall").first().click();
+    await page.getByRole("button", { name: /Edit E2E Test Wall/i }).click();
     await page.waitForURL("**/dashboard/walls/**");
 
     // Find theme selector and change to Light
@@ -54,7 +54,7 @@ test.describe("Walls", () => {
 
   test("change sort order", async ({ page }) => {
     await page.goto("/dashboard/walls");
-    await page.getByText("E2E Test Wall").first().click();
+    await page.getByRole("button", { name: /Edit E2E Test Wall/i }).click();
     await page.waitForURL("**/dashboard/walls/**");
 
     const sortSelect = page.locator("select, [role='combobox']").filter({ hasText: /Newest|Highest|Random/i });
@@ -66,7 +66,7 @@ test.describe("Walls", () => {
 
   test("set max testimonials limit", async ({ page }) => {
     await page.goto("/dashboard/walls");
-    await page.getByText("E2E Test Wall").first().click();
+    await page.getByRole("button", { name: /Edit E2E Test Wall/i }).click();
     await page.waitForURL("**/dashboard/walls/**");
 
     const maxInput = page.getByPlaceholder("All").or(page.locator('input[type="number"]').first());
@@ -78,7 +78,7 @@ test.describe("Walls", () => {
 
   test("preview panel shows content", async ({ page }) => {
     await page.goto("/dashboard/walls");
-    await page.getByText("E2E Test Wall").first().click();
+    await page.getByRole("button", { name: /Edit E2E Test Wall/i }).click();
     await page.waitForURL("**/dashboard/walls/**");
 
     // Preview section should exist
@@ -87,7 +87,7 @@ test.describe("Walls", () => {
 
   test("embed code tab shows snippets", async ({ page }) => {
     await page.goto("/dashboard/walls");
-    await page.getByText("E2E Test Wall").first().click();
+    await page.getByRole("button", { name: /Edit E2E Test Wall/i }).click();
     await page.waitForURL("**/dashboard/walls/**");
 
     // Find embed code section/tab
@@ -129,7 +129,7 @@ test.describe("Walls", () => {
     await createWall(page, "Wall To Delete", "Cards Grid");
 
     await page.goto("/dashboard/walls");
-    await expect(page.getByText("Wall To Delete")).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByText("Wall To Delete").first()).toBeVisible({ timeout: 5_000 });
 
     // Delete it — wall deletion has no confirmation dialog, it deletes immediately
     const card = page.getByText("Wall To Delete").first().locator("xpath=ancestor::*[contains(@class, 'card') or contains(@class, 'border')]").first();
@@ -142,7 +142,7 @@ test.describe("Walls", () => {
 
   test("apply tag filter in wall builder", async ({ page }) => {
     await page.goto("/dashboard/walls");
-    await page.getByText("E2E Test Wall").first().click();
+    await page.getByRole("button", { name: /Edit E2E Test Wall/i }).click();
     await page.waitForURL("**/dashboard/walls/**");
 
     // Look for tag filter section

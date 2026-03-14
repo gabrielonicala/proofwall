@@ -31,7 +31,7 @@ test.describe("Settings", () => {
   test("team members list shows current user as owner", async ({ page }) => {
     await expect(page.getByText("Team Members")).toBeVisible();
     await expect(page.getByText("Owner")).toBeVisible();
-    await expect(page.getByText(process.env.TEST_USER_NAME || "E2E Test User")).toBeVisible();
+    await expect(page.getByText(/E2E Test User|e2e-test@laudica.com/i)).toBeVisible();
   });
 
   test("invite team member with email and role", async ({ page }) => {

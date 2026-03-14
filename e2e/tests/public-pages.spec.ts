@@ -24,7 +24,7 @@ test.describe("Public pages", () => {
   test("navbar links navigate correctly", async ({ page }) => {
     await page.goto("/");
     // Check integrations nav link
-    await page.getByRole("link", { name: "Integrations" }).click();
+    await page.getByRole("navigation").getByRole("link", { name: "Integrations" }).click();
     await expect(page).toHaveURL(/\/integrations$/);
   });
 
@@ -45,7 +45,7 @@ test.describe("Public pages", () => {
     await expect(description).toHaveAttribute("content", /.+/);
     // Canonical
     const canonical = page.locator('link[rel="canonical"]');
-    await expect(canonical).toHaveAttribute("content", /.+/);
+    await expect(canonical).toHaveAttribute("href", /.+/);
     // OG tags
     const ogTitle = page.locator('meta[property="og:title"]');
     await expect(ogTitle).toHaveAttribute("content", /.+/);

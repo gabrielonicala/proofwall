@@ -41,9 +41,16 @@ test.describe.serial("Testimonials", () => {
   });
 
   test("filter by status", async ({ page }) => {
-    // The status filter is a plain <select> element
-    const statusSelect = page.locator("select").first();
-    await statusSelect.selectOption({ label: "Pending" });
+    // Try native select first, fall back to custom dropdown
+    const nativeSelect = page.locator("select").first();
+    if (await nativeSelect.isVisible()) {
+      await nativeSelect.selectOption({ label: "Pending" });
+    } else {
+      // Custom dropdown (Radix Select / combobox)
+      const filterBtn = page.getByRole("combobox").or(page.getByRole("button", { name: /All|Status|Filter/i })).first();
+      await filterBtn.click();
+      await page.getByRole("option", { name: /Pending/i }).click();
+    }
     await page.waitForTimeout(500);
     // Verify filter applied — page should not error
     await expect(page.getByText("Testimonials")).toBeVisible();

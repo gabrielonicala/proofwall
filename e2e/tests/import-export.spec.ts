@@ -4,6 +4,7 @@ import { setProjectPlan } from "../helpers/test-utils";
 test.describe("Import & Export", () => {
   test("import page loads with CSV/Paste/URL tabs", async ({ page }) => {
     await page.goto("/dashboard/import");
+    await page.waitForLoadState("networkidle");
     await expect(page.getByText("Import Testimonials")).toBeVisible();
     await expect(page.getByRole("button", { name: /CSV/i })).toBeVisible();
     await expect(page.getByRole("button", { name: /Paste/i })).toBeVisible();

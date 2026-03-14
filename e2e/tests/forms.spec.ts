@@ -12,7 +12,7 @@ test.describe("Collection Forms", () => {
 
   test("configure form fields", async ({ page }) => {
     await page.goto("/dashboard/forms");
-    await page.getByText("E2E Test Form").first().click();
+    await page.locator('a, button').filter({ hasText: "E2E Test Form" }).first().click();
     await page.waitForURL("**/dashboard/forms/**");
 
     // Toggle a field's required status
@@ -29,7 +29,7 @@ test.describe("Collection Forms", () => {
 
   test("set welcome and thank-you messages", async ({ page }) => {
     await page.goto("/dashboard/forms");
-    await page.getByText("E2E Test Form").first().click();
+    await page.locator('a, button').filter({ hasText: "E2E Test Form" }).first().click();
     await page.waitForURL("**/dashboard/forms/**");
 
     // Set welcome message
@@ -52,7 +52,7 @@ test.describe("Collection Forms", () => {
 
   test("set accent color", async ({ page }) => {
     await page.goto("/dashboard/forms");
-    await page.getByText("E2E Test Form").first().click();
+    await page.locator('a, button').filter({ hasText: "E2E Test Form" }).first().click();
     await page.waitForURL("**/dashboard/forms/**");
 
     // Find color input

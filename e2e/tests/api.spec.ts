@@ -34,7 +34,9 @@ test.describe("API Endpoints", () => {
   test("GET /api/v1/testimonials returns 401 without auth", async ({ request }) => {
     const projectId = await getTestProjectId();
 
-    const response = await request.get(`/api/v1/testimonials?projectId=${projectId}`);
+    const response = await request.get(`/api/v1/testimonials?projectId=${projectId}`, {
+      headers: { Authorization: "" },
+    });
     expect(response.status()).toBe(401);
   });
 

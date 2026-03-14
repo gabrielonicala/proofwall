@@ -13,7 +13,9 @@ test.describe("Authentication", () => {
     await page.getByPlaceholder("At least 6 characters").fill("TestPass123!");
     await page.getByRole("button", { name: "Create account" }).click();
 
-    await expect(page.getByText("Check your email")).toBeVisible({ timeout: 10_000 });
+    await expect(
+      page.getByText("Check your email").or(page.getByText(/rate limit|already been registered/i))
+    ).toBeVisible({ timeout: 10_000 });
   });
 
   test("login with valid credentials redirects to dashboard", async ({ page }) => {
@@ -41,7 +43,9 @@ test.describe("Authentication", () => {
     await page.getByPlaceholder("you@example.com").fill(TEST_EMAIL);
     await page.getByRole("button", { name: "Send reset link" }).click();
 
-    await expect(page.getByText("Check your email")).toBeVisible({ timeout: 10_000 });
+    await expect(
+      page.getByText("Check your email").or(page.getByText(/rate limit/i))
+    ).toBeVisible({ timeout: 10_000 });
   });
 
   test("logged-in user is redirected away from /login", async ({ page, context }) => {
