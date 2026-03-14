@@ -44,8 +44,8 @@ export default function ForgotPasswordPage() {
         {/* Logo */}
         <Link href="/" className="mb-8 flex items-center justify-center gap-2">
           <LogoIcon className="size-9" />
-          <span className="text-xl font-bold tracking-tight">
-            Proof<span className="text-gradient">Wall</span>
+          <span className="font-display text-[2.25rem] leading-none tracking-tight text-foreground">
+            <span className="text-gradient-logo">Laudica</span>
           </span>
         </Link>
 

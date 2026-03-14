@@ -147,6 +147,45 @@ test.describe("Embeds", () => {
     });
   });
 
+  test.describe("Embed script (embed.js)", () => {
+    test("embed.js creates iframe from data-laudica attribute", async ({ page, baseURL }) => {
+      const sb = supabaseAdmin();
+      const projectId = await getTestProjectId();
+      const { data: wall } = await sb
+        .from("walls")
+        .select("id")
+        .eq("project_id", projectId)
+        .eq("is_active", true)
+        .limit(1)
+        .single();
+
+      if (!wall) { test.skip(); return; }
+
+      const origin = baseURL || "http://localhost:3000";
+
+      // Serve a fake third-party page that uses the embed snippet
+      await page.route("**/test-embed-page", async (route) => {
+        await route.fulfill({
+          contentType: "text/html",
+          body: `<!DOCTYPE html>
+<html><body>
+  <h1>My Website</h1>
+  <div data-laudica="${wall.id}"></div>
+  <script src="${origin}/embed.js"></script>
+</body></html>`,
+        });
+      });
+
+      await page.goto(`${origin}/test-embed-page`);
+
+      // embed.js should create an iframe inside the data-laudica div
+      const iframe = page.locator(`[data-laudica="${wall.id}"] iframe`);
+      await expect(iframe).toBeAttached({ timeout: 10_000 });
+      expect(await iframe.getAttribute("src")).toContain(`/embed/${wall.id}`);
+      expect(await iframe.getAttribute("title")).toBe("Laudica testimonials");
+    });
+  });
+
   test.describe("Form embeds", () => {
     let tempFormId: string | null = null;
 

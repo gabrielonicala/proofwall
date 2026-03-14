@@ -1,5 +1,5 @@
 (function () {
-  var ATTR = "data-proofwall";
+  var ATTR = "data-laudica";
 
   function init() {
     var els = document.querySelectorAll("[" + ATTR + "]");
@@ -30,7 +30,7 @@
     iframe.setAttribute("frameborder", "0");
     iframe.setAttribute("scrolling", "no");
     iframe.setAttribute("loading", "lazy");
-    iframe.setAttribute("title", "ProofWall testimonials");
+    iframe.setAttribute("title", "Laudica testimonials");
 
     el.innerHTML = "";
     el.style.overflow = "hidden";
@@ -39,7 +39,7 @@
     // Listen for resize messages from this iframe
     window.addEventListener("message", function (e) {
       if (e.source !== iframe.contentWindow) return;
-      if (e.data && e.data.type === "proofwall-resize" && e.data.height) {
+      if (e.data && e.data.type === "laudica-resize" && e.data.height) {
         iframe.style.height = e.data.height + "px";
       }
     });
