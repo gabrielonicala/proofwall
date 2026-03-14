@@ -7,10 +7,14 @@ import { usePlan } from "@/hooks/use-plan";
 import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import { useRouter } from "next/navigation";
 import { toggleWallActive, deleteWall } from "../actions";
+import { EmbedShowcase } from "@/app/embed/[id]/embed-showcase";
+import { defaultWallConfig, type WallConfig, type WallStyle } from "@/lib/wall-config";
+import { getThemeVars } from "@/lib/showcase-helpers";
+import { toShowcaseTestimonial, type DbTestimonial } from "@/lib/transform-testimonials";
+import { type Testimonial } from "@/data/sample-testimonials";
 import {
   Plus,
   Layers,
-  Eye,
   Tag,
   ToggleLeft,
   ToggleRight,
@@ -33,6 +37,7 @@ type Wall = {
   is_active: boolean;
   tag_filter: string[] | null;
   max_testimonials: number | null;
+  config: Record<string, unknown> | null;
   created_at: string;
 };
 
@@ -45,41 +50,80 @@ const styleLabels: Record<string, string> = {
   masonry: "Masonry",
   marquee: "Marquee",
   "spotlight-stack": "Spotlight Stack",
+  orbit: "Orbit",
 };
 
-const styleIcons: Record<string, string> = {
-  "cards-grid": "▦",
-  carousel: "◐",
-  "ticker-tape": "↔",
-  "fade-rotator": "◉",
-  "minimal-list": "≡",
-  masonry: "▧",
-  marquee: "↕",
-  "spotlight-stack": "◈",
-};
+const PREVIEW_DISPLAY_HEIGHT = 180;
+const PREVIEW_RENDER_HEIGHT = 450;
+const PREVIEW_SCALE = PREVIEW_DISPLAY_HEIGHT / PREVIEW_RENDER_HEIGHT;
+
+// Styles that look better at a narrower render width
+const NARROW_PREVIEW_STYLES = new Set(["masonry", "minimal-list"]);
 
 export default function WallsPage() {
   const { project } = useProject();
   const { limits } = usePlan();
   const router = useRouter();
   const [walls, setWalls] = useState<Wall[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchWalls = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     if (!project) return;
     const supabase = createClient();
-    const { data } = await supabase
-      .from("walls")
-      .select("id, name, style, is_active, tag_filter, max_testimonials, created_at")
-      .eq("project_id", project.id)
-      .order("created_at", { ascending: false });
-    setWalls(data ?? []);
+
+    const [wallsRes, testimonialsRes] = await Promise.all([
+      supabase
+        .from("walls")
+        .select("id, name, style, is_active, tag_filter, max_testimonials, config, created_at")
+        .eq("project_id", project.id)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("testimonials")
+        .select("id, author_name, author_title, author_company, author_photo, text, rating, status, source, created_at, tags:testimonial_tags(tag:tags(id, name, color))")
+        .eq("project_id", project.id)
+        .in("status", ["approved", "featured"])
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ]);
+
+    setWalls((wallsRes.data ?? []) as Wall[]);
+
+    // Transform testimonials for showcase components
+    if (testimonialsRes.data) {
+      const transformed = testimonialsRes.data.map((t: any) => {
+        const tags = (t.tags ?? [])
+          .map((jt: any) => jt.tag)
+          .filter(Boolean);
+        return toShowcaseTestimonial({ ...t, tags } as DbTestimonial);
+      });
+      setTestimonials(transformed);
+    }
+
     setLoading(false);
   }, [project]);
 
   useEffect(() => {
-    fetchWalls();
-  }, [fetchWalls]);
+    fetchData();
+  }, [fetchData]);
+
+  function getWallTestimonials(wall: Wall): Testimonial[] {
+    let filtered = [...testimonials];
+
+    // Apply tag filter
+    if (wall.tag_filter && wall.tag_filter.length > 0) {
+      filtered = filtered.filter((t) =>
+        t.tags.some((tag) => wall.tag_filter!.includes(tag))
+      );
+    }
+
+    // Apply max testimonials
+    if (wall.max_testimonials) {
+      filtered = filtered.slice(0, wall.max_testimonials);
+    }
+
+    return filtered.slice(0, 6); // Cap at 6 for mini preview
+  }
 
   async function handleToggleActive(id: string, current: boolean) {
     if (!project) return;
@@ -103,7 +147,7 @@ export default function WallsPage() {
         <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-40 animate-pulse rounded-xl bg-muted" />
+            <div key={i} className="h-64 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
       </div>
@@ -145,83 +189,133 @@ export default function WallsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {walls.map((wall) => (
-            <div
-              key={wall.id}
-              className="group relative flex flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/30"
-            >
-              {/* Top row */}
-              <div className="mb-3 flex items-start justify-between">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-lg">
-                    {styleIcons[wall.style] ?? "▦"}
-                  </span>
+          {walls.map((wall) => {
+            const wallConfig: WallConfig = {
+              ...defaultWallConfig,
+              ...(wall.config as Partial<WallConfig>),
+              showBranding: false,
+            };
+            const wallTestimonials = getWallTestimonials(wall);
+
+            const isLight = wallConfig.theme === "light";
+            const themeVars = getThemeVars(wallConfig.theme);
+
+            return (
+              <div
+                key={wall.id}
+                className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary/30"
+              >
+                {/* Header: name, style, status, actions */}
+                <div className="flex items-center justify-between p-4 pb-3">
                   <div>
                     <h3 className="text-sm font-medium">{wall.name}</h3>
                     <p className="text-xs text-muted-foreground">
                       {styleLabels[wall.style] ?? wall.style}
                     </p>
                   </div>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100">
-                    <MoreVertical className="size-4" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => router.push(`/dashboard/walls/${wall.id}`)}>
-                      <Pencil className="mr-2 size-3.5" /> Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleToggleActive(wall.id, wall.is_active)}>
-                      {wall.is_active ? (
-                        <>
-                          <ToggleLeft className="mr-2 size-3.5" /> Deactivate
-                        </>
-                      ) : (
-                        <>
-                          <ToggleRight className="mr-2 size-3.5" /> Activate
-                        </>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        {wall.is_active ? (
+                          <span className="size-1.5 rounded-full bg-emerald-500" />
+                        ) : (
+                          <span className="size-1.5 rounded-full bg-muted-foreground" />
+                        )}
+                        {wall.is_active ? "Active" : "Inactive"}
+                      </span>
+                      {wall.tag_filter && wall.tag_filter.length > 0 && (
+                        <span className="inline-flex items-center gap-1">
+                          <Tag className="size-3" />
+                          {wall.tag_filter.length}
+                        </span>
                       )}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(wall.id)}
-                      className="text-destructive focus:text-destructive"
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="relative z-10 flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100">
+                        <MoreVertical className="size-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => router.push(`/dashboard/walls/${wall.id}`)}>
+                          <Pencil className="mr-2 size-3.5" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleActive(wall.id, wall.is_active)}>
+                          {wall.is_active ? (
+                            <>
+                              <ToggleLeft className="mr-2 size-3.5" /> Deactivate
+                            </>
+                          ) : (
+                            <>
+                              <ToggleRight className="mr-2 size-3.5" /> Activate
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(wall.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="mr-2 size-3.5" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+
+                {/* Mini preview with exact theme */}
+                <div
+                  className={`relative overflow-hidden border-t border-border ${isLight ? "light" : ""}`}
+                  style={{
+                    height: PREVIEW_DISPLAY_HEIGHT,
+                    background: "var(--background)",
+                    ...themeVars,
+                  }}
+                >
+                  {wallTestimonials.length > 0 ? (
+                    <div
+                      className={`pointer-events-none flex items-center ${isLight ? "light" : ""}`}
+                      style={{
+                        width: NARROW_PREVIEW_STYLES.has(wall.style)
+                          ? `${70 / PREVIEW_SCALE}%`
+                          : `${100 / PREVIEW_SCALE}%`,
+                        height: PREVIEW_RENDER_HEIGHT,
+                        transform: `scale(${PREVIEW_SCALE})`,
+                        transformOrigin: "top left",
+                        marginLeft: NARROW_PREVIEW_STYLES.has(wall.style)
+                          ? `${(100 - 70) / 2}%`
+                          : undefined,
+                        background: "var(--background)",
+                        ...themeVars,
+                      }}
                     >
-                      <Trash2 className="mr-2 size-3.5" /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              {/* Meta */}
-              <div className="mt-auto flex items-center gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1">
-                  {wall.is_active ? (
-                    <span className="size-1.5 rounded-full bg-emerald-500" />
+                      <div className="w-full">
+                        <EmbedShowcase
+                          style={wall.style as WallStyle}
+                          config={wallConfig}
+                          testimonials={wallTestimonials}
+                        />
+                      </div>
+                    </div>
                   ) : (
-                    <span className="size-1.5 rounded-full bg-muted-foreground" />
+                    <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                      No testimonials to preview
+                    </div>
                   )}
-                  {wall.is_active ? "Active" : "Inactive"}
-                </span>
-                {wall.tag_filter && wall.tag_filter.length > 0 && (
-                  <span className="inline-flex items-center gap-1">
-                    <Tag className="size-3" />
-                    {wall.tag_filter.length} tag{wall.tag_filter.length !== 1 ? "s" : ""}
-                  </span>
-                )}
-                {wall.max_testimonials && (
-                  <span>Max {wall.max_testimonials}</span>
-                )}
-              </div>
+                  {/* Fade out at bottom */}
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
+                    style={{ background: `linear-gradient(to top, var(--background), transparent)` }}
+                  />
+                </div>
 
-              {/* Clickable overlay */}
-              <button
-                onClick={() => router.push(`/dashboard/walls/${wall.id}`)}
-                className="absolute inset-0 rounded-xl"
-                aria-label={`Edit ${wall.name}`}
-              />
-            </div>
-          ))}
+                {/* Clickable overlay */}
+                <button
+                  onClick={() => router.push(`/dashboard/walls/${wall.id}`)}
+                  className="absolute inset-0 rounded-xl"
+                  aria-label={`Edit ${wall.name}`}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

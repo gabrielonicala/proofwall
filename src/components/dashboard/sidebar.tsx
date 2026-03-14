@@ -70,7 +70,7 @@ export function Sidebar() {
         className="sticky top-0 z-40 flex h-screen flex-shrink-0 flex-col border-r border-border bg-sidebar"
       >
         {/* Logo + collapse */}
-        <div className="flex h-14 items-center justify-between border-b border-border px-3">
+        <div className={`flex h-14 items-center border-b border-border px-3 ${collapsed ? "justify-center" : "justify-between"}`}>
           <AnimatePresence mode="wait">
             {!collapsed && (
               <motion.div
@@ -101,11 +101,34 @@ export function Sidebar() {
         </div>
 
         {/* Project name */}
-        {!collapsed && project && (
+        {project && (
           <div className="border-b border-border px-3 py-2.5">
-            <p className="truncate text-xs font-medium text-foreground">
-              {project.name}
-            </p>
+            {collapsed ? (
+              <Tooltip>
+                <TooltipTrigger render={<div />}>
+                  <div className="flex items-center justify-center">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-base font-bold text-primary">
+                      {project.name.charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right">{project.name}</TooltipContent>
+              </Tooltip>
+            ) : (
+              <div className="flex items-center gap-2.5">
+                <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-base font-bold text-primary">
+                  {project.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-foreground">
+                    {project.name}
+                  </p>
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Project
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

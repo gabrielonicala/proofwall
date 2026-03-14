@@ -37,7 +37,7 @@ function RotatorContent({ t, config }: { t: Testimonial; config?: ShowcaseConfig
         {shouldShow("showPhoto", config) && t.authorPhoto && (
           <img src={t.authorPhoto} alt={t.authorName} className="size-10 rounded-full bg-muted" />
         )}
-        <div className="text-left">
+        <div className={shouldShow("showPhoto", config) && t.authorPhoto ? "text-left" : "text-center"}>
           <p className="font-medium text-foreground">{t.authorName}</p>
           {shouldShow("showCompany", config) && (
             <p className="text-sm text-muted-foreground">
