@@ -26,6 +26,7 @@ export type Database = {
           project_id: string
           redirect_url: string | null
           thank_you_message: string | null
+          theme: string
           updated_at: string
           welcome_message: string | null
         }
@@ -40,6 +41,7 @@ export type Database = {
           project_id: string
           redirect_url?: string | null
           thank_you_message?: string | null
+          theme?: string
           updated_at?: string
           welcome_message?: string | null
         }
@@ -54,6 +56,7 @@ export type Database = {
           project_id?: string
           redirect_url?: string | null
           thank_you_message?: string | null
+          theme?: string
           updated_at?: string
           welcome_message?: string | null
         }

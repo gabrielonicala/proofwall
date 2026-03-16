@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
@@ -42,6 +43,8 @@ import {
   Code,
   Globe,
   ExternalLink,
+  SlidersHorizontal,
+  X,
 } from "lucide-react";
 
 type Tag = { id: string; name: string; color: string };
@@ -69,6 +72,7 @@ export default function WallEditorPage() {
 
   // Preview
   const [previewWidth, setPreviewWidth] = useState<"full" | "tablet" | "mobile">("full");
+  const [configOpen, setConfigOpen] = useState(false);
 
   // Fetch wall data + testimonials + tags
   const fetchData = useCallback(async () => {
@@ -137,6 +141,14 @@ export default function WallEditorPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape" && configOpen) setConfigOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [configOpen]);
 
   // Filter + sort testimonials for preview
   const previewTestimonials = useMemo(() => {
@@ -267,6 +279,299 @@ export default function WallEditorPage() {
         ? "max-w-[375px]"
         : "";
 
+  const configContent = (
+    <div className="space-y-6">
+      {/* Style selector */}
+      <Section title="Display Style">
+        <div className="grid grid-cols-2 gap-2">
+          {allStyles.map((s) => (
+            <button
+              key={s}
+              onClick={() => setStyle(s)}
+              className={`rounded-lg border p-2.5 text-left text-xs transition-all ${
+                style === s
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
+              }`}
+            >
+              <p className="font-medium">{styleLabels[s]}</p>
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      {/* Tag filter */}
+      {tags.length > 0 && (
+        <Section title="Tag Filter">
+          <p className="mb-2 text-xs text-muted-foreground">
+            Only show testimonials with these tags
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {tags.map((tag) => {
+              const active = tagFilter.includes(tag.id);
+              return (
+                <button
+                  key={tag.id}
+                  onClick={() =>
+                    setTagFilter((prev) =>
+                      active
+                        ? prev.filter((id) => id !== tag.id)
+                        : [...prev, tag.id]
+                    )
+                  }
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors ${
+                    active
+                      ? "font-medium"
+                      : "opacity-50 hover:opacity-80"
+                  }`}
+                  style={{
+                    backgroundColor: tag.color + (active ? "30" : "15"),
+                    color: tag.color,
+                  }}
+                >
+                  <span
+                    className="size-2 rounded-full"
+                    style={{ backgroundColor: tag.color }}
+                  />
+                  {tag.name}
+                </button>
+              );
+            })}
+          </div>
+          {tagFilter.length > 0 && (
+            <button
+              onClick={() => setTagFilter([])}
+              className="mt-1.5 text-xs text-muted-foreground hover:text-foreground"
+            >
+              Clear filters
+            </button>
+          )}
+        </Section>
+      )}
+
+      {/* Max testimonials */}
+      <Section title="Max Testimonials">
+        <input
+          type="number"
+          min={0}
+          value={maxTestimonials ?? ""}
+          onChange={(e) =>
+            setMaxTestimonials(e.target.value ? Number(e.target.value) : null)
+          }
+          placeholder="All"
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
+        />
+      </Section>
+
+      {/* Sort */}
+      <Section title="Sort Order">
+        <select
+          value={config.sort}
+          onChange={(e) => updateConfig("sort", e.target.value as WallConfig["sort"])}
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+        >
+          <option value="newest">Newest first</option>
+          <option value="highest">Highest rated</option>
+          <option value="random">Random</option>
+        </select>
+      </Section>
+
+      {/* Speed / Autoplay (only for animated styles) */}
+      {animatedStyles.includes(style) && (
+        <Section title="Animation">
+          <div className="space-y-3">
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Speed</label>
+              <select
+                value={config.speed}
+                onChange={(e) => updateConfig("speed", e.target.value as WallConfig["speed"])}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+              >
+                <option value="slow">Slow</option>
+                <option value="normal">Normal</option>
+                <option value="fast">Fast</option>
+              </select>
+            </div>
+            <Toggle
+              label="Autoplay"
+              checked={config.autoplay}
+              onChange={(v) => updateConfig("autoplay", v)}
+            />
+            <Toggle
+              label="Pause on hover"
+              checked={config.pauseOnHover}
+              onChange={(v) => updateConfig("pauseOnHover", v)}
+            />
+          </div>
+        </Section>
+      )}
+
+      {/* Show/hide elements */}
+      <Section title="Show / Hide">
+        <div className="space-y-2.5">
+          {ratingStyles.includes(style) && (
+            <Toggle
+              label="Star rating"
+              checked={config.showRating}
+              onChange={(v) => updateConfig("showRating", v)}
+            />
+          )}
+          {photoStyles.includes(style) && (
+            <>
+              <Toggle
+                label="Author photo"
+                checked={config.showPhoto}
+                onChange={(v) => {
+                  updateConfig("showPhoto", v);
+                  if (!v) updateConfig("onlyWithPhotos", false);
+                }}
+              />
+              {config.showPhoto && (
+                <div className="ml-4">
+                  <Toggle
+                    label="Only with photos"
+                    checked={config.onlyWithPhotos}
+                    onChange={(v) => updateConfig("onlyWithPhotos", v)}
+                  />
+                  {config.onlyWithPhotos && (
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      Testimonials without a photo will be excluded
+                    </p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+          <Toggle
+            label="Company name"
+            checked={config.showCompany}
+            onChange={(v) => updateConfig("showCompany", v)}
+          />
+          <Toggle
+            label="Date"
+            checked={config.showDate}
+            onChange={(v) => updateConfig("showDate", v)}
+          />
+          <Toggle
+            label="Laudica branding"
+            checked={config.showBranding}
+            onChange={(v) => updateConfig("showBranding", v)}
+          />
+          {style === "cards-grid" && (
+            <div>
+              <Toggle
+                label="Fill rows evenly"
+                checked={config.fillRows}
+                onChange={(v) => updateConfig("fillRows", v)}
+              />
+              <p className="mt-1 flex items-start gap-1 text-[10px] leading-relaxed text-muted-foreground">
+                <Info className="mt-0.5 size-3 flex-shrink-0" />
+                When enabled, testimonials that don&apos;t complete a full row are hidden so every row has the same number of cards. The count adjusts automatically based on screen width.
+              </p>
+            </div>
+          )}
+        </div>
+      </Section>
+
+      {/* Card style — only for card-based styles */}
+      {cardBasedStyles.includes(style) && (
+        <Section title="Card Style">
+          <select
+            value={config.cardStyle}
+            onChange={(e) => updateConfig("cardStyle", e.target.value as WallConfig["cardStyle"])}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+          >
+            <option value="bordered">Bordered</option>
+            <option value="shadow">Shadow</option>
+            <option value="glass">Glass</option>
+            <option value="flat">Flat</option>
+          </select>
+        </Section>
+      )}
+
+      {/* Border radius — only for card-based styles */}
+      {cardBasedStyles.includes(style) && (
+        <Section title="Border Radius">
+          <select
+            value={config.borderRadius}
+            onChange={(e) => updateConfig("borderRadius", e.target.value as WallConfig["borderRadius"])}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+          >
+            <option value="none">None</option>
+            <option value="subtle">Subtle</option>
+            <option value="rounded">Rounded</option>
+            <option value="pill">Pill</option>
+          </select>
+        </Section>
+      )}
+
+      {/* Font */}
+      <Section title="Font">
+        <select
+          value={config.font}
+          onChange={(e) => updateConfig("font", e.target.value as WallConfig["font"])}
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+        >
+          <option value="system">System</option>
+          <option value="inter">Inter</option>
+          <option value="serif">Serif</option>
+          <option value="mono">Mono</option>
+        </select>
+      </Section>
+
+      {/* Theme */}
+      <Section title="Theme">
+        <select
+          value={config.theme}
+          onChange={(e) => updateConfig("theme", e.target.value as WallConfig["theme"])}
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+        >
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+          <option value="auto">Auto (inherit)</option>
+        </select>
+      </Section>
+
+      {/* Embed code — only for existing walls */}
+      {!isNew && (
+        <Section title="Embed Code">
+          <EmbedCodePanel wallId={params.id} />
+          {!limits.hasWhiteLabel && (
+            <p className="mt-2 text-xs text-muted-foreground">
+              Embeds include Laudica branding.{" "}
+              <a href="/dashboard/billing" className="text-primary underline">
+                Upgrade to Business
+              </a>{" "}
+              for white-label embeds.
+            </p>
+          )}
+        </Section>
+      )}
+
+      {/* Domain lock */}
+      {!isNew && (
+        <Section title="Allowed Domains">
+          <p className="mb-2 text-xs text-muted-foreground">
+            Restrict which websites can embed this wall. Leave empty to allow all.
+          </p>
+          <DomainList
+            domains={config.allowedDomains ?? []}
+            onChange={(domains) => updateConfig("allowedDomains", domains)}
+          />
+        </Section>
+      )}
+
+      {/* Active toggle */}
+      <Section title="Status">
+        <Toggle
+          label="Wall is active"
+          checked={isActive}
+          onChange={setIsActive}
+        />
+      </Section>
+    </div>
+  );
+
   return (
     <div className="flex h-[calc(100svh-3.5rem)] flex-col">
       {/* Top bar */}
@@ -281,13 +586,13 @@ export default function WallEditorPage() {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="border-none bg-transparent text-lg font-semibold outline-none placeholder:text-muted-foreground"
+            className="hidden min-w-0 border-none bg-transparent text-lg font-semibold outline-none placeholder:text-muted-foreground sm:block"
             placeholder="Wall name..."
           />
         </div>
         <div className="flex items-center gap-2">
           {/* Preview size toggles */}
-          <div className="flex rounded-lg border border-border">
+          <div className="hidden rounded-lg border border-border sm:flex">
             <button
               onClick={() => setPreviewWidth("full")}
               className={`rounded-l-lg px-2 py-1.5 ${previewWidth === "full" ? "bg-muted text-foreground" : "text-muted-foreground"}`}
@@ -308,310 +613,66 @@ export default function WallEditorPage() {
             </button>
           </div>
           <button
+            onClick={() => setConfigOpen(true)}
+            className="flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:hidden"
+            aria-label="Open settings"
+          >
+            <SlidersHorizontal className="size-4" />
+          </button>
+          <button
             onClick={handleSave}
             disabled={saving || !name.trim()}
-            className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50 sm:px-4"
           >
             {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-            {isNew ? "Create Wall" : "Save"}
+            <span className="hidden sm:inline">{isNew ? "Create Wall" : "Save"}</span>
           </button>
         </div>
       </div>
 
       {/* Editor body */}
+      {/* Mobile config drawer */}
+      <AnimatePresence>
+        {configOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-background/50 backdrop-blur-sm sm:hidden"
+            onClick={() => setConfigOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {configOpen && (
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            role="dialog"
+            aria-label="Wall configuration"
+            className="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-background p-4 sm:hidden"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Settings</h2>
+              <button
+                onClick={() => setConfigOpen(false)}
+                className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Close settings"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            {configContent}
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex flex-1 overflow-hidden">
         {/* Left panel: Config */}
-        <div className="w-72 flex-shrink-0 overflow-y-auto border-r border-border p-4">
-          <div className="space-y-6">
-            {/* Style selector */}
-            <Section title="Display Style">
-              <div className="grid grid-cols-2 gap-2">
-                {allStyles.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setStyle(s)}
-                    className={`rounded-lg border p-2.5 text-left text-xs transition-all ${
-                      style === s
-                        ? "border-primary bg-primary/10 text-foreground"
-                        : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                    }`}
-                  >
-                    <p className="font-medium">{styleLabels[s]}</p>
-                  </button>
-                ))}
-              </div>
-            </Section>
-
-            {/* Tag filter */}
-            {tags.length > 0 && (
-              <Section title="Tag Filter">
-                <p className="mb-2 text-xs text-muted-foreground">
-                  Only show testimonials with these tags
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {tags.map((tag) => {
-                    const active = tagFilter.includes(tag.id);
-                    return (
-                      <button
-                        key={tag.id}
-                        onClick={() =>
-                          setTagFilter((prev) =>
-                            active
-                              ? prev.filter((id) => id !== tag.id)
-                              : [...prev, tag.id]
-                          )
-                        }
-                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs transition-colors ${
-                          active
-                            ? "font-medium"
-                            : "opacity-50 hover:opacity-80"
-                        }`}
-                        style={{
-                          backgroundColor: tag.color + (active ? "30" : "15"),
-                          color: tag.color,
-                        }}
-                      >
-                        <span
-                          className="size-2 rounded-full"
-                          style={{ backgroundColor: tag.color }}
-                        />
-                        {tag.name}
-                      </button>
-                    );
-                  })}
-                </div>
-                {tagFilter.length > 0 && (
-                  <button
-                    onClick={() => setTagFilter([])}
-                    className="mt-1.5 text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    Clear filters
-                  </button>
-                )}
-              </Section>
-            )}
-
-            {/* Max testimonials */}
-            <Section title="Max Testimonials">
-              <input
-                type="number"
-                min={0}
-                value={maxTestimonials ?? ""}
-                onChange={(e) =>
-                  setMaxTestimonials(e.target.value ? Number(e.target.value) : null)
-                }
-                placeholder="All"
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
-              />
-            </Section>
-
-            {/* Sort */}
-            <Section title="Sort Order">
-              <select
-                value={config.sort}
-                onChange={(e) => updateConfig("sort", e.target.value as WallConfig["sort"])}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-              >
-                <option value="newest">Newest first</option>
-                <option value="highest">Highest rated</option>
-                <option value="random">Random</option>
-              </select>
-            </Section>
-
-            {/* Speed / Autoplay (only for animated styles) */}
-            {animatedStyles.includes(style) && (
-              <Section title="Animation">
-                <div className="space-y-3">
-                  <div>
-                    <label className="mb-1 block text-xs text-muted-foreground">Speed</label>
-                    <select
-                      value={config.speed}
-                      onChange={(e) => updateConfig("speed", e.target.value as WallConfig["speed"])}
-                      className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-                    >
-                      <option value="slow">Slow</option>
-                      <option value="normal">Normal</option>
-                      <option value="fast">Fast</option>
-                    </select>
-                  </div>
-                  <Toggle
-                    label="Autoplay"
-                    checked={config.autoplay}
-                    onChange={(v) => updateConfig("autoplay", v)}
-                  />
-                  <Toggle
-                    label="Pause on hover"
-                    checked={config.pauseOnHover}
-                    onChange={(v) => updateConfig("pauseOnHover", v)}
-                  />
-                </div>
-              </Section>
-            )}
-
-            {/* Show/hide elements */}
-            <Section title="Show / Hide">
-              <div className="space-y-2.5">
-                {ratingStyles.includes(style) && (
-                  <Toggle
-                    label="Star rating"
-                    checked={config.showRating}
-                    onChange={(v) => updateConfig("showRating", v)}
-                  />
-                )}
-                {photoStyles.includes(style) && (
-                  <>
-                    <Toggle
-                      label="Author photo"
-                      checked={config.showPhoto}
-                      onChange={(v) => {
-                        updateConfig("showPhoto", v);
-                        if (!v) updateConfig("onlyWithPhotos", false);
-                      }}
-                    />
-                    {config.showPhoto && (
-                      <div className="ml-4">
-                        <Toggle
-                          label="Only with photos"
-                          checked={config.onlyWithPhotos}
-                          onChange={(v) => updateConfig("onlyWithPhotos", v)}
-                        />
-                        {config.onlyWithPhotos && (
-                          <p className="mt-1 text-[10px] text-muted-foreground">
-                            Testimonials without a photo will be excluded
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
-                <Toggle
-                  label="Company name"
-                  checked={config.showCompany}
-                  onChange={(v) => updateConfig("showCompany", v)}
-                />
-                <Toggle
-                  label="Date"
-                  checked={config.showDate}
-                  onChange={(v) => updateConfig("showDate", v)}
-                />
-                <Toggle
-                  label="Laudica branding"
-                  checked={config.showBranding}
-                  onChange={(v) => updateConfig("showBranding", v)}
-                />
-                {style === "cards-grid" && (
-                  <div>
-                    <Toggle
-                      label="Fill rows evenly"
-                      checked={config.fillRows}
-                      onChange={(v) => updateConfig("fillRows", v)}
-                    />
-                    <p className="mt-1 flex items-start gap-1 text-[10px] leading-relaxed text-muted-foreground">
-                      <Info className="mt-0.5 size-3 flex-shrink-0" />
-                      When enabled, testimonials that don&apos;t complete a full row are hidden so every row has the same number of cards. The count adjusts automatically based on screen width.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </Section>
-
-            {/* Card style — only for card-based styles */}
-            {cardBasedStyles.includes(style) && (
-              <Section title="Card Style">
-                <select
-                  value={config.cardStyle}
-                  onChange={(e) => updateConfig("cardStyle", e.target.value as WallConfig["cardStyle"])}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-                >
-                  <option value="bordered">Bordered</option>
-                  <option value="shadow">Shadow</option>
-                  <option value="glass">Glass</option>
-                  <option value="flat">Flat</option>
-                </select>
-              </Section>
-            )}
-
-            {/* Border radius — only for card-based styles */}
-            {cardBasedStyles.includes(style) && (
-              <Section title="Border Radius">
-                <select
-                  value={config.borderRadius}
-                  onChange={(e) => updateConfig("borderRadius", e.target.value as WallConfig["borderRadius"])}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-                >
-                  <option value="none">None</option>
-                  <option value="subtle">Subtle</option>
-                  <option value="rounded">Rounded</option>
-                  <option value="pill">Pill</option>
-                </select>
-              </Section>
-            )}
-
-            {/* Font */}
-            <Section title="Font">
-              <select
-                value={config.font}
-                onChange={(e) => updateConfig("font", e.target.value as WallConfig["font"])}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-              >
-                <option value="system">System</option>
-                <option value="inter">Inter</option>
-                <option value="serif">Serif</option>
-                <option value="mono">Mono</option>
-              </select>
-            </Section>
-
-            {/* Theme */}
-            <Section title="Theme">
-              <select
-                value={config.theme}
-                onChange={(e) => updateConfig("theme", e.target.value as WallConfig["theme"])}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
-              >
-                <option value="dark">Dark</option>
-                <option value="light">Light</option>
-                <option value="auto">Auto (inherit)</option>
-              </select>
-            </Section>
-
-            {/* Embed code — only for existing walls */}
-            {!isNew && (
-              <Section title="Embed Code">
-                <EmbedCodePanel wallId={params.id} />
-                {!limits.hasWhiteLabel && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Embeds include Laudica branding.{" "}
-                    <a href="/dashboard/billing" className="text-primary underline">
-                      Upgrade to Business
-                    </a>{" "}
-                    for white-label embeds.
-                  </p>
-                )}
-              </Section>
-            )}
-
-            {/* Domain lock */}
-            {!isNew && (
-              <Section title="Allowed Domains">
-                <p className="mb-2 text-xs text-muted-foreground">
-                  Restrict which websites can embed this wall. Leave empty to allow all.
-                </p>
-                <DomainList
-                  domains={config.allowedDomains ?? []}
-                  onChange={(domains) => updateConfig("allowedDomains", domains)}
-                />
-              </Section>
-            )}
-
-            {/* Active toggle */}
-            <Section title="Status">
-              <Toggle
-                label="Wall is active"
-                checked={isActive}
-                onChange={setIsActive}
-              />
-            </Section>
-          </div>
+        <div className="hidden w-72 flex-shrink-0 overflow-y-auto border-r border-border p-4 sm:block">
+          {configContent}
         </div>
 
         {/* Right panel: Preview */}

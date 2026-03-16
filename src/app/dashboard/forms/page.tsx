@@ -7,9 +7,12 @@ import { usePlan } from "@/hooks/use-plan";
 import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import { useRouter } from "next/navigation";
 import { toggleFormActive, deleteForm } from "../actions";
+import { type FormField, defaultFields } from "@/lib/form-config";
 import {
   Plus,
   FileText,
+  Star,
+  Upload,
   ToggleLeft,
   ToggleRight,
   Pencil,
@@ -31,8 +34,30 @@ type Form = {
   name: string;
   is_active: boolean;
   welcome_message: string | null;
+  accent_color: string | null;
+  fields: FormField[] | null;
   created_at: string;
 };
+
+const PREVIEW_DISPLAY_HEIGHT = 456;
+const MAX_SCALE = 0.88;
+
+function getPreviewScale(fields: FormField[], hasWelcome: boolean) {
+  const welcome = hasWelcome ? 44 : 0;
+  const fieldH = fields.reduce((sum, f) => {
+    if (f.type === "textarea") return sum + 88;
+    if (f.type === "rating") return sum + 48;
+    if (f.type === "photo") return sum + 76;
+    return sum + 58;
+  }, 0);
+  const gaps = Math.max(0, fields.length - 1) * 12;
+  const submit = 54;
+  const margin = 30;
+  const padding = 48;
+  const contentHeight = welcome + fieldH + gaps + submit + margin + padding;
+  const scale = Math.min(MAX_SCALE, PREVIEW_DISPLAY_HEIGHT / contentHeight);
+  return { scale, renderHeight: contentHeight };
+}
 
 export default function FormsPage() {
   const { project } = useProject();
@@ -47,10 +72,10 @@ export default function FormsPage() {
     const supabase = createClient();
     const { data } = await supabase
       .from("collection_forms")
-      .select("id, name, is_active, welcome_message, created_at")
+      .select("id, name, is_active, welcome_message, accent_color, fields, created_at")
       .eq("project_id", project.id)
       .order("created_at", { ascending: false });
-    setForms(data ?? []);
+    setForms((data ?? []) as Form[]);
     setLoading(false);
   }, [project]);
 
@@ -85,9 +110,9 @@ export default function FormsPage() {
     return (
       <div className="space-y-4">
         <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid max-w-6xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-40 animate-pulse rounded-xl bg-muted" />
+            <div key={i} className="h-64 animate-pulse rounded-xl bg-muted" />
           ))}
         </div>
       </div>
@@ -129,82 +154,147 @@ export default function FormsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {forms.map((form) => (
-            <div
-              key={form.id}
-              className="group relative flex flex-col rounded-xl border border-border bg-card p-5 transition-colors hover:border-primary/30"
-            >
-              {/* Top row */}
-              <div className="mb-3 flex items-start justify-between">
-                <div className="flex items-center gap-2.5">
-                  <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
-                    <FileText className="size-4 text-primary" />
-                  </span>
+        <div className="grid max-w-6xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {forms.map((form) => {
+            const fields = (form.fields ?? defaultFields).filter((f) => f.enabled);
+            const accent = form.accent_color ?? "#4F46E5";
+            const { scale, renderHeight } = getPreviewScale(fields, !!form.welcome_message);
+
+            return (
+              <div
+                key={form.id}
+                className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-colors hover:border-primary/30"
+              >
+                {/* Header: name, status, actions */}
+                <div className="flex items-center justify-between p-4 pb-3">
                   <div>
                     <h3 className="text-sm font-medium">{form.name}</h3>
                     {form.welcome_message && (
-                      <p className="max-w-[180px] truncate text-xs text-muted-foreground">
+                      <p className="max-w-[200px] truncate text-xs text-muted-foreground">
                         {form.welcome_message}
                       </p>
                     )}
                   </div>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100">
-                    <MoreVertical className="size-4" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => router.push(`/dashboard/forms/${form.id}`)}>
-                      <Pencil className="mr-2 size-3.5" /> Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => copyLink(form.id)}>
-                      <Copy className="mr-2 size-3.5" /> Copy link
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => window.open(`/form/${form.id}`, "_blank")}>
-                      <ExternalLink className="mr-2 size-3.5" /> Preview
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleToggleActive(form.id, form.is_active)}>
-                      {form.is_active ? (
-                        <><ToggleLeft className="mr-2 size-3.5" /> Deactivate</>
-                      ) : (
-                        <><ToggleRight className="mr-2 size-3.5" /> Activate</>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        {form.is_active ? (
+                          <span className="size-1.5 rounded-full bg-emerald-500" />
+                        ) : (
+                          <span className="size-1.5 rounded-full bg-muted-foreground" />
+                        )}
+                        {form.is_active ? "Active" : "Inactive"}
+                      </span>
+                      {copied === form.id && (
+                        <span className="text-emerald-500">Copied!</span>
                       )}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(form.id)}
-                      className="text-destructive focus:text-destructive"
-                    >
-                      <Trash2 className="mr-2 size-3.5" /> Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="relative z-10 flex size-7 items-center justify-center rounded-md text-muted-foreground opacity-0 transition-all hover:bg-muted hover:text-foreground group-hover:opacity-100">
+                        <MoreVertical className="size-4" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => router.push(`/dashboard/forms/${form.id}`)}>
+                          <Pencil className="mr-2 size-3.5" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => copyLink(form.id)}>
+                          <Copy className="mr-2 size-3.5" /> Copy link
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => window.open(`/form/${form.id}`, "_blank")}>
+                          <ExternalLink className="mr-2 size-3.5" /> Preview
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleToggleActive(form.id, form.is_active)}>
+                          {form.is_active ? (
+                            <><ToggleLeft className="mr-2 size-3.5" /> Deactivate</>
+                          ) : (
+                            <><ToggleRight className="mr-2 size-3.5" /> Activate</>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(form.id)}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash2 className="mr-2 size-3.5" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
 
-              {/* Meta */}
-              <div className="mt-auto flex items-center gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1">
-                  {form.is_active ? (
-                    <span className="size-1.5 rounded-full bg-emerald-500" />
-                  ) : (
-                    <span className="size-1.5 rounded-full bg-muted-foreground" />
-                  )}
-                  {form.is_active ? "Active" : "Inactive"}
-                </span>
-                {copied === form.id && (
-                  <span className="text-emerald-500">Copied!</span>
-                )}
-              </div>
+                {/* Mini form preview */}
+                <div
+                  className="relative overflow-hidden border-t border-border"
+                  style={{ height: PREVIEW_DISPLAY_HEIGHT }}
+                >
+                  <div
+                    className="pointer-events-none"
+                    style={{
+                      width: `${100 / scale}%`,
+                      height: renderHeight,
+                      transform: `scale(${scale})`,
+                      transformOrigin: "top left",
+                    }}
+                  >
+                    <div className="w-full px-10 py-6">
+                      {form.welcome_message && (
+                        <h2 className="mb-4 text-center text-lg font-semibold text-foreground">
+                          {form.welcome_message}
+                        </h2>
+                      )}
+                      <div className="space-y-3">
+                        {fields.map((field) => (
+                          <div key={field.id}>
+                            <p className="mb-1 text-sm font-medium text-foreground">
+                              {field.label}
+                              {field.required && <span style={{ color: accent }}> *</span>}
+                            </p>
+                            {field.type === "rating" ? (
+                              <div className="flex gap-1">
+                                {Array.from({ length: 5 }).map((_, i) => (
+                                  <Star key={i} className="size-5 text-muted-foreground/40" />
+                                ))}
+                              </div>
+                            ) : field.type === "photo" ? (
+                              <div className="flex w-full items-center justify-center rounded-lg border border-input bg-background px-3 py-4">
+                                <Upload className="size-4 text-muted-foreground" />
+                              </div>
+                            ) : field.type === "textarea" ? (
+                              <div className="h-16 rounded-lg border border-input bg-background px-3 py-2">
+                                <span className="text-sm text-muted-foreground/50">{field.placeholder}</span>
+                              </div>
+                            ) : (
+                              <div className="rounded-lg border border-input bg-background px-3 py-2">
+                                <span className="text-sm text-muted-foreground/50">{field.placeholder}</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                      <div
+                        className="mt-4 rounded-lg px-4 py-2 text-center text-sm font-medium text-white"
+                        style={{ backgroundColor: accent }}
+                      >
+                        Submit
+                      </div>
+                    </div>
+                  </div>
+                  {/* Fade out at bottom */}
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
+                    style={{ background: "linear-gradient(to top, var(--card), transparent)" }}
+                  />
+                </div>
 
-              {/* Clickable overlay */}
-              <button
-                onClick={() => router.push(`/dashboard/forms/${form.id}`)}
-                className="absolute inset-0 rounded-xl"
-                aria-label={`Edit ${form.name}`}
-              />
-            </div>
-          ))}
+                {/* Clickable overlay */}
+                <button
+                  onClick={() => router.push(`/dashboard/forms/${form.id}`)}
+                  className="absolute inset-0 rounded-xl"
+                  aria-label={`Edit ${form.name}`}
+                />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

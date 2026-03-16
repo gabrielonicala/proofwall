@@ -23,6 +23,7 @@ export interface FormConfig {
   accentColor: string;
   logoUrl: string;
   redirectUrl: string;
+  theme: "dark" | "light" | "auto";
 }
 
 export const defaultFormConfig: FormConfig = {
@@ -32,4 +33,5 @@ export const defaultFormConfig: FormConfig = {
   accentColor: "#4F46E5",
   logoUrl: "",
   redirectUrl: "",
+  theme: "light",
 };

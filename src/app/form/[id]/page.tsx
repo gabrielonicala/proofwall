@@ -31,6 +31,7 @@ export default async function PublicFormPage({ params }: { params: Promise<{ id:
       accentColor={form.accent_color ?? "#4F46E5"}
       logoUrl={form.logo_url}
       redirectUrl={form.redirect_url}
+      theme={(form.theme as "dark" | "light" | "auto") ?? "light"}
     />
   );
 }

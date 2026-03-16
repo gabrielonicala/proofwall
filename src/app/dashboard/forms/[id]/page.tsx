@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
@@ -10,6 +11,7 @@ import {
   type FormConfig,
   defaultFormConfig,
 } from "@/lib/form-config";
+import { getThemeVars } from "@/lib/showcase-helpers";
 import {
   ArrowLeft,
   Save,
@@ -17,6 +19,8 @@ import {
   GripVertical,
   Star,
   Upload,
+  SlidersHorizontal,
+  X,
 } from "lucide-react";
 
 export default function FormEditorPage() {
@@ -31,6 +35,7 @@ export default function FormEditorPage() {
   const [isActive, setIsActive] = useState(true);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!project) return;
@@ -53,6 +58,7 @@ export default function FormEditorPage() {
           accentColor: form.accent_color ?? defaultFormConfig.accentColor,
           logoUrl: form.logo_url ?? defaultFormConfig.logoUrl,
           redirectUrl: form.redirect_url ?? defaultFormConfig.redirectUrl,
+          theme: (form.theme as FormConfig["theme"]) ?? defaultFormConfig.theme,
         });
       }
     }
@@ -62,6 +68,14 @@ export default function FormEditorPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape" && configOpen) setConfigOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [configOpen]);
 
   async function handleSave() {
     if (!project || !name.trim()) return;
@@ -77,6 +91,7 @@ export default function FormEditorPage() {
       accent_color: config.accentColor || null,
       logo_url: config.logoUrl || null,
       redirect_url: config.redirectUrl || null,
+      theme: config.theme,
       is_active: isActive,
     };
 
@@ -106,6 +121,170 @@ export default function FormEditorPage() {
     );
   }
 
+  const configContent = (
+    <div className="space-y-6">
+      {/* Welcome message */}
+      <Section title="Welcome Message">
+        <textarea
+          value={config.welcomeMessage}
+          onChange={(e) => setConfig((p) => ({ ...p, welcomeMessage: e.target.value }))}
+          rows={2}
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
+          placeholder="We'd love to hear from you!"
+        />
+      </Section>
+
+      {/* Thank you message */}
+      <Section title="Thank You Message">
+        <textarea
+          value={config.thankYouMessage}
+          onChange={(e) => setConfig((p) => ({ ...p, thankYouMessage: e.target.value }))}
+          rows={2}
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
+          placeholder="Thank you for your feedback!"
+        />
+      </Section>
+
+      {/* Form fields */}
+      <Section title="Fields">
+        <div className="space-y-2">
+          {config.fields.map((field) => (
+            <div
+              key={field.id}
+              className={`rounded-lg border p-3 transition-colors ${
+                field.enabled
+                  ? "border-border bg-card"
+                  : "border-transparent bg-muted/50 opacity-60"
+              }`}
+            >
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <GripVertical className="size-3.5 text-muted-foreground" />
+                  <span className="text-sm font-medium">{field.label}</span>
+                  <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
+                    {field.type}
+                  </span>
+                </div>
+                <Toggle
+                  checked={field.enabled}
+                  onChange={(v) => updateField(field.id, { enabled: v })}
+                />
+              </div>
+              {field.enabled && (
+                <div className="space-y-2 pl-5">
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={field.label}
+                      onChange={(e) => updateField(field.id, { label: e.target.value })}
+                      className="min-w-0 flex-1 rounded border border-input bg-background px-2 py-1 text-xs outline-none focus:border-ring"
+                      placeholder="Label"
+                    />
+                    <label className="flex flex-shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                      <input
+                        type="checkbox"
+                        checked={field.required}
+                        onChange={(e) => updateField(field.id, { required: e.target.checked })}
+                        className="size-3.5 rounded border-input accent-primary"
+                      />
+                      Required
+                    </label>
+                  </div>
+                  {field.type !== "rating" && field.type !== "photo" && (
+                    <input
+                      value={field.placeholder ?? ""}
+                      onChange={(e) => updateField(field.id, { placeholder: e.target.value })}
+                      className="w-full rounded border border-input bg-background px-2 py-1 text-xs outline-none placeholder:text-muted-foreground focus:border-ring"
+                      placeholder="Placeholder text..."
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* Branding */}
+      <Section title="Branding">
+        <div className="space-y-3">
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">Accent color</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={config.accentColor}
+                onChange={(e) => setConfig((p) => ({ ...p, accentColor: e.target.value }))}
+                className="size-8 cursor-pointer rounded border border-input"
+              />
+              <input
+                value={config.accentColor}
+                onChange={(e) => setConfig((p) => ({ ...p, accentColor: e.target.value }))}
+                className="flex-1 rounded border border-input bg-background px-2 py-1 text-xs outline-none focus:border-ring"
+              />
+            </div>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-muted-foreground">Logo URL</label>
+            <input
+              value={config.logoUrl}
+              onChange={(e) => setConfig((p) => ({ ...p, logoUrl: e.target.value }))}
+              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
+              placeholder="https://yoursite.com/logo.png"
+            />
+          </div>
+        </div>
+      </Section>
+
+      {/* Form URL / Custom Domain */}
+      <Section title="Form URL">
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            {limits.hasCustomFormDomain
+              ? "Custom domain support — configure in project settings."
+              : "Custom domains available on the Business plan."}
+          </p>
+        </div>
+      </Section>
+
+      {/* Theme */}
+      <Section title="Theme">
+        <select
+          value={config.theme}
+          onChange={(e) => setConfig((p) => ({ ...p, theme: e.target.value as FormConfig["theme"] }))}
+          className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+        >
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+          <option value="auto">Auto (inherit)</option>
+        </select>
+      </Section>
+
+      {/* Redirect */}
+      <Section title="After Submission">
+        <div>
+          <label className="mb-1 block text-xs text-muted-foreground">Redirect URL (optional)</label>
+          <input
+            value={config.redirectUrl}
+            onChange={(e) => setConfig((p) => ({ ...p, redirectUrl: e.target.value }))}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
+            placeholder="https://yoursite.com/thanks"
+          />
+          <p className="mt-1 text-[10px] text-muted-foreground">
+            If set, the user will be redirected here instead of seeing the thank-you message.
+          </p>
+        </div>
+      </Section>
+
+      {/* Status */}
+      <Section title="Status">
+        <label className="flex cursor-pointer items-center justify-between">
+          <span className="text-sm">Form is active</span>
+          <Toggle checked={isActive} onChange={setIsActive} />
+        </label>
+      </Section>
+    </div>
+  );
+
   return (
     <div className="flex h-[calc(100svh-3.5rem)] flex-col">
       {/* Top bar */}
@@ -120,176 +299,79 @@ export default function FormEditorPage() {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="border-none bg-transparent text-lg font-semibold outline-none placeholder:text-muted-foreground"
+            className="hidden min-w-0 border-none bg-transparent text-lg font-semibold outline-none placeholder:text-muted-foreground sm:block"
             placeholder="Form name..."
           />
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving || !name.trim()}
-          className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
-          {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
-          {isNew ? "Create Form" : "Save"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setConfigOpen(true)}
+            className="flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:hidden"
+            aria-label="Open settings"
+          >
+            <SlidersHorizontal className="size-4" />
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving || !name.trim()}
+            className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50 sm:px-4"
+          >
+            {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+            <span className="hidden sm:inline">{isNew ? "Create Form" : "Save"}</span>
+          </button>
+        </div>
       </div>
 
       {/* Editor body */}
+      {/* Mobile config drawer */}
+      <AnimatePresence>
+        {configOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-background/50 backdrop-blur-sm sm:hidden"
+            onClick={() => setConfigOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {configOpen && (
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            role="dialog"
+            aria-label="Form configuration"
+            className="fixed inset-y-0 left-0 z-50 w-full overflow-y-auto bg-background p-4 sm:hidden"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Settings</h2>
+              <button
+                onClick={() => setConfigOpen(false)}
+                className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Close settings"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            {configContent}
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex flex-1 overflow-hidden">
         {/* Left panel: Config */}
-        <div className="w-80 flex-shrink-0 overflow-y-auto border-r border-border p-4">
-          <div className="space-y-6">
-            {/* Welcome message */}
-            <Section title="Welcome Message">
-              <textarea
-                value={config.welcomeMessage}
-                onChange={(e) => setConfig((p) => ({ ...p, welcomeMessage: e.target.value }))}
-                rows={2}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
-                placeholder="We'd love to hear from you!"
-              />
-            </Section>
-
-            {/* Thank you message */}
-            <Section title="Thank You Message">
-              <textarea
-                value={config.thankYouMessage}
-                onChange={(e) => setConfig((p) => ({ ...p, thankYouMessage: e.target.value }))}
-                rows={2}
-                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
-                placeholder="Thank you for your feedback!"
-              />
-            </Section>
-
-            {/* Form fields */}
-            <Section title="Fields">
-              <div className="space-y-2">
-                {config.fields.map((field) => (
-                  <div
-                    key={field.id}
-                    className={`rounded-lg border p-3 transition-colors ${
-                      field.enabled
-                        ? "border-border bg-card"
-                        : "border-transparent bg-muted/50 opacity-60"
-                    }`}
-                  >
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <GripVertical className="size-3.5 text-muted-foreground" />
-                        <span className="text-sm font-medium">{field.label}</span>
-                        <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                          {field.type}
-                        </span>
-                      </div>
-                      <Toggle
-                        checked={field.enabled}
-                        onChange={(v) => updateField(field.id, { enabled: v })}
-                      />
-                    </div>
-                    {field.enabled && (
-                      <div className="space-y-2 pl-5">
-                        <div className="flex items-center gap-2">
-                          <input
-                            value={field.label}
-                            onChange={(e) => updateField(field.id, { label: e.target.value })}
-                            className="flex-1 rounded border border-input bg-background px-2 py-1 text-xs outline-none focus:border-ring"
-                            placeholder="Label"
-                          />
-                          <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <input
-                              type="checkbox"
-                              checked={field.required}
-                              onChange={(e) => updateField(field.id, { required: e.target.checked })}
-                              className="size-3.5 rounded border-input accent-primary"
-                            />
-                            Required
-                          </label>
-                        </div>
-                        {field.type !== "rating" && field.type !== "photo" && (
-                          <input
-                            value={field.placeholder ?? ""}
-                            onChange={(e) => updateField(field.id, { placeholder: e.target.value })}
-                            className="w-full rounded border border-input bg-background px-2 py-1 text-xs outline-none placeholder:text-muted-foreground focus:border-ring"
-                            placeholder="Placeholder text..."
-                          />
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </Section>
-
-            {/* Branding */}
-            <Section title="Branding">
-              <div className="space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs text-muted-foreground">Accent color</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={config.accentColor}
-                      onChange={(e) => setConfig((p) => ({ ...p, accentColor: e.target.value }))}
-                      className="size-8 cursor-pointer rounded border border-input"
-                    />
-                    <input
-                      value={config.accentColor}
-                      onChange={(e) => setConfig((p) => ({ ...p, accentColor: e.target.value }))}
-                      className="flex-1 rounded border border-input bg-background px-2 py-1 text-xs outline-none focus:border-ring"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs text-muted-foreground">Logo URL</label>
-                  <input
-                    value={config.logoUrl}
-                    onChange={(e) => setConfig((p) => ({ ...p, logoUrl: e.target.value }))}
-                    className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
-                    placeholder="https://yoursite.com/logo.png"
-                  />
-                </div>
-              </div>
-            </Section>
-
-            {/* Form URL / Custom Domain */}
-            <Section title="Form URL">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  {limits.hasCustomFormDomain
-                    ? "Custom domain support — configure in project settings."
-                    : "Custom domains available on the Business plan."}
-                </p>
-              </div>
-            </Section>
-
-            {/* Redirect */}
-            <Section title="After Submission">
-              <div>
-                <label className="mb-1 block text-xs text-muted-foreground">Redirect URL (optional)</label>
-                <input
-                  value={config.redirectUrl}
-                  onChange={(e) => setConfig((p) => ({ ...p, redirectUrl: e.target.value }))}
-                  className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
-                  placeholder="https://yoursite.com/thanks"
-                />
-                <p className="mt-1 text-[10px] text-muted-foreground">
-                  If set, the user will be redirected here instead of seeing the thank-you message.
-                </p>
-              </div>
-            </Section>
-
-            {/* Status */}
-            <Section title="Status">
-              <label className="flex cursor-pointer items-center justify-between">
-                <span className="text-sm">Form is active</span>
-                <Toggle checked={isActive} onChange={setIsActive} />
-              </label>
-            </Section>
-          </div>
+        <div className="hidden w-80 flex-shrink-0 overflow-y-auto border-r border-border p-4 sm:block">
+          {configContent}
         </div>
 
         {/* Right panel: Live Preview */}
-        <div className="flex flex-1 items-start justify-center overflow-y-auto bg-muted/30 p-8">
+        <div
+          className={`flex flex-1 items-start justify-center overflow-y-auto p-8 transition-colors duration-300 bg-[var(--background)] ${config.theme === "light" ? "light" : ""}`}
+          style={getThemeVars(config.theme)}
+        >
           <FormPreview config={config} />
         </div>
       </div>
@@ -354,7 +436,7 @@ function FormPreview({ config }: { config: FormConfig }) {
                 ))}
               </div>
             ) : field.type === "photo" ? (
-              <div className="flex size-20 items-center justify-center rounded-full border-2 border-dashed border-border bg-muted/50 transition-colors hover:border-primary/30">
+              <div className="flex w-full items-center justify-center rounded-lg border border-input bg-background px-3 py-6 transition-colors hover:border-primary/30">
                 <Upload className="size-5 text-muted-foreground" />
               </div>
             ) : field.type === "textarea" ? (

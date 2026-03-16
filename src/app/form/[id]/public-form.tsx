@@ -14,6 +14,7 @@ interface Props {
   accentColor: string;
   logoUrl: string | null;
   redirectUrl: string | null;
+  theme: "dark" | "light" | "auto";
 }
 
 export function PublicForm({
@@ -25,7 +26,9 @@ export function PublicForm({
   accentColor,
   logoUrl,
   redirectUrl,
+  theme,
 }: Props) {
+  const themeClass = theme === "light" ? "light" : theme === "dark" ? "dark" : "";
   const enabledFields = fields.filter((f) => f.enabled);
   const [values, setValues] = useState<Record<string, string>>({});
   const [rating, setRating] = useState(0);
@@ -107,7 +110,7 @@ export function PublicForm({
   // Thank-you state
   if (submitted) {
     return (
-      <div className="light flex min-h-svh items-center justify-center bg-background px-4">
+      <div className={`${themeClass} flex min-h-svh items-center justify-center bg-background px-4`}>
         <div className="w-full max-w-lg rounded-2xl bg-card p-8 text-center shadow-lg">
           <CheckCircle2
             className="mx-auto mb-4 size-14"
@@ -125,7 +128,7 @@ export function PublicForm({
   }
 
   return (
-    <div className="light flex min-h-svh items-center justify-center bg-background px-4 py-12">
+    <div className={`${themeClass} flex min-h-svh items-center justify-center bg-background px-4 py-12`}>
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-lg rounded-2xl bg-card p-6 shadow-lg sm:p-8"
