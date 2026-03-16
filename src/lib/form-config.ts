@@ -33,5 +33,5 @@ export const defaultFormConfig: FormConfig = {
   accentColor: "#4F46E5",
   logoUrl: "",
   redirectUrl: "",
-  theme: "light",
+  theme: "dark",
 };

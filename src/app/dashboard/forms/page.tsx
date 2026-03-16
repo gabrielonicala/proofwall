@@ -8,6 +8,7 @@ import { UpgradeBanner } from "@/components/dashboard/upgrade-banner";
 import { useRouter } from "next/navigation";
 import { toggleFormActive, deleteForm } from "../actions";
 import { type FormField, defaultFields } from "@/lib/form-config";
+import { getThemeVars } from "@/lib/showcase-helpers";
 import {
   Plus,
   FileText,
@@ -36,6 +37,7 @@ type Form = {
   welcome_message: string | null;
   accent_color: string | null;
   fields: FormField[] | null;
+  theme: string;
   created_at: string;
 };
 
@@ -72,7 +74,7 @@ export default function FormsPage() {
     const supabase = createClient();
     const { data } = await supabase
       .from("collection_forms")
-      .select("id, name, is_active, welcome_message, accent_color, fields, created_at")
+      .select("id, name, is_active, welcome_message, accent_color, fields, theme, created_at")
       .eq("project_id", project.id)
       .order("created_at", { ascending: false });
     setForms((data ?? []) as Form[]);
@@ -158,6 +160,8 @@ export default function FormsPage() {
           {forms.map((form) => {
             const fields = (form.fields ?? defaultFields).filter((f) => f.enabled);
             const accent = form.accent_color ?? "#4F46E5";
+            const isLight = form.theme === "light";
+            const themeVars = getThemeVars(form.theme as "dark" | "light" | "auto");
             const { scale, renderHeight } = getPreviewScale(fields, !!form.welcome_message);
 
             return (
@@ -224,8 +228,8 @@ export default function FormsPage() {
 
                 {/* Mini form preview */}
                 <div
-                  className="relative overflow-hidden border-t border-border"
-                  style={{ height: PREVIEW_DISPLAY_HEIGHT }}
+                  className={`relative overflow-hidden border-t border-border ${isLight ? "light" : ""}`}
+                  style={{ height: PREVIEW_DISPLAY_HEIGHT, background: "var(--background)", ...themeVars }}
                 >
                   <div
                     className="pointer-events-none"
