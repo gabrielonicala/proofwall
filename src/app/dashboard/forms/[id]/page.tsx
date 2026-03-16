@@ -21,6 +21,7 @@ import {
   Upload,
   SlidersHorizontal,
   X,
+  Pencil,
 } from "lucide-react";
 
 export default function FormEditorPage() {
@@ -299,7 +300,8 @@ export default function FormEditorPage() {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="hidden min-w-0 border-none bg-transparent text-lg font-semibold outline-none placeholder:text-muted-foreground sm:block"
+            maxLength={15}
+            className="hidden min-w-0 max-w-56 rounded-lg bg-muted/50 px-3 py-1 text-lg font-semibold outline-none placeholder:text-muted-foreground focus:bg-muted sm:block"
             placeholder="Form name..."
           />
         </div>

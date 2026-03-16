@@ -45,6 +45,7 @@ import {
   ExternalLink,
   SlidersHorizontal,
   X,
+  Pencil,
 } from "lucide-react";
 
 type Tag = { id: string; name: string; color: string };
@@ -586,7 +587,8 @@ export default function WallEditorPage() {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="hidden min-w-0 border-none bg-transparent text-lg font-semibold outline-none placeholder:text-muted-foreground sm:block"
+            maxLength={15}
+            className="hidden min-w-0 max-w-52 rounded-lg bg-muted/50 px-3 py-1 text-lg font-semibold outline-none placeholder:text-muted-foreground focus:bg-muted sm:block"
             placeholder="Wall name..."
           />
         </div>
