@@ -415,92 +415,133 @@ export default function WallEditorPage() {
 
       {/* Manage testimonials */}
       <Section title="Testimonials">
-        <p className="mb-2 text-xs text-muted-foreground">
-          {excludeCount.included} included
+        <div className="mb-2 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+            <span className="size-1.5 rounded-full bg-emerald-400" />
+            {excludeCount.included} included
+          </span>
           {excludeCount.excluded > 0 && (
-            <> &middot; {excludeCount.excluded} excluded</>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-muted-foreground" />
+              {excludeCount.excluded} excluded
+            </span>
           )}
-        </p>
+        </div>
         <Dialog open={manageOpen} onOpenChange={setManageOpen}>
           <DialogTrigger className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             <Users className="size-3.5" />
             Manage&hellip;
           </DialogTrigger>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Manage Testimonials</DialogTitle>
-              <DialogDescription>
+          <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-lg">
+            {/* Header */}
+            <div className="border-b border-border px-5 pb-4 pt-5">
+              <DialogTitle className="text-base font-semibold">Manage Testimonials</DialogTitle>
+              <DialogDescription className="mt-1 text-xs">
                 {filteredForManage.length} testimonial{filteredForManage.length !== 1 ? "s" : ""} match your current filters
               </DialogDescription>
-            </DialogHeader>
-            <div className="flex items-center justify-end">
+            </div>
+
+            {/* Toolbar */}
+            <div className="flex items-center justify-between border-b border-border/50 bg-muted/30 px-5 py-2">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+                  {excludeCount.included} visible
+                </span>
+                {excludeCount.excluded > 0 && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-medium text-destructive">
+                    {excludeCount.excluded} hidden
+                  </span>
+                )}
+              </div>
               <button
                 onClick={bulkToggleExclude}
-                className="text-xs text-muted-foreground hover:text-foreground"
+                className="rounded-md px-2.5 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
                 {filteredForManage.every((t) => excludedIds.includes(t.id))
                   ? "Include all"
                   : "Exclude all"}
               </button>
             </div>
-            <div className="max-h-[60vh] space-y-1 overflow-y-auto">
+
+            {/* List */}
+            <div className="max-h-[60vh] overflow-y-auto px-2 py-2">
               {filteredForManage.map((t) => {
                 const isExcluded = excludedIds.includes(t.id);
                 return (
-                  <div
+                  <button
                     key={t.id}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-opacity ${
-                      isExcluded ? "opacity-50" : ""
+                    onClick={() => toggleExclude(t.id)}
+                    className={`group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all ${
+                      isExcluded
+                        ? "opacity-45 hover:opacity-70"
+                        : "hover:bg-muted/50"
                     }`}
                   >
-                    {t.author_photo ? (
-                      <img
-                        src={t.author_photo}
-                        alt={t.author_name}
-                        className="size-8 flex-shrink-0 rounded-full bg-muted object-cover"
-                      />
-                    ) : (
-                      <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-                        {t.author_name.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                    {/* Avatar */}
+                    <div className="relative flex-shrink-0">
+                      {t.author_photo ? (
+                        <img
+                          src={t.author_photo}
+                          alt={t.author_name}
+                          className={`size-9 rounded-full object-cover ring-2 transition-all ${
+                            isExcluded
+                              ? "ring-muted grayscale"
+                              : "ring-emerald-500/30"
+                          }`}
+                        />
+                      ) : (
+                        <div className={`flex size-9 items-center justify-center rounded-full text-xs font-semibold ring-2 transition-all ${
+                          isExcluded
+                            ? "bg-muted text-muted-foreground ring-muted"
+                            : "bg-primary/15 text-primary ring-primary/30"
+                        }`}>
+                          {t.author_name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Content */}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-foreground">
-                        {t.author_name}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className={`truncate text-sm font-medium ${
+                          isExcluded ? "text-muted-foreground line-through" : "text-foreground"
+                        }`}>
+                          {t.author_name}
+                        </p>
+                        {(t.rating ?? 0) > 0 && (
+                          <div className="hidden flex-shrink-0 gap-0.5 sm:flex">
+                            {Array.from({ length: t.rating ?? 0 }).map((_, i) => (
+                              <Star
+                                key={i}
+                                className="size-2.5 fill-accent text-accent"
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
                       <p className="truncate text-xs text-muted-foreground">
                         {t.text}
                       </p>
                     </div>
-                    {(t.rating ?? 0) > 0 && (
-                      <div className="hidden flex-shrink-0 gap-0.5 sm:flex">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`size-3 ${
-                              i < (t.rating ?? 0)
-                                ? "fill-accent text-accent"
-                                : "text-muted"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    <button
-                      onClick={() => toggleExclude(t.id)}
-                      className="flex-shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                    >
+
+                    {/* Toggle indicator */}
+                    <div className={`flex size-7 flex-shrink-0 items-center justify-center rounded-full transition-all ${
+                      isExcluded
+                        ? "bg-destructive/15 text-destructive"
+                        : "bg-emerald-500/15 text-emerald-400 group-hover:bg-emerald-500/25"
+                    }`}>
                       {isExcluded ? (
-                        <EyeOff className="size-4" />
+                        <EyeOff className="size-3.5" />
                       ) : (
-                        <Eye className="size-4" />
+                        <Eye className="size-3.5" />
                       )}
-                    </button>
-                  </div>
+                    </div>
+                  </button>
                 );
               })}
             </div>
-            <DialogFooter showCloseButton />
+
+            <DialogFooter showCloseButton className="mx-0 mb-0" />
           </DialogContent>
         </Dialog>
       </Section>
