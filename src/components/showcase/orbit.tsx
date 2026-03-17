@@ -284,7 +284,7 @@ export function Orbit({
   }, [autoplay, speed, pauseOnHover, applyTransforms, count, middleStart]);
 
   return (
-    <div ref={containerRef} className={`relative mx-auto flex min-h-[340px] w-full flex-col justify-center ${getFontClass(config)}`}>
+    <div ref={containerRef} className={`relative mx-auto flex min-h-[340px] w-full flex-col justify-center overflow-hidden ${getFontClass(config)}`}>
       {/* Hidden measurement container */}
       <div
         ref={measureRef}

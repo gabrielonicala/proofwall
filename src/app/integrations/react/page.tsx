@@ -62,23 +62,42 @@ export default function ReactIntegrationPage() {
                 2. Create the embed component
               </h2>
               <p className="mb-4">
-                Create a reusable component that wraps the Laudica iframe:
+                Create a reusable component that wraps the Laudica iframe. It
+                listens for{" "}
+                <code className="rounded bg-muted px-1.5 py-0.5 text-sm font-mono text-foreground">
+                  laudica-resize
+                </code>{" "}
+                events so the iframe automatically matches its content height:
               </p>
               <pre className={codeBlockClass}>
-                <code>{`interface LaudicaWallProps {
+                <code>{`import { useEffect, useRef } from "react";
+
+interface LaudicaWallProps {
   wallId: string;
   className?: string;
 }
 
 export function LaudicaWall({ wallId, className }: LaudicaWallProps) {
+  const ref = useRef<HTMLIFrameElement>(null);
+
+  useEffect(() => {
+    function onMsg(e: MessageEvent) {
+      if (e.data?.type === "laudica-resize" && ref.current) {
+        ref.current.style.height = e.data.height + "px";
+      }
+    }
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, []);
+
   return (
     <iframe
+      ref={ref}
       src={\`https://app.laudica.com/embed/\${wallId}\`}
-      width="100%"
-      height="500"
-      frameBorder="0"
-      style={{ border: "none", maxWidth: "100%" }}
+      style={{ width: "100%", border: "none", minHeight: 100, margin: "1.5rem 0" }}
+      scrolling="no"
       loading="lazy"
+      title="Laudica testimonials"
       className={className}
     />
   );
@@ -103,56 +122,6 @@ export default function TestimonialsPage() {
       <h2>What our customers say</h2>
       <LaudicaWall wallId="YOUR_WALL_ID" />
     </section>
-  );
-}`}</code>
-              </pre>
-            </section>
-
-            {/* Step 4 */}
-            <section>
-              <h2 className="mb-4 text-2xl font-semibold tracking-tight text-foreground">
-                4. Auto-resize (optional)
-              </h2>
-              <p className="mb-4">
-                The Laudica embed sends a{" "}
-                <code className="rounded bg-muted px-1.5 py-0.5 text-sm font-mono text-foreground">
-                  laudica-resize
-                </code>{" "}
-                postMessage event with its content height. Listen for it to
-                remove the fixed height:
-              </p>
-              <pre className={codeBlockClass}>
-                <code>{`import { useEffect, useRef } from "react";
-
-interface LaudicaWallProps {
-  wallId: string;
-  className?: string;
-}
-
-export function LaudicaWall({ wallId, className }: LaudicaWallProps) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  useEffect(() => {
-    function handleMessage(e: MessageEvent) {
-      if (e.data?.type === "laudica-resize" && iframeRef.current) {
-        iframeRef.current.style.height = e.data.height + "px";
-      }
-    }
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
-
-  return (
-    <iframe
-      ref={iframeRef}
-      src={\`https://app.laudica.com/embed/\${wallId}\`}
-      width="100%"
-      height="500"
-      frameBorder="0"
-      style={{ border: "none", maxWidth: "100%" }}
-      loading="lazy"
-      className={className}
-    />
   );
 }`}</code>
               </pre>

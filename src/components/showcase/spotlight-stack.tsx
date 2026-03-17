@@ -161,7 +161,7 @@ export function SpotlightStack({ testimonials, autoplay = false, speed = "normal
 
   return (
     <div
-      className={`mx-auto max-w-3xl ${getFontClass(config)}`}
+      className={`mx-auto max-w-3xl overflow-hidden ${getFontClass(config)}`}
       style={{ perspective: "1200px" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

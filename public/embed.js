@@ -27,6 +27,7 @@
     iframe.style.minHeight = "100px";
     iframe.style.height = "500px"; // initial fallback
     iframe.style.colorScheme = "normal";
+    iframe.style.margin = "1.5rem 0";
     iframe.setAttribute("frameborder", "0");
     iframe.setAttribute("scrolling", "no");
     iframe.setAttribute("loading", "lazy");

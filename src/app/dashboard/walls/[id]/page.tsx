@@ -1078,12 +1078,12 @@ function EmbedCodePanel({ wallId }: { wallId: string }) {
       hint: "Add this to any HTML page. The script handles rendering and resizing automatically.",
     },
     iframe: {
-      code: `<iframe\n  src="${embedUrl}"\n  style="width:100%;border:none;min-height:400px"\n  loading="lazy"\n  title="Laudica testimonials"\n></iframe>`,
-      hint: "Self-contained embed. No JavaScript needed — works anywhere iframes are supported.",
+      code: `<iframe\n  id="laudica-${wallId.slice(0, 8)}"\n  src="${embedUrl}"\n  style="width:100%;border:none;min-height:100px;margin:1.5rem 0"\n  scrolling="no"\n  loading="lazy"\n  title="Laudica testimonials"\n></iframe>\n<script>\nwindow.addEventListener("message", function(e) {\n  if (e.data && e.data.type === "laudica-resize") {\n    var f = document.getElementById("laudica-${wallId.slice(0, 8)}");\n    if (f) f.style.height = e.data.height + "px";\n  }\n});\n</script>`,
+      hint: "Self-contained embed with auto-resize. Works anywhere iframes are supported.",
     },
     react: {
-      code: `function Laudica() {\n  return (\n    <iframe\n      src="${embedUrl}"\n      style={{ width: '100%', border: 'none', minHeight: 400 }}\n      loading="lazy"\n      title="Laudica testimonials"\n    />\n  );\n}`,
-      hint: "Drop this component into your React or Next.js app.",
+      code: `import { useEffect, useRef } from "react";\n\nfunction Laudica() {\n  const ref = useRef<HTMLIFrameElement>(null);\n\n  useEffect(() => {\n    function onMsg(e: MessageEvent) {\n      if (e.data?.type === "laudica-resize" && ref.current) {\n        ref.current.style.height = e.data.height + "px";\n      }\n    }\n    window.addEventListener("message", onMsg);\n    return () => window.removeEventListener("message", onMsg);\n  }, []);\n\n  return (\n    <iframe\n      ref={ref}\n      src="${embedUrl}"\n      style={{ width: "100%", border: "none", minHeight: 100, margin: "1.5rem 0" }}\n      scrolling="no"\n      loading="lazy"\n      title="Laudica testimonials"\n    />\n  );\n}`,
+      hint: "Drop this component into your React or Next.js app. Auto-resizes to fit content.",
     },
     preview: {
       code: embedUrl,

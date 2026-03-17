@@ -82,7 +82,7 @@ export function FadeRotator({ testimonials, speed = "normal", autoplay = true, p
   const t = testimonials[current];
 
   return (
-    <div className={`relative mx-auto flex max-w-2xl flex-col items-center justify-center py-8 text-center ${getFontClass(config)}`}>
+    <div className={`relative mx-auto flex max-w-2xl flex-col items-center justify-center overflow-hidden py-8 text-center ${getFontClass(config)}`}>
       {/* Hidden measurement container */}
       <div ref={measureRef} aria-hidden className="pointer-events-none absolute left-0 right-0 -z-10 opacity-0">
         {testimonials.map((item) => (
