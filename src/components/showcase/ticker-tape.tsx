@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { type Testimonial } from "@/data/sample-testimonials";
 import { Star } from "lucide-react";
 import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
@@ -13,50 +13,60 @@ interface Props {
   config?: ShowcaseConfig;
 }
 
-function TickerCard({ t, config }: { t: Testimonial; config?: ShowcaseConfig }) {
-  const card = getCardClasses(config);
-
+function TickerCardContent({ t, config }: { t: Testimonial; config?: ShowcaseConfig }) {
   return (
-    <div className={`mx-2 inline-flex w-[300px] flex-shrink-0 ${card} p-4 sm:w-[340px] sm:p-5`}>
-      <div className="min-w-0">
-        {shouldShow("showRating", config) && (
-          <div className="mb-2 flex gap-0.5">
-            {Array.from({ length: 5 }).map((_, si) => (
-              <Star
-                key={si}
-                className={`size-3.5 ${si < t.rating ? "fill-accent text-accent" : "text-muted"}`}
-              />
-            ))}
-          </div>
+    <>
+      {shouldShow("showRating", config) && (
+        <div className="mb-2 flex gap-0.5">
+          {Array.from({ length: 5 }).map((_, si) => (
+            <Star
+              key={si}
+              className={`size-3.5 ${si < t.rating ? "fill-accent text-accent" : "text-muted"}`}
+            />
+          ))}
+        </div>
+      )}
+      <p className="mb-3 flex-1 text-sm leading-relaxed text-foreground/90">
+        &ldquo;{t.text}&rdquo;
+      </p>
+      {shouldShow("showDate", config) && t.createdAt && (
+        <p className="mb-1 text-[10px] text-muted-foreground">{formatDate(t.createdAt)}</p>
+      )}
+      <div className="flex items-center gap-2">
+        {shouldShow("showPhoto", config) && t.authorPhoto && (
+          <img src={t.authorPhoto} alt={t.authorName} className="size-7 rounded-full bg-muted" />
         )}
-        <p className="mb-3 text-sm leading-relaxed text-foreground/90 line-clamp-3">
-          &ldquo;{t.text}&rdquo;
-        </p>
-        {shouldShow("showDate", config) && t.createdAt && (
-          <p className="mb-1 text-[10px] text-muted-foreground">{formatDate(t.createdAt)}</p>
-        )}
-        <div className="flex items-center gap-2">
-          {shouldShow("showPhoto", config) && t.authorPhoto && (
-            <img src={t.authorPhoto} alt={t.authorName} className="size-7 rounded-full bg-muted" />
+        <div className="min-w-0">
+          <p className="truncate text-xs font-medium text-foreground">{t.authorName}</p>
+          {shouldShow("showCompany", config) && (
+            <p className="truncate text-[10px] text-muted-foreground">{t.authorCompany}</p>
           )}
-          <div className="min-w-0">
-            <p className="truncate text-xs font-medium text-foreground">{t.authorName}</p>
-            {shouldShow("showCompany", config) && (
-              <p className="truncate text-[10px] text-muted-foreground">{t.authorCompany}</p>
-            )}
-          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
 export function TickerTape({ testimonials, speed = "normal", autoplay = true, pauseOnHover = true, config }: Props) {
   const row1Ref = useRef<HTMLDivElement>(null);
   const row2Ref = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [cardHeight, setCardHeight] = useState<number>(0);
 
+  const card = getCardClasses(config);
   const speed1 = speed === "slow" ? 30 : speed === "fast" ? 60 : 45;
   const speed2 = speed === "slow" ? 25 : speed === "fast" ? 50 : 38;
+
+  // Measure tallest card
+  useEffect(() => {
+    const el = measureRef.current;
+    if (!el) return;
+    let max = 0;
+    for (let i = 0; i < el.children.length; i++) {
+      max = Math.max(max, (el.children[i] as HTMLElement).offsetHeight);
+    }
+    if (max > 0) setCardHeight(max);
+  }, [testimonials, config]);
 
   // Row 1: scrolls LEFT
   useEffect(() => {
@@ -152,20 +162,34 @@ export function TickerTape({ testimonials, speed = "normal", autoplay = true, pa
   }, [autoplay, speed2, pauseOnHover]);
 
   const doubled = [...testimonials, ...testimonials];
+  const heightStyle = cardHeight > 0 ? { height: cardHeight } : undefined;
 
   return (
     <div className={`space-y-3 overflow-hidden ${getFontClass(config)}`}>
+      {/* Hidden measurement container — renders each card at natural height */}
+      <div ref={measureRef} aria-hidden className="pointer-events-none absolute left-0 right-0 -z-10 opacity-0">
+        {testimonials.map((t) => (
+          <div key={t.id} className={`inline-flex w-[300px] flex-col ${card} p-4 sm:w-[340px] sm:p-5`}>
+            <TickerCardContent t={t} config={config} />
+          </div>
+        ))}
+      </div>
+
       <div className="overflow-hidden">
         <div ref={row1Ref} className="flex w-max">
           {doubled.map((t, i) => (
-            <TickerCard key={`r1-${i}`} t={t} config={config} />
+            <div key={`r1-${i}`} className={`mx-2 inline-flex w-[300px] flex-shrink-0 flex-col ${card} p-4 sm:w-[340px] sm:p-5`} style={heightStyle}>
+              <TickerCardContent t={t} config={config} />
+            </div>
           ))}
         </div>
       </div>
       <div className="overflow-hidden">
         <div ref={row2Ref} className="flex w-max">
           {doubled.map((t, i) => (
-            <TickerCard key={`r2-${i}`} t={t} config={config} />
+            <div key={`r2-${i}`} className={`mx-2 inline-flex w-[300px] flex-shrink-0 flex-col ${card} p-4 sm:w-[340px] sm:p-5`} style={heightStyle}>
+              <TickerCardContent t={t} config={config} />
+            </div>
           ))}
         </div>
       </div>

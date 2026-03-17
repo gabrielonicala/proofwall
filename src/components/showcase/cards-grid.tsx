@@ -61,7 +61,7 @@ export function CardsGrid({ testimonials, config, fillRows }: Props & { fillRows
               ))}
             </div>
           )}
-          <p className="mb-4 flex-1 text-sm leading-relaxed text-foreground/90 line-clamp-6">
+          <p className="mb-4 flex-1 text-sm leading-relaxed text-foreground/90">
             &ldquo;{t.text}&rdquo;
           </p>
           {shouldShow("showDate", config) && t.createdAt && (
