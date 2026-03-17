@@ -117,6 +117,9 @@ export function Hero() {
               />
             </div>
           </div>
+          <p className="mt-3 text-center text-xs text-muted-foreground/50">
+            * Testimonials shown are fictional and for illustration purposes only.
+          </p>
         </motion.div>
       </div>
     </section>

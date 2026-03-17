@@ -211,6 +211,9 @@ export function ShowcaseDemo() {
         <p className="mt-6 text-center text-sm text-muted-foreground">
           All styles · All free · No upsell on design
         </p>
+        <p className="mt-2 text-center text-xs text-muted-foreground/50">
+          * Testimonials shown are fictional and for illustration purposes only.
+        </p>
       </div>
     </section>
   );
