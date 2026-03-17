@@ -37,6 +37,7 @@ type Wall = {
   is_active: boolean;
   tag_filter: string[] | null;
   max_testimonials: number | null;
+  excluded_ids: string[] | null;
   config: Record<string, unknown> | null;
   created_at: string;
 };
@@ -75,7 +76,7 @@ export default function WallsPage() {
     const [wallsRes, testimonialsRes] = await Promise.all([
       supabase
         .from("walls")
-        .select("id, name, style, is_active, tag_filter, max_testimonials, config, created_at")
+        .select("id, name, style, is_active, tag_filter, max_testimonials, excluded_ids, config, created_at")
         .eq("project_id", project.id)
         .order("created_at", { ascending: false }),
       supabase
@@ -115,6 +116,11 @@ export default function WallsPage() {
       filtered = filtered.filter((t) =>
         t.tags.some((tag) => wall.tag_filter!.includes(tag))
       );
+    }
+
+    // Exclude individual testimonials
+    if (wall.excluded_ids && wall.excluded_ids.length > 0) {
+      filtered = filtered.filter((t) => !wall.excluded_ids!.includes(t.id));
     }
 
     // Apply max testimonials

@@ -93,6 +93,7 @@ const WALL_STYLE_LABELS: Record<WallStyle, string> = {
   masonry: "Masonry",
   marquee: "Marquee",
   "spotlight-stack": "Spotlight Stack",
+  orbit: "Orbit",
 };
 
 export default function AnalyticsPage() {

@@ -152,6 +152,12 @@ export default async function EmbedPage({ params }: Props) {
     filtered = filtered.filter((t) => !!t.author_photo);
   }
 
+  // Exclude individual testimonials
+  const excludedIds: string[] = wall.excluded_ids ?? [];
+  if (excludedIds.length > 0) {
+    filtered = filtered.filter((t) => !excludedIds.includes(t.id));
+  }
+
   // Sort
   if (config.sort === "highest") {
     filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));

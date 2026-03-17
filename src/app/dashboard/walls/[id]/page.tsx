@@ -37,6 +37,7 @@ import {
   Tablet,
   Smartphone,
   Eye,
+  EyeOff,
   Copy,
   Check,
   Info,
@@ -46,7 +47,18 @@ import {
   SlidersHorizontal,
   X,
   Pencil,
+  Users,
+  Star,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 type Tag = { id: string; name: string; color: string };
 
@@ -63,6 +75,7 @@ export default function WallEditorPage() {
   const [config, setConfig] = useState<WallConfig>(defaultWallConfig);
   const [tagFilter, setTagFilter] = useState<string[]>([]);
   const [maxTestimonials, setMaxTestimonials] = useState<number | null>(null);
+  const [excludedIds, setExcludedIds] = useState<string[]>([]);
   const [isActive, setIsActive] = useState(true);
 
   // Data
@@ -74,6 +87,7 @@ export default function WallEditorPage() {
   // Preview
   const [previewWidth, setPreviewWidth] = useState<"full" | "tablet" | "mobile">("full");
   const [configOpen, setConfigOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
 
   // Fetch wall data + testimonials + tags
   const fetchData = useCallback(async () => {
@@ -132,6 +146,7 @@ export default function WallEditorPage() {
         setConfig({ ...defaultWallConfig, ...(wall.config as Partial<WallConfig>) });
         setTagFilter(wall.tag_filter ?? []);
         setMaxTestimonials(wall.max_testimonials);
+        setExcludedIds(wall.excluded_ids ?? []);
         setIsActive(wall.is_active);
       }
     }
@@ -167,6 +182,11 @@ export default function WallEditorPage() {
       filtered = filtered.filter((t) => !!t.author_photo);
     }
 
+    // Exclude individual testimonials
+    if (excludedIds.length > 0) {
+      filtered = filtered.filter((t) => !excludedIds.includes(t.id));
+    }
+
     // Sort
     if (config.sort === "highest") {
       filtered.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
@@ -185,7 +205,49 @@ export default function WallEditorPage() {
     }
 
     return filtered.map(toShowcaseTestimonial);
-  }, [testimonials, tagFilter, config.sort, config.onlyWithPhotos, maxTestimonials]);
+  }, [testimonials, tagFilter, config.sort, config.onlyWithPhotos, excludedIds, maxTestimonials]);
+
+  // Testimonials matching filters but before exclusion (for manage dialog)
+  const filteredForManage = useMemo(() => {
+    let filtered = [...testimonials];
+    if (tagFilter.length > 0) {
+      filtered = filtered.filter((t) =>
+        t.tags.some((tag) => tagFilter.includes(tag.id))
+      );
+    }
+    if (config.onlyWithPhotos) {
+      filtered = filtered.filter((t) => !!t.author_photo);
+    }
+    return filtered;
+  }, [testimonials, tagFilter, config.onlyWithPhotos]);
+
+  const excludeCount = useMemo(() => {
+    const matchingExcluded = filteredForManage.filter((t) =>
+      excludedIds.includes(t.id)
+    ).length;
+    return {
+      included: filteredForManage.length - matchingExcluded,
+      excluded: matchingExcluded,
+    };
+  }, [filteredForManage, excludedIds]);
+
+  function toggleExclude(id: string) {
+    setExcludedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  }
+
+  function bulkToggleExclude() {
+    const allExcluded = filteredForManage.every((t) => excludedIds.includes(t.id));
+    if (allExcluded) {
+      const filteredIds = new Set(filteredForManage.map((t) => t.id));
+      setExcludedIds((prev) => prev.filter((id) => !filteredIds.has(id)));
+    } else {
+      const currentSet = new Set(excludedIds);
+      const newIds = filteredForManage.map((t) => t.id).filter((id) => !currentSet.has(id));
+      setExcludedIds((prev) => [...prev, ...newIds]);
+    }
+  }
 
   // Save wall
   async function handleSave() {
@@ -199,6 +261,7 @@ export default function WallEditorPage() {
       config: JSON.parse(JSON.stringify(config)),
       tag_filter: tagFilter.length > 0 ? tagFilter : null,
       max_testimonials: maxTestimonials,
+      excluded_ids: excludedIds.length > 0 ? excludedIds : null,
       is_active: isActive,
       project_id: project.id,
     };
@@ -349,6 +412,98 @@ export default function WallEditorPage() {
           )}
         </Section>
       )}
+
+      {/* Manage testimonials */}
+      <Section title="Testimonials">
+        <p className="mb-2 text-xs text-muted-foreground">
+          {excludeCount.included} included
+          {excludeCount.excluded > 0 && (
+            <> &middot; {excludeCount.excluded} excluded</>
+          )}
+        </p>
+        <Dialog open={manageOpen} onOpenChange={setManageOpen}>
+          <DialogTrigger className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+            <Users className="size-3.5" />
+            Manage&hellip;
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Manage Testimonials</DialogTitle>
+              <DialogDescription>
+                {filteredForManage.length} testimonial{filteredForManage.length !== 1 ? "s" : ""} match your current filters
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center justify-end">
+              <button
+                onClick={bulkToggleExclude}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                {filteredForManage.every((t) => excludedIds.includes(t.id))
+                  ? "Include all"
+                  : "Exclude all"}
+              </button>
+            </div>
+            <div className="max-h-[60vh] space-y-1 overflow-y-auto">
+              {filteredForManage.map((t) => {
+                const isExcluded = excludedIds.includes(t.id);
+                return (
+                  <div
+                    key={t.id}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-opacity ${
+                      isExcluded ? "opacity-50" : ""
+                    }`}
+                  >
+                    {t.author_photo ? (
+                      <img
+                        src={t.author_photo}
+                        alt={t.author_name}
+                        className="size-8 flex-shrink-0 rounded-full bg-muted object-cover"
+                      />
+                    ) : (
+                      <div className="flex size-8 flex-shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
+                        {t.author_name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-foreground">
+                        {t.author_name}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {t.text}
+                      </p>
+                    </div>
+                    {(t.rating ?? 0) > 0 && (
+                      <div className="hidden flex-shrink-0 gap-0.5 sm:flex">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`size-3 ${
+                              i < (t.rating ?? 0)
+                                ? "fill-accent text-accent"
+                                : "text-muted"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <button
+                      onClick={() => toggleExclude(t.id)}
+                      className="flex-shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      {isExcluded ? (
+                        <EyeOff className="size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            <DialogFooter showCloseButton />
+          </DialogContent>
+        </Dialog>
+      </Section>
 
       {/* Max testimonials */}
       <Section title="Max Testimonials">

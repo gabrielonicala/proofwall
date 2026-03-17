@@ -162,6 +162,59 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          interval: string
+          price_id: string
+          project_id: string
+          status: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          interval: string
+          price_id: string
+          project_id: string
+          status?: string
+          stripe_customer_id: string
+          stripe_subscription_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          interval?: string
+          price_id?: string
+          project_id?: string
+          status?: string
+          stripe_customer_id?: string
+          stripe_subscription_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           color: string
@@ -316,6 +369,7 @@ export type Database = {
         Row: {
           config: Json
           created_at: string
+          excluded_ids: string[] | null
           id: string
           is_active: boolean
           max_testimonials: number | null
@@ -328,6 +382,7 @@ export type Database = {
         Insert: {
           config?: Json
           created_at?: string
+          excluded_ids?: string[] | null
           id?: string
           is_active?: boolean
           max_testimonials?: number | null
@@ -340,6 +395,7 @@ export type Database = {
         Update: {
           config?: Json
           created_at?: string
+          excluded_ids?: string[] | null
           id?: string
           is_active?: boolean
           max_testimonials?: number | null
@@ -352,59 +408,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "walls_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      subscriptions: {
-        Row: {
-          id: string
-          project_id: string
-          stripe_customer_id: string
-          stripe_subscription_id: string
-          status: string
-          price_id: string
-          interval: string
-          current_period_start: string | null
-          current_period_end: string | null
-          cancel_at_period_end: boolean
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          project_id: string
-          stripe_customer_id: string
-          stripe_subscription_id: string
-          status?: string
-          price_id: string
-          interval: string
-          current_period_start?: string | null
-          current_period_end?: string | null
-          cancel_at_period_end?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          project_id?: string
-          stripe_customer_id?: string
-          stripe_subscription_id?: string
-          status?: string
-          price_id?: string
-          interval?: string
-          current_period_start?: string | null
-          current_period_end?: string | null
-          cancel_at_period_end?: boolean
-          created_at?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -444,6 +447,7 @@ export type Database = {
         | "masonry"
         | "marquee"
         | "spotlight-stack"
+        | "orbit"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -584,6 +588,7 @@ export const Constants = {
         "masonry",
         "marquee",
         "spotlight-stack",
+        "orbit",
       ],
     },
   },
