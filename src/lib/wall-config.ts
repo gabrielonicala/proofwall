@@ -10,11 +10,14 @@ export type WallStyle =
   | "orbit";
 
 export interface WallConfig {
-  theme: "dark" | "light" | "auto";
+  theme: "dark" | "light" | "transparent" | "custom" | "auto";
   bgColor: string;
+  cardColor: string;
   textColor: string;
   accentColor: string;
   starColor: string;
+  bgFade: boolean;
+  embedPadding: number;
   font: "system" | "inter" | "serif" | "mono";
   showRating: boolean;
   showPhoto: boolean;
@@ -35,9 +38,12 @@ export interface WallConfig {
 export const defaultWallConfig: WallConfig = {
   theme: "dark",
   bgColor: "",
+  cardColor: "",
   textColor: "",
   accentColor: "",
   starColor: "",
+  bgFade: false,
+  embedPadding: 4,
   font: "system",
   showRating: true,
   showPhoto: true,

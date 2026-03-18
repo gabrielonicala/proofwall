@@ -178,15 +178,42 @@ export default async function EmbedPage({ params }: Props) {
   const testimonials = filtered.map(toShowcaseTestimonial);
 
   const isLight = config.theme === "light";
-  const themeVars = getThemeVars(config.theme);
+  const isTransparent = config.theme === "transparent";
+  const isCustom = config.theme === "custom";
+  const colorOverrides = (isCustom || isTransparent) && config.cardColor
+    ? { bgColor: isCustom ? (config.bgColor || undefined) : undefined, cardColor: config.cardColor }
+    : isCustom && config.bgColor
+      ? { bgColor: config.bgColor }
+      : undefined;
+  const themeVars = getThemeVars(config.theme, colorOverrides);
+
+  // For fade effect: gradient from transparent → bg → transparent at edges
+  const bgValue = isTransparent
+    ? "transparent"
+    : isCustom && config.bgColor
+      ? config.bgColor
+      : "var(--background)";
+  const fadeStyle: React.CSSProperties | undefined = config.bgFade && !isTransparent
+    ? { background: `linear-gradient(to bottom, transparent, ${bgValue} 40%, ${bgValue} 60%, transparent)` }
+    : isTransparent
+      ? { background: "transparent" }
+      : { background: bgValue };
 
   return (
+    <>
+      {(isTransparent || config.bgFade) && (
+        <style dangerouslySetInnerHTML={{ __html: "html,body{background:transparent!important}" }} />
+      )}
+      {isCustom && config.bgColor && !config.bgFade && (
+        <style dangerouslySetInnerHTML={{ __html: `body{background:${config.bgColor}!important}` }} />
+      )}
     <div
       className={isLight ? "light" : ""}
       style={{
         minHeight: "100px",
-        background: "var(--background)",
+        padding: `${config.embedPadding ?? 4}rem 0`,
         ...themeVars,
+        ...fadeStyle,
       }}
     >
       {testimonials.length === 0 ? (
@@ -232,5 +259,6 @@ export default async function EmbedPage({ params }: Props) {
       )}
       <EmbedResize />
     </div>
+    </>
   );
 }

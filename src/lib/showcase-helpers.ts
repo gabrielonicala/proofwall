@@ -54,22 +54,39 @@ export function formatDate(iso?: string): string {
 
 /** Inline CSS variable overrides for theme. Applied on the preview wrapper. */
 export function getThemeVars(
-  theme?: "dark" | "light" | "auto"
+  theme?: "dark" | "light" | "transparent" | "custom" | "auto",
+  overrides?: { bgColor?: string; cardColor?: string }
 ): React.CSSProperties | undefined {
-  if (theme !== "light") return undefined;
-  return {
-    "--background": "oklch(0.985 0.002 280)",
-    "--foreground": "oklch(0.145 0.01 280)",
-    "--card": "oklch(1 0 0)",
-    "--card-foreground": "oklch(0.145 0.01 280)",
-    "--popover": "oklch(1 0 0)",
-    "--popover-foreground": "oklch(0.145 0.01 280)",
-    "--muted": "oklch(0.94 0.004 280)",
-    "--muted-foreground": "oklch(0.5 0.015 250)",
-    "--accent": "oklch(0.769 0.171 70)",
-    "--accent-foreground": "oklch(0.15 0.01 70)",
-    "--border": "oklch(0.91 0.005 280)",
-    "--input": "oklch(0.91 0.005 280)",
-    "--ring": "oklch(0.457 0.24 277)",
-  } as React.CSSProperties;
+  const vars: Record<string, string> = {};
+
+  if (theme === "light") {
+    Object.assign(vars, {
+      "--background": "oklch(0.985 0.002 280)",
+      "--foreground": "oklch(0.145 0.01 280)",
+      "--card": "oklch(1 0 0)",
+      "--card-foreground": "oklch(0.145 0.01 280)",
+      "--popover": "oklch(1 0 0)",
+      "--popover-foreground": "oklch(0.145 0.01 280)",
+      "--muted": "oklch(0.94 0.004 280)",
+      "--muted-foreground": "oklch(0.5 0.015 250)",
+      "--accent": "oklch(0.769 0.171 70)",
+      "--accent-foreground": "oklch(0.15 0.01 70)",
+      "--border": "oklch(0.91 0.005 280)",
+      "--input": "oklch(0.91 0.005 280)",
+      "--ring": "oklch(0.457 0.24 277)",
+    });
+  } else if (theme === "transparent") {
+    vars["--background"] = "transparent";
+  }
+
+  // Custom overrides
+  if (overrides?.bgColor) vars["--background"] = overrides.bgColor;
+  if (overrides?.cardColor) {
+    vars["--card"] = overrides.cardColor;
+    vars["--popover"] = overrides.cardColor;
+  }
+
+  return Object.keys(vars).length > 0
+    ? (vars as unknown as React.CSSProperties)
+    : undefined;
 }

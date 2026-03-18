@@ -725,8 +725,77 @@ export default function WallEditorPage() {
         >
           <option value="dark">Dark</option>
           <option value="light">Light</option>
-          <option value="auto">Auto (inherit)</option>
+          <option value="transparent">Transparent</option>
+          <option value="custom">Custom</option>
         </select>
+
+        {/* Custom color pickers */}
+        {(config.theme === "custom" || config.theme === "transparent") && (
+          <div className="mt-3 space-y-2">
+            {config.theme === "custom" && (
+              <label className="flex cursor-pointer items-center justify-between text-xs text-muted-foreground">
+                Background color
+                <input
+                  type="color"
+                  value={config.bgColor || "#09090b"}
+                  onChange={(e) => updateConfig("bgColor", e.target.value)}
+                  className="h-5 w-9 cursor-pointer appearance-none rounded-full border-none bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0.5 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-none [&::-moz-color-swatch]:rounded-full [&::-moz-color-swatch]:border-none"
+                />
+              </label>
+            )}
+            <label className={`flex items-center justify-between text-xs ${config.cardStyle === "glass" ? "text-muted-foreground/40" : "cursor-pointer text-muted-foreground"}`}>
+              Card color
+              <input
+                type="color"
+                value={config.cardColor || "#1a1a1f"}
+                onChange={(e) => updateConfig("cardColor", e.target.value)}
+                disabled={config.cardStyle === "glass"}
+                className={`h-5 w-9 appearance-none rounded-full border-none bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0.5 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-none [&::-moz-color-swatch]:rounded-full [&::-moz-color-swatch]:border-none ${config.cardStyle === "glass" ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
+              />
+            </label>
+          </div>
+        )}
+
+        {/* Fade edges — not for transparent */}
+        {config.theme !== "transparent" && (
+          <label className="mt-3 flex cursor-pointer items-center justify-between text-xs text-muted-foreground">
+            Fade edges into host background
+            <button
+              type="button"
+              role="switch"
+              aria-checked={config.bgFade ?? false}
+              onClick={() => updateConfig("bgFade", !(config.bgFade ?? false))}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                config.bgFade ? "bg-primary" : "bg-muted"
+              }`}
+            >
+              <span
+                className={`inline-block size-3.5 rounded-full bg-white transition-transform ${
+                  config.bgFade ? "translate-x-[18px]" : "translate-x-[3px]"
+                }`}
+              />
+            </button>
+          </label>
+        )}
+
+        {/* Embed padding */}
+        <div className="mt-3 space-y-2">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>Embed padding</span>
+            <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{config.embedPadding ?? 4}rem</span>
+          </div>
+          <div className="relative flex items-center">
+            <input
+              type="range"
+              min={0}
+              max={10}
+              step={0.5}
+              value={config.embedPadding ?? 4}
+              onChange={(e) => updateConfig("embedPadding", parseFloat(e.target.value))}
+              className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:size-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:hover:scale-125"
+            />
+          </div>
+        </div>
       </Section>
 
       {/* Embed code — only for existing walls */}
@@ -875,17 +944,43 @@ export default function WallEditorPage() {
 
         {/* Right panel: Preview */}
         <div
-          className={`min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-6 transition-colors duration-300 bg-[var(--background)] ${config.theme === "light" ? "light" : ""}`}
-          style={getThemeVars(config.theme)}
+          className={`min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-6 transition-colors duration-300 ${config.theme === "light" ? "light" : ""}`}
+          style={{
+            ...getThemeVars(config.theme, (config.theme === "custom" || config.theme === "transparent") ? {
+              bgColor: config.theme === "custom" ? (config.bgColor || undefined) : undefined,
+              cardColor: config.cardColor || undefined,
+            } : undefined),
+            background: config.bgFade && config.theme !== "transparent"
+              ? "oklch(0.112 0.008 280)"
+              : config.theme === "transparent"
+                ? "repeating-conic-gradient(#2a2a2e 0% 25%, #1a1a1e 0% 50%) 0 0 / 16px 16px"
+                : config.theme === "custom" && config.bgColor
+                  ? config.bgColor
+                  : "var(--background)",
+          }}
         >
           <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
             <Eye className="size-3.5" />
             Live Preview · {previewTestimonials.length} testimonial{previewTestimonials.length !== 1 ? "s" : ""}
           </div>
           <div
-            className={`mx-auto transition-all duration-300 ${previewWidthClass}`}
+            style={config.bgFade && config.theme !== "transparent" ? {
+              margin: "-1.5rem -1.5rem 0",
+              padding: "0 1.5rem",
+              background: (() => {
+                const solid = config.theme === "custom" && config.bgColor
+                  ? config.bgColor
+                  : config.theme === "light" ? "oklch(0.985 0.002 280)" : "oklch(0.112 0.008 280)";
+                return `linear-gradient(to bottom, transparent, ${solid} 40%, ${solid} 60%, transparent)`;
+              })(),
+            } : undefined}
           >
-            {renderPreview()}
+            <div
+              className={`mx-auto transition-all duration-300 ${previewWidthClass}`}
+              style={{ paddingTop: `${config.embedPadding ?? 4}rem`, paddingBottom: `${config.embedPadding ?? 4}rem` }}
+            >
+              {renderPreview()}
+            </div>
           </div>
         </div>
       </div>
@@ -1078,11 +1173,11 @@ function EmbedCodePanel({ wallId }: { wallId: string }) {
       hint: "Add this to any HTML page. The script handles rendering and resizing automatically.",
     },
     iframe: {
-      code: `<iframe\n  id="laudica-${wallId.slice(0, 8)}"\n  src="${embedUrl}"\n  style="width:100%;border:none;min-height:100px;margin:1.5rem 0"\n  scrolling="no"\n  loading="lazy"\n  title="Laudica testimonials"\n></iframe>\n<script>\nwindow.addEventListener("message", function(e) {\n  if (e.data && e.data.type === "laudica-resize") {\n    var f = document.getElementById("laudica-${wallId.slice(0, 8)}");\n    if (f) f.style.height = e.data.height + "px";\n  }\n});\n</script>`,
+      code: `<iframe\n  id="laudica-${wallId.slice(0, 8)}"\n  src="${embedUrl}"\n  style="width:100%;border:none;min-height:100px;margin:2rem 0"\n  scrolling="no"\n  loading="lazy"\n  title="Laudica testimonials"\n></iframe>\n<script>\nwindow.addEventListener("message", function(e) {\n  if (e.data && e.data.type === "laudica-resize") {\n    var f = document.getElementById("laudica-${wallId.slice(0, 8)}");\n    if (f) f.style.height = e.data.height + "px";\n  }\n});\n</script>`,
       hint: "Self-contained embed with auto-resize. Works anywhere iframes are supported.",
     },
     react: {
-      code: `import { useEffect, useRef } from "react";\n\nfunction Laudica() {\n  const ref = useRef<HTMLIFrameElement>(null);\n\n  useEffect(() => {\n    function onMsg(e: MessageEvent) {\n      if (e.data?.type === "laudica-resize" && ref.current) {\n        ref.current.style.height = e.data.height + "px";\n      }\n    }\n    window.addEventListener("message", onMsg);\n    return () => window.removeEventListener("message", onMsg);\n  }, []);\n\n  return (\n    <iframe\n      ref={ref}\n      src="${embedUrl}"\n      style={{ width: "100%", border: "none", minHeight: 100, margin: "1.5rem 0" }}\n      scrolling="no"\n      loading="lazy"\n      title="Laudica testimonials"\n    />\n  );\n}`,
+      code: `import { useEffect, useRef } from "react";\n\nfunction Laudica() {\n  const ref = useRef<HTMLIFrameElement>(null);\n\n  useEffect(() => {\n    function onMsg(e: MessageEvent) {\n      if (e.data?.type === "laudica-resize" && ref.current) {\n        ref.current.style.height = e.data.height + "px";\n      }\n    }\n    window.addEventListener("message", onMsg);\n    return () => window.removeEventListener("message", onMsg);\n  }, []);\n\n  return (\n    <iframe\n      ref={ref}\n      src="${embedUrl}"\n      style={{ width: "100%", border: "none", minHeight: 100, margin: "2rem 0" }}\n      scrolling="no"\n      loading="lazy"\n      title="Laudica testimonials"\n    />\n  );\n}`,
       hint: "Drop this component into your React or Next.js app. Auto-resizes to fit content.",
     },
     preview: {

@@ -94,7 +94,7 @@ export function LaudicaWall({ wallId, className }: LaudicaWallProps) {
     <iframe
       ref={ref}
       src={\`https://app.laudica.com/embed/\${wallId}\`}
-      style={{ width: "100%", border: "none", minHeight: 100, margin: "1.5rem 0" }}
+      style={{ width: "100%", border: "none", minHeight: 100, margin: "2rem 0" }}
       scrolling="no"
       loading="lazy"
       title="Laudica testimonials"
