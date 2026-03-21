@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -77,6 +77,7 @@ export default function WallEditorPage() {
   const [maxTestimonials, setMaxTestimonials] = useState<number | null>(null);
   const [excludedIds, setExcludedIds] = useState<string[]>([]);
   const [isActive, setIsActive] = useState(true);
+  const savedSnapshot = useRef<string>("");
 
   // Data
   const [testimonials, setTestimonials] = useState<DbTestimonial[]>([]);
@@ -141,13 +142,15 @@ export default function WallEditorPage() {
         .single();
 
       if (wall) {
+        const loadedConfig = { ...defaultWallConfig, ...(wall.config as Partial<WallConfig>) };
         setName(wall.name);
         setStyle(wall.style as WallStyle);
-        setConfig({ ...defaultWallConfig, ...(wall.config as Partial<WallConfig>) });
+        setConfig(loadedConfig);
         setTagFilter(wall.tag_filter ?? []);
         setMaxTestimonials(wall.max_testimonials);
         setExcludedIds(wall.excluded_ids ?? []);
         setIsActive(wall.is_active);
+        savedSnapshot.current = JSON.stringify({ name: wall.name, style: wall.style, config: loadedConfig, tagFilter: wall.tag_filter ?? [], maxTestimonials: wall.max_testimonials, excludedIds: wall.excluded_ids ?? [], isActive: wall.is_active });
       }
     }
 
@@ -165,6 +168,9 @@ export default function WallEditorPage() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [configOpen]);
+
+  const currentSnapshot = JSON.stringify({ name, style, config, tagFilter, maxTestimonials, excludedIds, isActive });
+  const hasChanges = isNew || currentSnapshot !== savedSnapshot.current;
 
   // Filter + sort testimonials for preview
   const previewTestimonials = useMemo(() => {
@@ -276,6 +282,7 @@ export default function WallEditorPage() {
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await supabase.from("walls").update(payload as any).eq("id", params.id);
+      savedSnapshot.current = JSON.stringify({ name, style, config, tagFilter, maxTestimonials, excludedIds, isActive });
       setSaving(false);
     }
   }
@@ -857,7 +864,7 @@ export default function WallEditorPage() {
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="space-y-2">
+            <div className="space-y-2 pb-1">
               <label className="mb-1 block text-xs text-muted-foreground">Border color</label>
               <div className="flex items-center gap-2">
                 <input
@@ -872,10 +879,12 @@ export default function WallEditorPage() {
                   className="flex-1 rounded border border-input bg-background px-2 py-1 text-xs outline-none focus:border-ring"
                 />
               </div>
-              <label className="flex items-center justify-between text-xs text-muted-foreground">
-                Border thickness
-                <div className="flex items-center gap-2">
-                  <span className="w-5 text-right tabular-nums text-muted-foreground">{config.borderThickness ?? 1}</span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>Border thickness</span>
+                  <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{config.borderThickness ?? 1}px</span>
+                </div>
+                <div className="relative flex items-center">
                   <input
                     type="range"
                     min={1}
@@ -883,10 +892,10 @@ export default function WallEditorPage() {
                     step={1}
                     value={config.borderThickness ?? 1}
                     onChange={(e) => updateConfig("borderThickness", Number(e.target.value))}
-                    className="h-1.5 w-20 cursor-pointer appearance-none rounded-full bg-muted accent-primary [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-sm"
+                    className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:size-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:hover:scale-125"
                   />
                 </div>
-              </label>
+              </div>
             </div>
           </motion.div>
         )}
@@ -1012,7 +1021,7 @@ export default function WallEditorPage() {
           </button>
           <button
             onClick={handleSave}
-            disabled={saving || !name.trim()}
+            disabled={saving || !name.trim() || !hasChanges}
             className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50 sm:px-4"
           >
             {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}

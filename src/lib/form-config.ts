@@ -30,6 +30,7 @@ export interface FormConfig {
   formBorderColor: string;
   formBorderThickness: number;
   inputColor: string;
+  borderRadius: "none" | "subtle" | "rounded" | "pill";
   bgFade: boolean;
   embedPadding: number;
 }
@@ -48,6 +49,7 @@ export const defaultFormConfig: FormConfig = {
   formBorderColor: "",
   formBorderThickness: 1,
   inputColor: "",
+  borderRadius: "rounded",
   bgFade: false,
   embedPadding: 3,
 };

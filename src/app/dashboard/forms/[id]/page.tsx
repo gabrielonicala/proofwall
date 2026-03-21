@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -42,6 +42,7 @@ export default function FormEditorPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
+  const savedSnapshot = useRef<string>("");
 
   const fetchData = useCallback(async () => {
     if (!project) return;
@@ -58,7 +59,7 @@ export default function FormEditorPage() {
         setIsActive(form.is_active);
         const fields = (form.fields as unknown as FormField[]) ?? defaultFormConfig.fields;
         const saved = (form.config as Record<string, unknown>) ?? {};
-        setConfig({
+        const loadedConfig: FormConfig = {
           fields,
           welcomeMessage: form.welcome_message ?? defaultFormConfig.welcomeMessage,
           thankYouMessage: form.thank_you_message ?? defaultFormConfig.thankYouMessage,
@@ -72,9 +73,12 @@ export default function FormEditorPage() {
           formBorderColor: (saved.formBorderColor as string) ?? defaultFormConfig.formBorderColor,
           formBorderThickness: (saved.formBorderThickness as number) ?? defaultFormConfig.formBorderThickness,
           inputColor: (saved.inputColor as string) ?? defaultFormConfig.inputColor,
+          borderRadius: (saved.borderRadius as FormConfig["borderRadius"]) ?? defaultFormConfig.borderRadius,
           bgFade: (saved.bgFade as boolean) ?? defaultFormConfig.bgFade,
           embedPadding: (saved.embedPadding as number) ?? defaultFormConfig.embedPadding,
-        });
+        };
+        setConfig(loadedConfig);
+        savedSnapshot.current = JSON.stringify({ name: form.name, config: loadedConfig, isActive: form.is_active });
       }
     }
     setLoading(false);
@@ -91,6 +95,9 @@ export default function FormEditorPage() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [configOpen]);
+
+  const currentSnapshot = JSON.stringify({ name, config, isActive });
+  const hasChanges = isNew || currentSnapshot !== savedSnapshot.current;
 
   async function handleSave() {
     if (!project || !name.trim()) return;
@@ -115,6 +122,7 @@ export default function FormEditorPage() {
         formBorderColor: config.formBorderColor || "",
         formBorderThickness: config.formBorderThickness,
         inputColor: config.inputColor || "",
+        borderRadius: config.borderRadius,
         bgFade: config.bgFade,
         embedPadding: config.embedPadding,
       },
@@ -126,6 +134,7 @@ export default function FormEditorPage() {
       if (data) router.replace(`/dashboard/forms/${data.id}`);
     } else {
       await supabase.from("collection_forms").update(payload).eq("id", params.id);
+      savedSnapshot.current = JSON.stringify({ name, config, isActive });
       setSaving(false);
     }
   }
@@ -421,6 +430,21 @@ export default function FormEditorPage() {
               </div>
             </div>
 
+            {/* Border radius */}
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Border radius</label>
+              <select
+                value={config.borderRadius}
+                onChange={(e) => setConfig((p) => ({ ...p, borderRadius: e.target.value as FormConfig["borderRadius"] }))}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/30"
+              >
+                <option value="none">None</option>
+                <option value="subtle">Subtle</option>
+                <option value="rounded">Rounded</option>
+                <option value="pill">Pill</option>
+              </select>
+            </div>
+
           </div>
         )}
       </Section>
@@ -487,7 +511,7 @@ export default function FormEditorPage() {
           </button>
           <button
             onClick={handleSave}
-            disabled={saving || !name.trim()}
+            disabled={saving || !name.trim() || !hasChanges}
             className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50 sm:px-4"
           >
             {saving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
@@ -576,6 +600,15 @@ function FormPreview({ config }: { config: FormConfig }) {
   const [previewRating, setPreviewRating] = useState(0);
 
   const isCustom = config.theme === "custom";
+  const radiusClass = isCustom
+    ? config.borderRadius === "none"
+      ? "rounded-none"
+      : config.borderRadius === "subtle"
+        ? "rounded-md"
+        : config.borderRadius === "pill"
+          ? "rounded-3xl"
+          : "rounded-2xl"
+    : "rounded-2xl";
   const formCardStyle: React.CSSProperties = isCustom
     ? {
         backgroundColor: config.formColor || undefined,
@@ -588,7 +621,7 @@ function FormPreview({ config }: { config: FormConfig }) {
 
   return (
     <div
-      className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-lg sm:p-8"
+      className={`w-full max-w-lg ${radiusClass} border border-border bg-card p-6 shadow-lg sm:p-8`}
       style={formCardStyle}
     >
       {/* Logo */}

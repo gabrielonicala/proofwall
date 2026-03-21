@@ -36,15 +36,18 @@ type Form = {
   is_active: boolean;
   welcome_message: string | null;
   accent_color: string | null;
+  logo_url: string | null;
   fields: FormField[] | null;
   theme: string;
+  config: Record<string, unknown> | null;
   created_at: string;
 };
 
-const PREVIEW_DISPLAY_HEIGHT = 456;
+const PREVIEW_DISPLAY_HEIGHT = 500;
 const MAX_SCALE = 0.88;
 
-function getPreviewScale(fields: FormField[], hasWelcome: boolean) {
+function getPreviewScale(fields: FormField[], hasWelcome: boolean, hasLogo: boolean) {
+  const logo = hasLogo ? 44 : 0;
   const welcome = hasWelcome ? 44 : 0;
   const fieldH = fields.reduce((sum, f) => {
     if (f.type === "textarea") return sum + 88;
@@ -54,9 +57,10 @@ function getPreviewScale(fields: FormField[], hasWelcome: boolean) {
   }, 0);
   const gaps = Math.max(0, fields.length - 1) * 12;
   const submit = 54;
+  const cardPadding = 48; // p-6 top + bottom
+  const outerPadding = 48; // py-6 top + bottom
   const margin = 30;
-  const padding = 48;
-  const contentHeight = welcome + fieldH + gaps + submit + margin + padding;
+  const contentHeight = logo + welcome + fieldH + gaps + submit + cardPadding + outerPadding + margin;
   const scale = Math.min(MAX_SCALE, PREVIEW_DISPLAY_HEIGHT / contentHeight);
   return { scale, renderHeight: contentHeight };
 }
@@ -74,7 +78,7 @@ export default function FormsPage() {
     const supabase = createClient();
     const { data } = await supabase
       .from("collection_forms")
-      .select("id, name, is_active, welcome_message, accent_color, fields, theme, created_at")
+      .select("id, name, is_active, welcome_message, accent_color, logo_url, fields, theme, config, created_at")
       .eq("project_id", project.id)
       .order("created_at", { ascending: false });
     setForms((data ?? []) as Form[]);
@@ -160,9 +164,49 @@ export default function FormsPage() {
           {forms.map((form) => {
             const fields = (form.fields ?? defaultFields).filter((f) => f.enabled);
             const accent = form.accent_color ?? "#4F46E5";
+            const saved = form.config ?? {};
+            const isCustom = form.theme === "custom";
             const isLight = form.theme === "light";
-            const themeVars = getThemeVars(form.theme as "dark" | "light" | "auto");
-            const { scale, renderHeight } = getPreviewScale(fields, !!form.welcome_message);
+            const bgTransparent = (saved.bgTransparent as boolean) ?? false;
+            const bgColor = (saved.bgColor as string) || "";
+            const bgFade = (saved.bgFade as boolean) ?? false;
+            const formColor = (saved.formColor as string) || "";
+            const formBorderColor = (saved.formBorderColor as string) || "";
+            const formBorderThickness = (saved.formBorderThickness as number) ?? 1;
+            const inputColor = (saved.inputColor as string) || "";
+            const borderRadius = (saved.borderRadius as string) ?? "rounded";
+            const themeVars = getThemeVars(
+              isCustom ? (bgTransparent ? "transparent" : "dark") : form.theme as "dark" | "light" | "auto",
+              isCustom && bgColor && !bgTransparent ? { bgColor } : undefined
+            );
+            const { scale, renderHeight } = getPreviewScale(fields, !!form.welcome_message, !!form.logo_url);
+
+            const radiusClass = isCustom
+              ? borderRadius === "none"
+                ? "rounded-none"
+                : borderRadius === "subtle"
+                  ? "rounded-md"
+                  : borderRadius === "pill"
+                    ? "rounded-3xl"
+                    : "rounded-2xl"
+              : "rounded-2xl";
+
+            const formCardStyle: React.CSSProperties = isCustom
+              ? {
+                  backgroundColor: formColor || undefined,
+                  border: `${formBorderThickness}px solid ${formBorderColor || "var(--border)"}`,
+                }
+              : {};
+
+            const previewInputStyle: React.CSSProperties | undefined = isCustom && inputColor
+              ? { backgroundColor: inputColor }
+              : undefined;
+
+            const bgValue = bgTransparent
+              ? "transparent"
+              : isCustom && bgColor
+                ? bgColor
+                : "var(--background)";
 
             return (
               <div
@@ -229,7 +273,15 @@ export default function FormsPage() {
                 {/* Mini form preview */}
                 <div
                   className={`relative overflow-hidden border-t border-border ${isLight ? "light" : ""}`}
-                  style={{ height: PREVIEW_DISPLAY_HEIGHT, background: "var(--background)", ...themeVars }}
+                  style={{
+                    height: PREVIEW_DISPLAY_HEIGHT,
+                    ...themeVars,
+                    background: bgFade && !bgTransparent
+                      ? `linear-gradient(to bottom, transparent, ${bgValue} 40%, ${bgValue} 60%, transparent)`
+                      : bgTransparent
+                        ? "repeating-conic-gradient(#2a2a2e 0% 25%, #1a1a1e 0% 50%) 0 0 / 16px 16px"
+                        : bgValue,
+                  }}
                 >
                   <div
                     className="pointer-events-none"
@@ -238,56 +290,83 @@ export default function FormsPage() {
                       height: renderHeight,
                       transform: `scale(${scale})`,
                       transformOrigin: "top left",
+                      background: bgFade ? "transparent" : undefined,
                     }}
                   >
-                    <div className="w-full px-10 py-6">
-                      {form.welcome_message && (
-                        <h2 className="mb-4 text-center text-lg font-semibold text-foreground">
-                          {form.welcome_message}
-                        </h2>
-                      )}
-                      <div className="space-y-3">
-                        {fields.map((field) => (
-                          <div key={field.id}>
-                            <p className="mb-1 text-sm font-medium text-foreground">
-                              {field.label}
-                              {field.required && <span style={{ color: accent }}> *</span>}
-                            </p>
-                            {field.type === "rating" ? (
-                              <div className="flex gap-1">
-                                {Array.from({ length: 5 }).map((_, i) => (
-                                  <Star key={i} className="size-5 text-muted-foreground/40" />
-                                ))}
-                              </div>
-                            ) : field.type === "photo" ? (
-                              <div className="flex w-full items-center justify-center rounded-lg border border-input bg-background px-3 py-4">
-                                <Upload className="size-4 text-muted-foreground" />
-                              </div>
-                            ) : field.type === "textarea" ? (
-                              <div className="h-16 rounded-lg border border-input bg-background px-3 py-2">
-                                <span className="text-sm text-muted-foreground/50">{field.placeholder}</span>
-                              </div>
-                            ) : (
-                              <div className="rounded-lg border border-input bg-background px-3 py-2">
-                                <span className="text-sm text-muted-foreground/50">{field.placeholder}</span>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                    <div className="flex w-full justify-center px-6 py-6">
                       <div
-                        className="mt-4 rounded-lg px-4 py-2 text-center text-sm font-medium text-white"
-                        style={{ backgroundColor: accent }}
+                        className={`w-full max-w-lg ${radiusClass} border border-border bg-card p-6 shadow-lg`}
+                        style={formCardStyle}
                       >
-                        Submit
+                        {form.logo_url && (
+                          <div className="mb-3 flex justify-center">
+                            <img
+                              src={form.logo_url}
+                              alt="Logo"
+                              className="h-8 object-contain"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                            />
+                          </div>
+                        )}
+                        {form.welcome_message && (
+                          <h2 className="mb-4 text-center text-lg font-semibold text-foreground">
+                            {form.welcome_message}
+                          </h2>
+                        )}
+                        <div className="space-y-3">
+                          {fields.map((field) => (
+                            <div key={field.id}>
+                              <p className="mb-1 text-sm font-medium text-foreground">
+                                {field.label}
+                                {field.required && <span style={{ color: accent }}> *</span>}
+                              </p>
+                              {field.type === "rating" ? (
+                                <div className="flex gap-1">
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star key={i} className="size-5 text-muted-foreground/40" />
+                                  ))}
+                                </div>
+                              ) : field.type === "photo" ? (
+                                <div
+                                  className="flex w-full items-center justify-center rounded-lg border border-input bg-background px-3 py-4"
+                                  style={previewInputStyle}
+                                >
+                                  <Upload className="size-4 text-muted-foreground" />
+                                </div>
+                              ) : field.type === "textarea" ? (
+                                <div
+                                  className="h-16 rounded-lg border border-input bg-background px-3 py-2"
+                                  style={previewInputStyle}
+                                >
+                                  <span className="text-sm text-muted-foreground/50">{field.placeholder}</span>
+                                </div>
+                              ) : (
+                                <div
+                                  className="rounded-lg border border-input bg-background px-3 py-2"
+                                  style={previewInputStyle}
+                                >
+                                  <span className="text-sm text-muted-foreground/50">{field.placeholder}</span>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <div
+                          className="mt-4 rounded-lg px-4 py-2 text-center text-sm font-medium text-white"
+                          style={{ backgroundColor: accent }}
+                        >
+                          Submit
+                        </div>
                       </div>
                     </div>
                   </div>
                   {/* Fade out at bottom */}
-                  <div
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
-                    style={{ background: "linear-gradient(to top, var(--card), transparent)" }}
-                  />
+                  {!bgFade && (
+                    <div
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
+                      style={{ background: `linear-gradient(to top, ${bgValue}, transparent)` }}
+                    />
+                  )}
                 </div>
 
                 {/* Clickable overlay */}

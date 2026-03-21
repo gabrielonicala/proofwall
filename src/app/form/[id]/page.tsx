@@ -42,6 +42,7 @@ export default async function PublicFormPage({ params }: { params: Promise<{ id:
         formBorderColor={(saved.formBorderColor as string) ?? ""}
         formBorderThickness={(saved.formBorderThickness as number) ?? 1}
         inputColor={(saved.inputColor as string) ?? ""}
+        borderRadius={(saved.borderRadius as "none" | "subtle" | "rounded" | "pill") ?? "rounded"}
         bgTransparent={(saved.bgTransparent as boolean) ?? false}
         bgFade={(saved.bgFade as boolean) ?? false}
         embedPadding={(saved.embedPadding as number) ?? 3}

@@ -20,6 +20,7 @@ interface Props {
   formBorderColor?: string;
   formBorderThickness?: number;
   inputColor?: string;
+  borderRadius?: "none" | "subtle" | "rounded" | "pill";
   bgTransparent?: boolean;
   bgFade?: boolean;
   embedPadding?: number;
@@ -40,12 +41,22 @@ export function PublicForm({
   formBorderColor,
   formBorderThickness = 1,
   inputColor,
+  borderRadius = "rounded",
   bgTransparent,
   bgFade,
   embedPadding = 3,
 }: Props) {
   const isCustom = theme === "custom";
   const themeClass = theme === "light" ? "light" : theme === "dark" || isCustom ? "dark" : "";
+  const radiusClass = isCustom
+    ? borderRadius === "none"
+      ? "rounded-none"
+      : borderRadius === "subtle"
+        ? "rounded-md"
+        : borderRadius === "pill"
+          ? "rounded-3xl"
+          : "rounded-2xl"
+    : "rounded-2xl";
   const enabledFields = fields.filter((f) => f.enabled);
   const [values, setValues] = useState<Record<string, string>>({});
   const [rating, setRating] = useState(0);
@@ -153,7 +164,7 @@ export function PublicForm({
   if (submitted) {
     return (
       <div className={`${themeClass} flex min-h-svh items-center justify-center bg-background px-4`} style={bgStyle}>
-        <div className="w-full max-w-lg rounded-2xl bg-card p-8 text-center shadow-lg" style={formCardStyle}>
+        <div className={`w-full max-w-lg ${radiusClass} bg-card p-8 text-center shadow-lg`} style={formCardStyle}>
           <CheckCircle2
             className="mx-auto mb-4 size-14"
             style={{ color: accentColor }}
@@ -173,7 +184,7 @@ export function PublicForm({
     <div className={`${themeClass} flex min-h-svh items-center justify-center bg-background px-4 py-12`} style={bgStyle}>
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-lg rounded-2xl bg-card p-6 shadow-lg sm:p-8"
+        className={`w-full max-w-lg ${radiusClass} bg-card p-6 shadow-lg sm:p-8`}
         style={formCardStyle}
       >
         {/* Logo */}
