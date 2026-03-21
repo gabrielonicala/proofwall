@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { type Testimonial } from "@/data/sample-testimonials";
 import { Star } from "lucide-react";
-import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
+import { type ShowcaseConfig, getCardClasses, getCardBorderStyle, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
 
 interface Props {
   testimonials: Testimonial[];
@@ -169,7 +169,7 @@ export function TickerTape({ testimonials, speed = "normal", autoplay = true, pa
       {/* Hidden measurement container — renders each card at natural height */}
       <div ref={measureRef} aria-hidden className="pointer-events-none absolute left-0 right-0 -z-10 opacity-0">
         {testimonials.map((t) => (
-          <div key={t.id} className={`inline-flex w-[300px] flex-col ${card} p-4 sm:w-[340px] sm:p-5`}>
+          <div key={t.id} className={`inline-flex w-[300px] flex-col ${card} p-4 sm:w-[340px] sm:p-5`} style={getCardBorderStyle(config)}>
             <TickerCardContent t={t} config={config} />
           </div>
         ))}
@@ -178,7 +178,7 @@ export function TickerTape({ testimonials, speed = "normal", autoplay = true, pa
       <div className="overflow-hidden">
         <div ref={row1Ref} className="flex w-max">
           {doubled.map((t, i) => (
-            <div key={`r1-${i}`} className={`mx-2 inline-flex w-[300px] flex-shrink-0 flex-col ${card} p-4 sm:w-[340px] sm:p-5`} style={heightStyle}>
+            <div key={`r1-${i}`} className={`mx-2 inline-flex w-[300px] flex-shrink-0 flex-col ${card} p-4 sm:w-[340px] sm:p-5`} style={{ ...heightStyle, ...getCardBorderStyle(config) }}>
               <TickerCardContent t={t} config={config} />
             </div>
           ))}
@@ -187,7 +187,7 @@ export function TickerTape({ testimonials, speed = "normal", autoplay = true, pa
       <div className="overflow-hidden">
         <div ref={row2Ref} className="flex w-max">
           {doubled.map((t, i) => (
-            <div key={`r2-${i}`} className={`mx-2 inline-flex w-[300px] flex-shrink-0 flex-col ${card} p-4 sm:w-[340px] sm:p-5`} style={heightStyle}>
+            <div key={`r2-${i}`} className={`mx-2 inline-flex w-[300px] flex-shrink-0 flex-col ${card} p-4 sm:w-[340px] sm:p-5`} style={{ ...heightStyle, ...getCardBorderStyle(config) }}>
               <TickerCardContent t={t} config={config} />
             </div>
           ))}

@@ -4,7 +4,7 @@ import { type Testimonial } from "@/data/sample-testimonials";
 import { Star } from "lucide-react";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
+import { type ShowcaseConfig, getCardClasses, getCardBorderStyle, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
 
 interface Props {
   testimonials: Testimonial[];
@@ -50,6 +50,7 @@ export function CardsGrid({ testimonials, config, fillRows }: Props & { fillRows
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
           className={`group flex flex-col ${card} p-5 sm:p-6 hover-lift cursor-default`}
+          style={getCardBorderStyle(config)}
         >
           {shouldShow("showRating", config) && (
             <div className="mb-3 flex gap-0.5">

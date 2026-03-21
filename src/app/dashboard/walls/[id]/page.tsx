@@ -686,6 +686,47 @@ export default function WallEditorPage() {
         </Section>
       )}
 
+      {/* Border customization — only for bordered card style */}
+      <AnimatePresence initial={false}>
+        {cardBasedStyles.includes(style) && config.cardStyle === "bordered" && (
+          <motion.div
+            key="border-controls"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-2">
+              <label className="flex cursor-pointer items-center justify-between text-xs text-muted-foreground">
+                Border color
+                <input
+                  type="color"
+                  value={config.borderColor || "#2e2e38"}
+                  onChange={(e) => updateConfig("borderColor", e.target.value)}
+                  className="h-5 w-9 cursor-pointer appearance-none rounded-full border-none bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0.5 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-none [&::-moz-color-swatch]:rounded-full [&::-moz-color-swatch]:border-none"
+                />
+              </label>
+              <label className="flex items-center justify-between text-xs text-muted-foreground">
+                Border thickness
+                <div className="flex items-center gap-2">
+                  <span className="w-5 text-right tabular-nums text-muted-foreground">{config.borderThickness ?? 1}</span>
+                  <input
+                    type="range"
+                    min={1}
+                    max={4}
+                    step={1}
+                    value={config.borderThickness ?? 1}
+                    onChange={(e) => updateConfig("borderThickness", Number(e.target.value))}
+                    className="h-1.5 w-20 cursor-pointer appearance-none rounded-full bg-muted accent-primary [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-sm"
+                  />
+                </div>
+              </label>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Border radius — only for card-based styles */}
       {cardBasedStyles.includes(style) && (
         <Section title="Border Radius">
@@ -730,53 +771,84 @@ export default function WallEditorPage() {
         </select>
 
         {/* Custom color pickers */}
-        {(config.theme === "custom" || config.theme === "transparent") && (
-          <div className="mt-3 space-y-2">
-            {config.theme === "custom" && (
-              <label className="flex cursor-pointer items-center justify-between text-xs text-muted-foreground">
-                Background color
-                <input
-                  type="color"
-                  value={config.bgColor || "#09090b"}
-                  onChange={(e) => updateConfig("bgColor", e.target.value)}
-                  className="h-5 w-9 cursor-pointer appearance-none rounded-full border-none bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0.5 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-none [&::-moz-color-swatch]:rounded-full [&::-moz-color-swatch]:border-none"
-                />
-              </label>
-            )}
-            <label className={`flex items-center justify-between text-xs ${config.cardStyle === "glass" ? "text-muted-foreground/40" : "cursor-pointer text-muted-foreground"}`}>
-              Card color
-              <input
-                type="color"
-                value={config.cardColor || "#1a1a1f"}
-                onChange={(e) => updateConfig("cardColor", e.target.value)}
-                disabled={config.cardStyle === "glass"}
-                className={`h-5 w-9 appearance-none rounded-full border-none bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0.5 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-none [&::-moz-color-swatch]:rounded-full [&::-moz-color-swatch]:border-none ${config.cardStyle === "glass" ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
-              />
-            </label>
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {(config.theme === "custom" || config.theme === "transparent") && (
+            <motion.div
+              key="color-pickers"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="overflow-hidden"
+            >
+              <div className="mt-3 space-y-2">
+                <AnimatePresence initial={false}>
+                  {config.theme === "custom" && (
+                    <motion.div
+                      key="bg-color"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <label className="flex cursor-pointer items-center justify-between text-xs text-muted-foreground">
+                        Background color
+                        <input
+                          type="color"
+                          value={config.bgColor || "#09090b"}
+                          onChange={(e) => updateConfig("bgColor", e.target.value)}
+                          className="h-5 w-9 cursor-pointer appearance-none rounded-full border-none bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0.5 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-none [&::-moz-color-swatch]:rounded-full [&::-moz-color-swatch]:border-none"
+                        />
+                      </label>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+                <label className={`flex items-center justify-between text-xs ${config.cardStyle === "glass" || !cardBasedStyles.includes(style) ? "text-muted-foreground/40" : "cursor-pointer text-muted-foreground"}`}>
+                  Card color
+                  <input
+                    type="color"
+                    value={config.cardColor || "#1a1a1f"}
+                    onChange={(e) => updateConfig("cardColor", e.target.value)}
+                    disabled={config.cardStyle === "glass" || !cardBasedStyles.includes(style)}
+                    className={`h-5 w-9 appearance-none rounded-full border-none bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0.5 [&::-webkit-color-swatch]:rounded-full [&::-webkit-color-swatch]:border-none [&::-moz-color-swatch]:rounded-full [&::-moz-color-swatch]:border-none ${config.cardStyle === "glass" || !cardBasedStyles.includes(style) ? "cursor-not-allowed opacity-40" : "cursor-pointer"}`}
+                  />
+                </label>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Fade edges — not for transparent */}
-        {config.theme !== "transparent" && (
-          <label className="mt-3 flex cursor-pointer items-center justify-between text-xs text-muted-foreground">
-            Fade edges into host background
-            <button
-              type="button"
-              role="switch"
-              aria-checked={config.bgFade ?? false}
-              onClick={() => updateConfig("bgFade", !(config.bgFade ?? false))}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-                config.bgFade ? "bg-primary" : "bg-muted"
-              }`}
+        <AnimatePresence initial={false}>
+          {config.theme !== "transparent" && (
+            <motion.label
+              key="fade-toggle"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="mt-3 flex cursor-pointer items-center justify-between overflow-hidden text-xs text-muted-foreground"
             >
-              <span
-                className={`inline-block size-3.5 rounded-full bg-white transition-transform ${
-                  config.bgFade ? "translate-x-[18px]" : "translate-x-[3px]"
+              Fade edges into host background
+              <button
+                type="button"
+                role="switch"
+                aria-checked={config.bgFade ?? false}
+                onClick={() => updateConfig("bgFade", !(config.bgFade ?? false))}
+                className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                  config.bgFade ? "bg-primary" : "bg-muted"
                 }`}
-              />
-            </button>
-          </label>
-        )}
+              >
+                <span
+                  className={`inline-block size-3.5 rounded-full bg-white transition-transform ${
+                    config.bgFade ? "translate-x-[18px]" : "translate-x-[3px]"
+                  }`}
+                />
+              </button>
+            </motion.label>
+          )}
+        </AnimatePresence>
 
         {/* Embed padding */}
         <div className="mt-3 space-y-2">

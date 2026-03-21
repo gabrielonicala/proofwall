@@ -4,7 +4,7 @@ import { type Testimonial } from "@/data/sample-testimonials";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
+import { type ShowcaseConfig, getCardClasses, getCardBorderStyle, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
 
 interface Props {
   testimonials: Testimonial[];
@@ -169,7 +169,7 @@ export function SpotlightStack({ testimonials, autoplay = false, speed = "normal
       {/* Hidden measurement container */}
       <div ref={measureRef} aria-hidden className="pointer-events-none absolute left-0 right-0 -z-10 opacity-0">
         {testimonials.map((item) => (
-          <div key={item.id} className={`flex flex-col ${card} p-6 glow sm:p-8`}>
+          <div key={item.id} className={`flex flex-col ${card} p-6 glow sm:p-8`} style={getCardBorderStyle(config)}>
             <SpotlightCardContent t={item} config={config} />
           </div>
         ))}
@@ -185,7 +185,7 @@ export function SpotlightStack({ testimonials, autoplay = false, speed = "normal
           exit={{ opacity: 0, rotateY: direction * 10, scale: 0.95 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
           className={`mb-8 flex flex-col ${card} p-6 glow sm:p-8`}
-          style={cardHeight ? { height: cardHeight } : { minHeight: 280 }}
+          style={cardHeight ? { height: cardHeight, ...getCardBorderStyle(config) } : { minHeight: 280, ...getCardBorderStyle(config) }}
         >
           <SpotlightCardContent t={active} config={config} />
         </motion.div>
@@ -202,12 +202,10 @@ export function SpotlightStack({ testimonials, autoplay = false, speed = "normal
         </button>
 
         <div className="relative min-w-0 flex-1">
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[var(--background)] to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-[var(--background)] to-transparent" />
-
           <div
             ref={scrollRef}
             className="scrollbar-none flex gap-3 overflow-x-hidden py-3"
+            style={{ maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}
           >
             {tripled.map((t, i) => {
               const isActive = i === centerIndex;
@@ -225,16 +223,24 @@ export function SpotlightStack({ testimonials, autoplay = false, speed = "normal
                       setActiveIndex(realIndex);
                     }
                   }}
-                  className={`w-40 flex-shrink-0 rounded-xl border p-3 text-left transition-all duration-300 sm:w-44 ${
+                  className={`flex w-40 flex-shrink-0 flex-col rounded-xl p-3 text-left transition-all duration-300 sm:w-44 ${config?.cardStyle === "glass" ? "glass" : "bg-[var(--card)]"} ${
                     isActive
-                      ? "scale-105 border-primary/50 bg-card shadow-lg shadow-primary/10"
-                      : "border-transparent opacity-50 hover:opacity-70"
+                      ? "scale-105 shadow-lg shadow-primary/10"
+                      : "opacity-50 hover:opacity-70"
                   }`}
+                  style={getCardBorderStyle(config) ?? { border: `1px solid ${isActive ? "oklch(0.457 0.24 277 / 0.5)" : "transparent"}` }}
                 >
-                  <p className="mb-2 text-xs leading-relaxed text-foreground/80 line-clamp-2">
+                  {shouldShow("showRating", config) && (
+                    <div className="mb-1.5 flex gap-0.5">
+                      {Array.from({ length: 5 }).map((_, si) => (
+                        <Star key={si} className={`size-2.5 ${si < t.rating ? "fill-accent text-accent" : "text-muted"}`} />
+                      ))}
+                    </div>
+                  )}
+                  <p className="mb-2 flex-1 text-xs leading-relaxed text-foreground/80 line-clamp-2">
                     &ldquo;{t.text}&rdquo;
                   </p>
-                  <p className="truncate text-[10px] font-medium text-muted-foreground">
+                  <p className="mt-auto truncate text-[10px] font-medium text-muted-foreground">
                     {t.authorName}
                   </p>
                 </button>

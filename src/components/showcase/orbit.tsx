@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 import { useRef, useEffect, useCallback, useMemo } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperType } from "swiper";
-import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
+import { type ShowcaseConfig, getCardClasses, getCardBorderStyle, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
 
 import "swiper/css";
 
@@ -295,7 +295,7 @@ export function Orbit({
           <div
             key={item.id}
             className={`flex flex-col ${card} p-5 sm:p-6`}
-            style={{ width: 340, maxWidth: "85vw" }}
+            style={{ width: 340, maxWidth: "85vw", ...getCardBorderStyle(config) }}
           >
             <CardContent t={item} config={config} />
           </div>
@@ -333,7 +333,7 @@ export function Orbit({
             <SwiperSlide key={key} style={{ width: "340px", maxWidth: "85vw" }}>
               <div
                 className={`flex flex-col ${card} p-5 sm:p-6`}
-                style={{ height: "auto" }}
+                style={{ height: "auto", ...getCardBorderStyle(config) }}
               >
                 <CardContent t={t} config={config} />
               </div>

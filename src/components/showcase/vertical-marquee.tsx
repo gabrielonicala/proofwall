@@ -3,7 +3,7 @@
 import { useRef, useEffect, useCallback } from "react";
 import { type Testimonial } from "@/data/sample-testimonials";
 import { Star } from "lucide-react";
-import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
+import { type ShowcaseConfig, getCardClasses, getCardBorderStyle, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
 
 interface Props {
   testimonials: Testimonial[];
@@ -17,7 +17,7 @@ function MarqueeCard({ t, config }: { t: Testimonial; config?: ShowcaseConfig })
   const card = getCardClasses(config);
 
   return (
-    <div className={`mb-3 ${card} p-4 sm:p-5`}>
+    <div className={`mb-3 ${card} p-4 sm:p-5`} style={getCardBorderStyle(config)}>
       {shouldShow("showRating", config) && (
         <div className="mb-2 flex gap-0.5">
           {Array.from({ length: 5 }).map((_, si) => (

@@ -3,7 +3,7 @@
 import { type Testimonial } from "@/data/sample-testimonials";
 import { Star } from "lucide-react";
 import { motion } from "framer-motion";
-import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
+import { type ShowcaseConfig, getCardClasses, getCardBorderStyle, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
 
 interface Props {
   testimonials: Testimonial[];
@@ -26,6 +26,7 @@ export function MasonryGrid({ testimonials, config }: Props) {
             ease: [0.16, 1, 0.3, 1],
           }}
           className={`mb-4 break-inside-avoid ${card} p-5 hover-lift`}
+          style={getCardBorderStyle(config)}
         >
           {shouldShow("showRating", config) && (
             <div className="mb-2 flex gap-0.5">

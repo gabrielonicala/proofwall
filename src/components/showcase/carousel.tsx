@@ -4,7 +4,7 @@ import { type Testimonial } from "@/data/sample-testimonials";
 import { Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { type ShowcaseConfig, getCardClasses, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
+import { type ShowcaseConfig, getCardClasses, getCardBorderStyle, getFontClass, shouldShow, formatDate } from "@/lib/showcase-helpers";
 
 interface Props {
   testimonials: Testimonial[];
@@ -84,6 +84,7 @@ export function Carousel({ testimonials, autoplay = true, speed = "normal", paus
     <div className={`relative mx-auto flex min-h-[340px] w-full max-w-2xl flex-col justify-center ${getFontClass(config)}`}>
       <div
         className={`grid ${card} p-6 sm:p-8`}
+        style={getCardBorderStyle(config)}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >

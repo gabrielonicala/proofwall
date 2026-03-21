@@ -9,9 +9,9 @@ export function getCardClasses(config?: ShowcaseConfig): string {
 
   const styleClass =
     style === "bordered"
-      ? "border border-border bg-card"
+      ? "bg-card"
       : style === "shadow"
-        ? "bg-card shadow-lg shadow-black/10"
+        ? "bg-card shadow-xl shadow-black/40"
         : style === "glass"
           ? "glass"
           : "bg-card"; // flat
@@ -26,6 +26,16 @@ export function getCardClasses(config?: ShowcaseConfig): string {
           : "rounded-xl"; // rounded
 
   return `${styleClass} ${radiusClass}`;
+}
+
+/** Inline border styles for bordered card style */
+export function getCardBorderStyle(config?: ShowcaseConfig): React.CSSProperties | undefined {
+  if ((config?.cardStyle ?? "bordered") !== "bordered") return undefined;
+  const thickness = config?.borderThickness ?? 1;
+  const color = config?.borderColor || undefined;
+  return {
+    border: `${thickness}px solid ${color || "var(--border)"}`,
+  };
 }
 
 export function getFontClass(config?: ShowcaseConfig): string {
