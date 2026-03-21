@@ -23,7 +23,15 @@ export interface FormConfig {
   accentColor: string;
   logoUrl: string;
   redirectUrl: string;
-  theme: "dark" | "light" | "auto";
+  theme: "dark" | "light" | "auto" | "custom";
+  bgColor: string;
+  bgTransparent: boolean;
+  formColor: string;
+  formBorderColor: string;
+  formBorderThickness: number;
+  inputColor: string;
+  bgFade: boolean;
+  embedPadding: number;
 }
 
 export const defaultFormConfig: FormConfig = {
@@ -34,4 +42,12 @@ export const defaultFormConfig: FormConfig = {
   logoUrl: "",
   redirectUrl: "",
   theme: "dark",
+  bgColor: "",
+  bgTransparent: false,
+  formColor: "",
+  formBorderColor: "",
+  formBorderThickness: 1,
+  inputColor: "",
+  bgFade: false,
+  embedPadding: 3,
 };

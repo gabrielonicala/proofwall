@@ -178,7 +178,7 @@ export default async function EmbedPage({ params }: Props) {
   const testimonials = filtered.map(toShowcaseTestimonial);
 
   const isLight = config.theme === "light";
-  const isTransparent = config.theme === "transparent";
+  const isTransparent = config.theme === "transparent" || config.bgTransparent;
   const isCustom = config.theme === "custom";
   const colorOverrides = (isCustom || isTransparent) && config.cardColor
     ? { bgColor: isCustom ? (config.bgColor || undefined) : undefined, cardColor: config.cardColor }

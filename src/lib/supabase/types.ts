@@ -17,6 +17,7 @@ export type Database = {
       collection_forms: {
         Row: {
           accent_color: string | null
+          config: Json | null
           created_at: string
           fields: Json
           id: string
@@ -32,6 +33,7 @@ export type Database = {
         }
         Insert: {
           accent_color?: string | null
+          config?: Json | null
           created_at?: string
           fields?: Json
           id?: string
@@ -47,6 +49,7 @@ export type Database = {
         }
         Update: {
           accent_color?: string | null
+          config?: Json | null
           created_at?: string
           fields?: Json
           id?: string

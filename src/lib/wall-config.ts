@@ -18,6 +18,7 @@ export interface WallConfig {
   starColor: string;
   borderColor: string;
   borderThickness: number;
+  bgTransparent: boolean;
   bgFade: boolean;
   embedPadding: number;
   font: "system" | "inter" | "serif" | "mono";
@@ -46,6 +47,7 @@ export const defaultWallConfig: WallConfig = {
   starColor: "",
   borderColor: "",
   borderThickness: 1,
+  bgTransparent: false,
   bgFade: false,
   embedPadding: 4,
   font: "system",

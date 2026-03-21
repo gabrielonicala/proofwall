@@ -205,7 +205,7 @@ export default function WallsPage() {
 
             const isLight = wallConfig.theme === "light";
             const isCustom = wallConfig.theme === "custom";
-            const isTransparent = wallConfig.theme === "transparent";
+            const isTransparent = wallConfig.theme === "transparent" || wallConfig.bgTransparent;
             const colorOverrides = (isCustom || isTransparent) && wallConfig.cardColor
               ? { bgColor: isCustom ? (wallConfig.bgColor || undefined) : undefined, cardColor: wallConfig.cardColor }
               : isCustom && wallConfig.bgColor

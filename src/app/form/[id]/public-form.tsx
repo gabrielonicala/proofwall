@@ -14,7 +14,15 @@ interface Props {
   accentColor: string;
   logoUrl: string | null;
   redirectUrl: string | null;
-  theme: "dark" | "light" | "auto";
+  theme: "dark" | "light" | "auto" | "custom";
+  bgColor?: string;
+  formColor?: string;
+  formBorderColor?: string;
+  formBorderThickness?: number;
+  inputColor?: string;
+  bgTransparent?: boolean;
+  bgFade?: boolean;
+  embedPadding?: number;
 }
 
 export function PublicForm({
@@ -27,8 +35,17 @@ export function PublicForm({
   logoUrl,
   redirectUrl,
   theme,
+  bgColor,
+  formColor,
+  formBorderColor,
+  formBorderThickness = 1,
+  inputColor,
+  bgTransparent,
+  bgFade,
+  embedPadding = 3,
 }: Props) {
-  const themeClass = theme === "light" ? "light" : theme === "dark" ? "dark" : "";
+  const isCustom = theme === "custom";
+  const themeClass = theme === "light" ? "light" : theme === "dark" || isCustom ? "dark" : "";
   const enabledFields = fields.filter((f) => f.enabled);
   const [values, setValues] = useState<Record<string, string>>({});
   const [rating, setRating] = useState(0);
@@ -107,11 +124,36 @@ export function PublicForm({
     }
   }
 
+  const bgStyle: React.CSSProperties = isCustom
+    ? {
+        background: bgTransparent
+          ? "transparent"
+          : bgFade
+            ? (() => {
+                const bg = bgColor || "oklch(0.112 0.008 280)";
+                return `linear-gradient(to bottom, transparent, ${bg} 40%, ${bg} 60%, transparent)`;
+              })()
+            : bgColor || undefined,
+        padding: `${embedPadding}rem 1rem`,
+      }
+    : {};
+
+  const formCardStyle: React.CSSProperties = isCustom
+    ? {
+        backgroundColor: formColor || undefined,
+        border: `${formBorderThickness}px solid ${formBorderColor || "var(--border)"}`,
+      }
+    : {};
+
+  const inputStyle: React.CSSProperties | undefined = isCustom
+    ? { backgroundColor: inputColor || "oklch(0.145 0.014 280)" }
+    : undefined;
+
   // Thank-you state
   if (submitted) {
     return (
-      <div className={`${themeClass} flex min-h-svh items-center justify-center bg-background px-4`}>
-        <div className="w-full max-w-lg rounded-2xl bg-card p-8 text-center shadow-lg">
+      <div className={`${themeClass} flex min-h-svh items-center justify-center bg-background px-4`} style={bgStyle}>
+        <div className="w-full max-w-lg rounded-2xl bg-card p-8 text-center shadow-lg" style={formCardStyle}>
           <CheckCircle2
             className="mx-auto mb-4 size-14"
             style={{ color: accentColor }}
@@ -128,10 +170,11 @@ export function PublicForm({
   }
 
   return (
-    <div className={`${themeClass} flex min-h-svh items-center justify-center bg-background px-4 py-12`}>
+    <div className={`${themeClass} flex min-h-svh items-center justify-center bg-background px-4 py-12`} style={bgStyle}>
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-lg rounded-2xl bg-card p-6 shadow-lg sm:p-8"
+        style={formCardStyle}
       >
         {/* Logo */}
         {logoUrl && (
@@ -210,7 +253,7 @@ export function PublicForm({
                   rows={4}
                   maxLength={5000}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-transparent focus:ring-2"
-                  style={{ "--tw-ring-color": accentColor } as React.CSSProperties}
+                  style={{ "--tw-ring-color": accentColor, ...inputStyle } as React.CSSProperties}
                 />
               ) : (
                 <input
@@ -220,7 +263,7 @@ export function PublicForm({
                   placeholder={field.placeholder}
                   maxLength={200}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-transparent focus:ring-2"
-                  style={{ "--tw-ring-color": accentColor } as React.CSSProperties}
+                  style={{ "--tw-ring-color": accentColor, ...inputStyle } as React.CSSProperties}
                 />
               )}
             </div>
