@@ -1031,7 +1031,7 @@ export default function WallEditorPage() {
                   : "var(--background)",
           }}
         >
-          <div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="sticky top-0 z-10 mb-3 flex items-center gap-2 rounded-md bg-black/50 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm" style={{ width: "fit-content" }}>
             <Eye className="size-3.5" />
             Live Preview · {previewTestimonials.length} testimonial{previewTestimonials.length !== 1 ? "s" : ""}
           </div>

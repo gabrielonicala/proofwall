@@ -204,7 +204,20 @@ export default function WallsPage() {
             const wallTestimonials = getWallTestimonials(wall);
 
             const isLight = wallConfig.theme === "light";
-            const themeVars = getThemeVars(wallConfig.theme);
+            const isCustom = wallConfig.theme === "custom";
+            const isTransparent = wallConfig.theme === "transparent";
+            const colorOverrides = (isCustom || isTransparent) && wallConfig.cardColor
+              ? { bgColor: isCustom ? (wallConfig.bgColor || undefined) : undefined, cardColor: wallConfig.cardColor }
+              : isCustom && wallConfig.bgColor
+                ? { bgColor: wallConfig.bgColor }
+                : undefined;
+            const themeVars = getThemeVars(wallConfig.theme, colorOverrides);
+
+            const bgValue = isTransparent
+              ? "transparent"
+              : isCustom && wallConfig.bgColor
+                ? wallConfig.bgColor
+                : "var(--background)";
 
             return (
               <div
@@ -272,8 +285,12 @@ export default function WallsPage() {
                   className={`relative overflow-hidden border-t border-border ${isLight ? "light" : ""}`}
                   style={{
                     height: PREVIEW_DISPLAY_HEIGHT,
-                    background: "var(--background)",
                     ...themeVars,
+                    background: wallConfig.bgFade && !isTransparent
+                      ? `linear-gradient(to bottom, transparent, ${bgValue} 40%, ${bgValue} 60%, transparent)`
+                      : isTransparent
+                        ? "repeating-conic-gradient(#2a2a2e 0% 25%, #1a1a1e 0% 50%) 0 0 / 16px 16px"
+                        : bgValue,
                   }}
                 >
                   {wallTestimonials.length > 0 ? (
@@ -289,8 +306,14 @@ export default function WallsPage() {
                         marginLeft: NARROW_PREVIEW_STYLES.has(wall.style)
                           ? `${(100 - 70) / 2}%`
                           : undefined,
-                        background: "var(--background)",
                         ...themeVars,
+                        background: wallConfig.bgFade
+                          ? "transparent"
+                          : isCustom && wallConfig.bgColor
+                            ? wallConfig.bgColor
+                            : isTransparent
+                              ? "transparent"
+                              : "var(--background)",
                       }}
                     >
                       <div className="w-full">
@@ -307,10 +330,12 @@ export default function WallsPage() {
                     </div>
                   )}
                   {/* Fade out at bottom */}
-                  <div
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
-                    style={{ background: `linear-gradient(to top, var(--background), transparent)` }}
-                  />
+                  {!wallConfig.bgFade && (
+                    <div
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-8"
+                      style={{ background: `linear-gradient(to top, ${bgValue}, transparent)` }}
+                    />
+                  )}
                 </div>
 
                 {/* Clickable overlay */}
