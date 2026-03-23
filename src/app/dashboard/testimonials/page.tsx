@@ -29,13 +29,15 @@ type Testimonial = {
   rating: number | null;
   status: "pending" | "approved" | "featured" | "archived";
   source: string;
+  source_url: string | null;
   created_at: string;
   tags: { id: string; name: string; color: string }[];
 };
 
 type Tag = { id: string; name: string; color: string };
 
-const STATUS_OPTIONS = ["all", "pending", "approved", "featured", "archived"] as const;
+// TODO: re-enable "featured" when it has distinct behavior
+const STATUS_OPTIONS = ["all", "pending", "approved", "archived"] as const;
 
 export default function TestimonialsPage() {
   const { project } = useProject();

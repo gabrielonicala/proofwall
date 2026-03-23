@@ -238,14 +238,12 @@ export function PublicForm({
                   ))}
                 </div>
               ) : field.type === "photo" ? (
-                <label className="group flex cursor-pointer items-center gap-3">
-                  <div className="relative flex size-20 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-input bg-muted/30 transition-colors group-hover:border-muted-foreground">
-                    {photoPreview ? (
-                      <img src={photoPreview} alt="Preview" className="size-full object-cover" />
-                    ) : (
-                      <Upload className="size-5 text-muted-foreground" />
-                    )}
-                  </div>
+                <label className="group flex w-full cursor-pointer items-center justify-center rounded-lg border border-input bg-background px-3 py-4 transition-colors hover:border-muted-foreground" style={inputStyle}>
+                  {photoPreview ? (
+                    <img src={photoPreview} alt="Preview" className="mr-2 h-10 rounded object-contain" />
+                  ) : (
+                    <Upload className="mr-2 size-4 text-muted-foreground" />
+                  )}
                   <span className="text-sm text-muted-foreground">
                     {photoPreview ? "Change photo" : "Upload a photo"}
                   </span>

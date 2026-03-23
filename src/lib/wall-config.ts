@@ -21,6 +21,7 @@ export interface WallConfig {
   bgTransparent: boolean;
   bgFade: boolean;
   embedPadding: number;
+  embedPaddingX: number;
   font: "system" | "inter" | "serif" | "mono";
   showRating: boolean;
   showPhoto: boolean;
@@ -50,6 +51,7 @@ export const defaultWallConfig: WallConfig = {
   bgTransparent: false,
   bgFade: false,
   embedPadding: 4,
+  embedPaddingX: 0,
   font: "system",
   showRating: true,
   showPhoto: true,

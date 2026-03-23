@@ -23,6 +23,7 @@ interface Props {
     text: string;
     rating: number | null;
     source: string;
+    source_url: string | null;
   } | null;
   onSaved: () => void;
 }
@@ -35,6 +36,7 @@ export function AddTestimonialDialog({ open, onOpenChange, editing, onSaved }: P
   const [authorTitle, setAuthorTitle] = useState("");
   const [authorCompany, setAuthorCompany] = useState("");
   const [authorPhoto, setAuthorPhoto] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
   const [text, setText] = useState("");
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
@@ -45,6 +47,7 @@ export function AddTestimonialDialog({ open, onOpenChange, editing, onSaved }: P
       setAuthorTitle(editing.author_title ?? "");
       setAuthorCompany(editing.author_company ?? "");
       setAuthorPhoto(editing.author_photo ?? "");
+      setSourceUrl(editing.source_url ?? "");
       setText(editing.text);
       setRating(editing.rating ?? 5);
     } else {
@@ -52,6 +55,7 @@ export function AddTestimonialDialog({ open, onOpenChange, editing, onSaved }: P
       setAuthorTitle("");
       setAuthorCompany("");
       setAuthorPhoto("");
+      setSourceUrl("");
       setText("");
       setRating(5);
     }
@@ -68,6 +72,7 @@ export function AddTestimonialDialog({ open, onOpenChange, editing, onSaved }: P
       author_title: authorTitle.trim() || null,
       author_company: authorCompany.trim() || null,
       author_photo: authorPhoto.trim() || null,
+      source_url: sourceUrl.trim() || null,
       text: text.trim(),
       rating,
       project_id: project.id,
@@ -102,7 +107,7 @@ export function AddTestimonialDialog({ open, onOpenChange, editing, onSaved }: P
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {/* Rating */}
           <div>
-            <label className="mb-1.5 block text-sm font-medium">Rating</label>
+            <label className="mb-1.5 block text-sm font-medium">Rating <span className="text-destructive">*</span></label>
             <div className="flex gap-1">
               {Array.from({ length: 5 }).map((_, i) => (
                 <button
@@ -128,7 +133,7 @@ export function AddTestimonialDialog({ open, onOpenChange, editing, onSaved }: P
           {/* Testimonial text */}
           <div>
             <label htmlFor="text" className="mb-1.5 block text-sm font-medium">
-              Testimonial
+              Testimonial <span className="text-destructive">*</span>
             </label>
             <textarea
               id="text"
@@ -145,7 +150,7 @@ export function AddTestimonialDialog({ open, onOpenChange, editing, onSaved }: P
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-                Name
+                Name <span className="text-destructive">*</span>
               </label>
               <input
                 id="name"
@@ -195,6 +200,21 @@ export function AddTestimonialDialog({ open, onOpenChange, editing, onSaved }: P
                 className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
               />
             </div>
+          </div>
+
+          {/* Source URL */}
+          <div>
+            <label htmlFor="sourceUrl" className="mb-1.5 block text-sm font-medium">
+              Source URL <span className="text-xs font-normal text-muted-foreground">(optional)</span>
+            </label>
+            <input
+              id="sourceUrl"
+              type="url"
+              value={sourceUrl}
+              onChange={(e) => setSourceUrl(e.target.value)}
+              placeholder="https://twitter.com/user/status/..."
+              className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/30"
+            />
           </div>
 
           {/* Submit */}

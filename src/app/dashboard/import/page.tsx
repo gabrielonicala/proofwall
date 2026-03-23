@@ -6,7 +6,6 @@ import { importTestimonials } from "../actions";
 import {
   Upload,
   FileText,
-  Link,
   CheckCircle2,
   AlertCircle,
   Trash2,
@@ -19,7 +18,7 @@ import {
 // Types
 // ---------------------------------------------------------------------------
 
-type ImportTab = "csv" | "paste" | "url";
+type ImportTab = "csv" | "paste";
 
 type PendingTestimonial = {
   _key: string; // client-side only id for React keys
@@ -238,7 +237,6 @@ function StarRating({
 const TABS: { id: ImportTab; label: string; icon: typeof Upload }[] = [
   { id: "csv", label: "CSV", icon: Upload },
   { id: "paste", label: "Paste", icon: FileText },
-  { id: "url", label: "URL", icon: Link },
 ];
 
 // ---------------------------------------------------------------------------
@@ -254,11 +252,6 @@ export default function ImportPage() {
   // Input buffers
   const [csvText, setCsvText] = useState("");
   const [pasteText, setPasteText] = useState("");
-  const [urlValue, setUrlValue] = useState("");
-  const [urlName, setUrlName] = useState("");
-  const [urlText, setUrlText] = useState("");
-  const [urlRating, setUrlRating] = useState<number | null>(null);
-
   // Preview list (parsed, ready to import)
   const [pending, setPending] = useState<PendingTestimonial[]>([]);
 
@@ -299,36 +292,6 @@ export default function ImportPage() {
     }
     setPending(parsed);
   }, [pasteText]);
-
-  const handleAddUrl = useCallback(() => {
-    setResult(null);
-    if (!urlValue.trim()) {
-      setResult({ type: "error", message: "Please enter a URL." });
-      return;
-    }
-    if (!urlText.trim()) {
-      setResult({
-        type: "error",
-        message: "Please enter the testimonial text.",
-      });
-      return;
-    }
-    const entry: PendingTestimonial = {
-      _key: crypto.randomUUID(),
-      author_name: urlName.trim() || "Anonymous",
-      author_title: "",
-      author_company: "",
-      text: urlText.trim(),
-      rating: urlRating,
-      source: "url",
-      source_url: urlValue.trim(),
-    };
-    setPending((prev) => [...prev, entry]);
-    setUrlValue("");
-    setUrlName("");
-    setUrlText("");
-    setUrlRating(null);
-  }, [urlValue, urlName, urlText, urlRating]);
 
   // -----------------------------------------------------------------------
   // Editing preview rows
@@ -446,14 +409,16 @@ export default function ImportPage() {
                 className={`${inputClassName} font-mono text-xs`}
               />
             </div>
-            <button
-              onClick={handleParseCsv}
-              disabled={!csvText.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-            >
-              <Upload className="size-4" />
-              Parse CSV
-            </button>
+            <div className="flex justify-end">
+              <button
+                onClick={handleParseCsv}
+                disabled={!csvText.trim()}
+                className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                <Upload className="size-4" />
+                Parse CSV
+              </button>
+            </div>
           </div>
         )}
 
@@ -476,80 +441,19 @@ export default function ImportPage() {
                 className={inputClassName}
               />
             </div>
-            <button
-              onClick={handleParsePaste}
-              disabled={!pasteText.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-            >
-              <FileText className="size-4" />
-              Parse Text
-            </button>
+            <div className="flex justify-end">
+              <button
+                onClick={handleParsePaste}
+                disabled={!pasteText.trim()}
+                className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                <FileText className="size-4" />
+                Parse Text
+              </button>
+            </div>
           </div>
         )}
 
-        {/* ---- URL Tab ---- */}
-        {tab === "url" && (
-          <div className="space-y-4">
-            <p className="text-xs text-muted-foreground">
-              Paste a source URL (tweet, Google review, etc.) and fill in the
-              testimonial details. The URL is saved as the source reference.
-            </p>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">
-                Source URL
-              </label>
-              <input
-                type="url"
-                value={urlValue}
-                onChange={(e) => setUrlValue(e.target.value)}
-                placeholder="https://twitter.com/user/status/123456789"
-                className={inputClassName}
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-1.5 block text-sm font-medium">
-                  Author name
-                </label>
-                <input
-                  type="text"
-                  value={urlName}
-                  onChange={(e) => setUrlName(e.target.value)}
-                  placeholder="Jane Doe"
-                  className={inputClassName}
-                />
-              </div>
-              <div>
-                <label className="mb-1.5 block text-sm font-medium">
-                  Rating
-                </label>
-                <div className="flex h-[42px] items-center">
-                  <StarRating value={urlRating} onChange={setUrlRating} />
-                </div>
-              </div>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">
-                Testimonial text
-              </label>
-              <textarea
-                rows={3}
-                value={urlText}
-                onChange={(e) => setUrlText(e.target.value)}
-                placeholder="Paste or type the testimonial content here..."
-                className={inputClassName}
-              />
-            </div>
-            <button
-              onClick={handleAddUrl}
-              disabled={!urlValue.trim() || !urlText.trim()}
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-            >
-              <Link className="size-4" />
-              Add to Import List
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Feedback banner */}
@@ -621,7 +525,7 @@ export default function ImportPage() {
                 <div className="space-y-2">
                   <div>
                     <label className="mb-1 block text-xs text-muted-foreground">
-                      Name
+                      Name <span className="text-destructive">*</span>
                     </label>
                     <input
                       type="text"
@@ -673,37 +577,44 @@ export default function ImportPage() {
                   </div>
                   <div>
                     <label className="mb-1 block text-xs text-muted-foreground">
-                      Rating
+                      Rating <span className="text-destructive">*</span>
                     </label>
                     <StarRating
                       value={item.rating}
                       onChange={(v) => updatePending(item._key, "rating", v)}
                     />
                   </div>
-                  {item.source_url && (
-                    <p className="truncate text-xs text-muted-foreground">
-                      <Link className="mr-1 inline size-3" />
-                      {item.source_url}
-                    </p>
-                  )}
                 </div>
 
-                {/* Center: testimonial text */}
-                <div>
-                  <label className="mb-1 block text-xs text-muted-foreground">
-                    Testimonial
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={item.text}
-                    onChange={(e) =>
-                      updatePending(item._key, "text", e.target.value)
-                    }
-                    className={`${inputClassName} !py-1.5`}
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Source: {item.source}
-                  </p>
+                {/* Center: testimonial text + source url */}
+                <div className="space-y-2">
+                  <div>
+                    <label className="mb-1 block text-xs text-muted-foreground">
+                      Testimonial <span className="text-destructive">*</span>
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={item.text}
+                      onChange={(e) =>
+                        updatePending(item._key, "text", e.target.value)
+                      }
+                      className={`${inputClassName} !py-1.5`}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs text-muted-foreground">
+                      Source URL <span className="text-muted-foreground/50">(optional)</span>
+                    </label>
+                    <input
+                      type="url"
+                      value={item.source_url}
+                      onChange={(e) =>
+                        updatePending(item._key, "source_url", e.target.value)
+                      }
+                      placeholder="https://twitter.com/..."
+                      className={`${inputClassName} !py-1.5`}
+                    />
+                  </div>
                 </div>
 
                 {/* Right: actions */}
@@ -729,9 +640,7 @@ export default function ImportPage() {
           <p className="text-sm text-muted-foreground">
             {tab === "csv"
               ? "Paste your CSV above and click Parse to preview testimonials."
-              : tab === "paste"
-                ? "Paste testimonials above and click Parse to preview them."
-                : "Add testimonials from URLs. They will appear here for review before importing."}
+              : "Paste testimonials above and click Parse to preview them."}
           </p>
         </div>
       )}

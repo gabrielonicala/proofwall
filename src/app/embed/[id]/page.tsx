@@ -211,7 +211,7 @@ export default async function EmbedPage({ params }: Props) {
       className={isLight ? "light" : ""}
       style={{
         minHeight: "100px",
-        padding: `${config.embedPadding ?? 4}rem 0`,
+        padding: `${config.embedPadding ?? 4}rem ${config.embedPaddingX ?? 0}rem`,
         ...themeVars,
         ...fadeStyle,
       }}

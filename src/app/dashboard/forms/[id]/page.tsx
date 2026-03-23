@@ -324,7 +324,7 @@ export default function FormEditorPage() {
                 <input
                   type="range"
                   min={0}
-                  max={6}
+                  max={10}
                   step={0.5}
                   value={config.embedPadding}
                   onChange={(e) => setConfig((p) => ({ ...p, embedPadding: Number(e.target.value) }))}

@@ -23,9 +23,19 @@ export default async function PublicFormPage({ params }: { params: Promise<{ id:
   if (!form) notFound();
 
   const saved = (form.config as Record<string, unknown>) ?? {};
+  const isCustom = form.theme === "custom";
+  const bgFade = (saved.bgFade as boolean) ?? false;
+  const bgTransparent = (saved.bgTransparent as boolean) ?? false;
+  const bgColor = (saved.bgColor as string) ?? "";
 
   return (
     <>
+      {isCustom && (bgFade || bgTransparent) && (
+        <style dangerouslySetInnerHTML={{ __html: "html,body{background:transparent!important}" }} />
+      )}
+      {isCustom && bgColor && !bgFade && !bgTransparent && (
+        <style dangerouslySetInnerHTML={{ __html: `body{background:${bgColor}!important}` }} />
+      )}
       <EmbedResize />
       <PublicForm
         formId={form.id}

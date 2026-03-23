@@ -113,11 +113,13 @@ export function TestimonialCard({
             <CheckCircle className="mr-2 size-3.5" /> Approve
           </DropdownMenuItem>
         )}
+        {/* TODO: re-enable when featured has distinct behavior
         {t.status !== "featured" && (
           <DropdownMenuItem onClick={() => onStatusChange(t.id, "featured")}>
             <Award className="mr-2 size-3.5" /> Feature
           </DropdownMenuItem>
         )}
+        */}
         {t.status !== "archived" && (
           <DropdownMenuItem onClick={() => onStatusChange(t.id, "archived")}>
             <Archive className="mr-2 size-3.5" /> Archive

@@ -58,10 +58,10 @@ const SOURCE_COLORS: Record<TestimonialSource, string> = {
   twitter: "bg-sky-500",
 };
 
-const STATUS_STYLES: Record<
+const STATUS_STYLES: Partial<Record<
   TestimonialStatus,
   { bg: string; text: string; label: string }
-> = {
+>> = {
   pending: {
     bg: "bg-yellow-500/10",
     text: "text-yellow-500",
@@ -72,11 +72,12 @@ const STATUS_STYLES: Record<
     text: "text-emerald-500",
     label: "Approved",
   },
-  featured: {
-    bg: "bg-primary/10",
-    text: "text-primary",
-    label: "Featured",
-  },
+  // TODO: re-enable when featured has distinct behavior
+  // featured: {
+  //   bg: "bg-primary/10",
+  //   text: "text-primary",
+  //   label: "Featured",
+  // },
   archived: {
     bg: "bg-gray-500/10",
     text: "text-gray-500",
@@ -466,7 +467,7 @@ export default function AnalyticsPage() {
               </thead>
               <tbody>
                 {recentTestimonials.map((t) => {
-                  const statusStyle = STATUS_STYLES[t.status];
+                  const statusStyle = STATUS_STYLES[t.status] ?? { bg: "bg-primary/10", text: "text-primary", label: t.status };
                   return (
                     <tr
                       key={t.id}
