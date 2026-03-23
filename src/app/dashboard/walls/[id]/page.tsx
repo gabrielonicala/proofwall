@@ -89,8 +89,6 @@ export default function WallEditorPage() {
   const [previewWidth, setPreviewWidth] = useState<"full" | "tablet" | "mobile">("full");
   const [configOpen, setConfigOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
-  const previewPanelRef = useRef<HTMLDivElement>(null);
-  const [previewScale, setPreviewScale] = useState(1);
 
   // Fetch wall data + testimonials + tags
   const fetchData = useCallback(async () => {
@@ -170,23 +168,6 @@ export default function WallEditorPage() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [configOpen]);
-
-  // Compute scale so "full" preview simulates viewport width
-  useEffect(() => {
-    if (previewWidth !== "full") { setPreviewScale(1); return; }
-    const el = previewPanelRef.current;
-    if (!el) return;
-    function calc() {
-      const panelW = el!.clientWidth;
-      const viewportW = window.innerWidth;
-      setPreviewScale(panelW / viewportW);
-    }
-    calc();
-    const ro = new ResizeObserver(calc);
-    ro.observe(el);
-    window.addEventListener("resize", calc);
-    return () => { ro.disconnect(); window.removeEventListener("resize", calc); };
-  }, [previewWidth]);
 
   const currentSnapshot = JSON.stringify({ name, style, config, tagFilter, maxTestimonials, excludedIds, isActive });
   const hasChanges = isNew || currentSnapshot !== savedSnapshot.current;
@@ -789,7 +770,7 @@ export default function WallEditorPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>Vertical padding</span>
-                    <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{config.embedPadding ?? 4}rem</span>
+                    <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{config.embedPadding ?? 3}rem</span>
                   </div>
                   <div className="relative flex items-center">
                     <input
@@ -797,7 +778,7 @@ export default function WallEditorPage() {
                       min={0}
                       max={10}
                       step={0.5}
-                      value={config.embedPadding ?? 4}
+                      value={config.embedPadding ?? 3}
                       onChange={(e) => updateConfig("embedPadding", parseFloat(e.target.value))}
                       className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:size-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:hover:scale-125"
                     />
@@ -808,7 +789,7 @@ export default function WallEditorPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <span>Horizontal padding</span>
-                    <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{config.embedPaddingX ?? 0}rem</span>
+                    <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{config.embedPaddingX ?? 3}rem</span>
                   </div>
                   <div className="relative flex items-center">
                     <input
@@ -816,7 +797,7 @@ export default function WallEditorPage() {
                       min={0}
                       max={10}
                       step={0.5}
-                      value={config.embedPaddingX ?? 0}
+                      value={config.embedPaddingX ?? 3}
                       onChange={(e) => updateConfig("embedPaddingX", parseFloat(e.target.value))}
                       className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-muted [&::-webkit-slider-thumb]:size-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-125 [&::-moz-range-thumb]:size-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-none [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:transition-transform [&::-moz-range-thumb]:hover:scale-125"
                     />
@@ -1115,7 +1096,6 @@ export default function WallEditorPage() {
 
         {/* Right panel: Preview */}
         <div
-          ref={previewPanelRef}
           className={`min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-6 transition-colors duration-300 ${config.theme === "light" ? "light" : ""}`}
           style={{
             ...getThemeVars(config.bgTransparent || config.theme === "transparent" ? "transparent" : config.theme, config.theme === "custom" ? {
@@ -1123,7 +1103,12 @@ export default function WallEditorPage() {
               cardColor: config.cardColor || undefined,
             } : undefined),
             background: config.bgFade && !config.bgTransparent && config.theme !== "transparent"
-              ? "oklch(0.112 0.008 280)"
+              ? (() => {
+                  const solid = config.theme === "custom" && config.bgColor
+                    ? config.bgColor
+                    : config.theme === "light" ? "oklch(0.985 0.002 280)" : "oklch(0.112 0.008 280)";
+                  return `linear-gradient(to bottom, transparent, ${solid} 40%, ${solid} 60%, transparent)`;
+                })()
               : config.bgTransparent || config.theme === "transparent"
                 ? "repeating-conic-gradient(#2a2a2e 0% 25%, #1a1a1e 0% 50%) 0 0 / 16px 16px"
                 : config.theme === "custom" && config.bgColor
@@ -1136,30 +1121,10 @@ export default function WallEditorPage() {
             Live Preview · {previewTestimonials.length} testimonial{previewTestimonials.length !== 1 ? "s" : ""}
           </div>
           <div
-            style={{
-              ...(previewWidth === "full" && previewScale < 1 ? {
-                width: `${100 / previewScale}%`,
-                transform: `scale(${previewScale})`,
-                transformOrigin: "top left",
-              } : {}),
-              ...(config.bgFade && !config.bgTransparent && config.theme !== "transparent" ? {
-                margin: previewWidth === "full" && previewScale < 1 ? undefined : "-1.5rem -1.5rem 0",
-                padding: previewWidth === "full" && previewScale < 1 ? undefined : "0 1.5rem",
-                background: (() => {
-                  const solid = config.theme === "custom" && config.bgColor
-                    ? config.bgColor
-                    : config.theme === "light" ? "oklch(0.985 0.002 280)" : "oklch(0.112 0.008 280)";
-                  return `linear-gradient(to bottom, transparent, ${solid} 40%, ${solid} 60%, transparent)`;
-                })(),
-              } : {}),
-            }}
+            className={`mx-auto transition-all duration-300 ${previewWidthClass}`}
+            style={{ padding: `${config.embedPadding ?? 3}rem ${config.embedPaddingX ?? 3}rem` }}
           >
-            <div
-              className={`mx-auto transition-all duration-300 ${previewWidthClass}`}
-              style={{ padding: `${config.embedPadding ?? 4}rem ${config.embedPaddingX ?? 0}rem` }}
-            >
-              {renderPreview()}
-            </div>
+            {renderPreview()}
           </div>
         </div>
       </div>
