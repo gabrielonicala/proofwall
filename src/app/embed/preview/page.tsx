@@ -72,7 +72,7 @@ export default function EmbedPreviewPage() {
         className={isLight ? "light" : ""}
         style={{
           minHeight: "100px",
-          padding: `${config.embedPadding ?? 3}rem ${config.embedPaddingX ?? 3}rem`,
+          padding: `${config.embedPadding ?? 3}rem max(1rem, min(${config.embedPaddingX ?? 3}rem, 3vw))`,
           ...themeVars,
           ...fadeStyle,
         }}
