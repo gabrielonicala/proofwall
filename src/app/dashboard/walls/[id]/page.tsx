@@ -89,6 +89,10 @@ export default function WallEditorPage() {
   const [previewWidth, setPreviewWidth] = useState<"full" | "tablet" | "mobile">("full");
   const [configOpen, setConfigOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeReady = useRef(false);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  const [iframeZoom, setIframeZoom] = useState(1);
 
   // Fetch wall data + testimonials + tags
   const fetchData = useCallback(async () => {
@@ -236,6 +240,48 @@ export default function WallEditorPage() {
       excluded: matchingExcluded,
     };
   }, [filteredForManage, excludedIds]);
+
+  // Compute iframe zoom to simulate full viewport width
+  useEffect(() => {
+    if (previewWidth !== "full") { setIframeZoom(1); return; }
+    const el = previewContainerRef.current;
+    if (!el) return;
+    function calc() {
+      const containerW = el!.clientWidth;
+      const viewportW = window.innerWidth;
+      if (containerW > 0 && viewportW > 0) setIframeZoom(containerW / viewportW);
+    }
+    calc();
+    window.addEventListener("resize", calc);
+    return () => window.removeEventListener("resize", calc);
+  }, [previewWidth, loading]);
+
+  // Send preview data to iframe
+  const sendPreviewData = useCallback(() => {
+    iframeRef.current?.contentWindow?.postMessage({
+      type: "laudica-preview",
+      style,
+      config,
+      testimonials: previewTestimonials,
+    }, "*");
+  }, [style, config, previewTestimonials]);
+
+  // Listen for iframe ready signal
+  useEffect(() => {
+    function handleMessage(e: MessageEvent) {
+      if (e.data?.type === "laudica-preview-ready") {
+        iframeReady.current = true;
+        sendPreviewData();
+      }
+    }
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [sendPreviewData]);
+
+  // Send data on every change
+  useEffect(() => {
+    if (iframeReady.current) sendPreviewData();
+  }, [sendPreviewData]);
 
   function toggleExclude(id: string) {
     setExcludedIds((prev) =>
@@ -1095,39 +1141,24 @@ export default function WallEditorPage() {
         </div>
 
         {/* Right panel: Preview */}
-        <div
-          className={`min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-6 transition-colors duration-300 ${config.theme === "light" ? "light" : ""}`}
-          style={{
-            ...getThemeVars(config.bgTransparent || config.theme === "transparent" ? "transparent" : config.theme, config.theme === "custom" ? {
-              bgColor: config.bgTransparent ? undefined : (config.bgColor || undefined),
-              cardColor: config.cardColor || undefined,
-            } : undefined),
-            background: config.bgFade && !config.bgTransparent && config.theme !== "transparent"
-              ? (() => {
-                  const solid = config.theme === "custom" && config.bgColor
-                    ? config.bgColor
-                    : config.theme === "light" ? "oklch(0.985 0.002 280)" : "oklch(0.112 0.008 280)";
-                  return `linear-gradient(to bottom, transparent, ${solid} 40%, ${solid} 60%, transparent)`;
-                })()
-              : config.bgTransparent || config.theme === "transparent"
-                ? "repeating-conic-gradient(#2a2a2e 0% 25%, #1a1a1e 0% 50%) 0 0 / 16px 16px"
-                : config.theme === "custom" && config.bgColor
-                  ? config.bgColor
-                  : "var(--background)",
-          }}
-        >
-          <div className="sticky top-0 z-10 mb-3 flex items-center gap-2 rounded-md bg-black/50 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm" style={{ width: "fit-content" }}>
+        <div ref={previewContainerRef} className="relative min-w-0 flex-1 overflow-hidden">
+          <div className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-md bg-black/50 px-2 py-1 text-xs text-muted-foreground backdrop-blur-sm">
             <Eye className="size-3.5" />
             Live Preview · {previewTestimonials.length} testimonial{previewTestimonials.length !== 1 ? "s" : ""}
           </div>
-          <div
-            className={`mx-auto transition-all duration-300 ${previewWidthClass}`}
-            style={{
-              padding: `${config.embedPadding ?? 3}rem ${config.embedPaddingX ?? 3}rem`,
-            }}
-          >
-            {renderPreview()}
-          </div>
+          <iframe
+            ref={iframeRef}
+            src="/embed/preview"
+            title="Wall preview"
+            className={previewWidth !== "full" ? `mx-auto block h-full border-0 ${previewWidthClass}` : ""}
+            style={previewWidth === "full" && iframeZoom < 1 ? {
+              border: "none",
+              width: `${100 / iframeZoom}%`,
+              height: `${100 / iframeZoom}%`,
+              transform: `scale(${iframeZoom})`,
+              transformOrigin: "top left",
+            } : undefined}
+          />
         </div>
       </div>
     </div>
