@@ -67,7 +67,7 @@ export function Sidebar() {
       <motion.aside
         animate={{ width: collapsed ? 64 : 240 }}
         transition={{ duration: 0.2, ease: "easeInOut" }}
-        className="sticky top-0 z-40 flex h-screen flex-shrink-0 flex-col border-r border-border bg-sidebar"
+        className="sticky top-0 z-40 flex h-screen flex-shrink-0 flex-col border-r border-border bg-sidebar min-[1100px]:!w-[240px]"
       >
         {/* Logo + collapse */}
         <div className={`flex h-14 items-center border-b border-border px-3 ${collapsed ? "justify-center" : "justify-between"}`}>
@@ -90,7 +90,7 @@ export function Sidebar() {
           </AnimatePresence>
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground"
+            className="flex size-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-foreground min-[1100px]:hidden"
           >
             {collapsed ? (
               <ChevronsRight className="size-4" />
