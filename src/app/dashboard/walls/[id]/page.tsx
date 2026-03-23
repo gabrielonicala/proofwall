@@ -89,8 +89,6 @@ export default function WallEditorPage() {
   const [previewWidth, setPreviewWidth] = useState<"full" | "tablet" | "mobile">("full");
   const [configOpen, setConfigOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
-  const previewPanelRef = useRef<HTMLDivElement>(null);
-  const [zoomLevel, setZoomLevel] = useState(1);
 
   // Fetch wall data + testimonials + tags
   const fetchData = useCallback(async () => {
@@ -170,22 +168,6 @@ export default function WallEditorPage() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [configOpen]);
-
-  // Compute zoom so "full" preview simulates viewport width
-  useEffect(() => {
-    if (previewWidth !== "full") { setZoomLevel(1); return; }
-    const el = previewPanelRef.current;
-    if (!el) return;
-    function calc() {
-      const style = getComputedStyle(el!);
-      const contentW = el!.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-      const viewportW = window.innerWidth;
-      if (contentW > 0 && viewportW > 0) setZoomLevel(contentW / viewportW);
-    }
-    calc();
-    window.addEventListener("resize", calc);
-    return () => window.removeEventListener("resize", calc);
-  }, [previewWidth, loading]);
 
   const currentSnapshot = JSON.stringify({ name, style, config, tagFilter, maxTestimonials, excludedIds, isActive });
   const hasChanges = isNew || currentSnapshot !== savedSnapshot.current;
@@ -1114,7 +1096,6 @@ export default function WallEditorPage() {
 
         {/* Right panel: Preview */}
         <div
-          ref={previewPanelRef}
           className={`min-w-0 flex-1 overflow-y-auto overflow-x-hidden p-6 transition-colors duration-300 ${config.theme === "light" ? "light" : ""}`}
           style={{
             ...getThemeVars(config.bgTransparent || config.theme === "transparent" ? "transparent" : config.theme, config.theme === "custom" ? {
@@ -1143,10 +1124,6 @@ export default function WallEditorPage() {
             className={`mx-auto transition-all duration-300 ${previewWidthClass}`}
             style={{
               padding: `${config.embedPadding ?? 3}rem ${config.embedPaddingX ?? 3}rem`,
-              ...(previewWidth === "full" && zoomLevel < 1 ? {
-                width: "100vw",
-                zoom: zoomLevel,
-              } : {}),
             }}
           >
             {renderPreview()}
