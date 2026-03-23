@@ -165,7 +165,7 @@ export function TickerTape({ testimonials, speed = "normal", autoplay = true, pa
   const heightStyle = cardHeight > 0 ? { height: cardHeight } : undefined;
 
   return (
-    <div className={`space-y-3 overflow-hidden ${getFontClass(config)}`}>
+    <div className={`space-y-3 overflow-hidden ${getFontClass(config)}`} style={{ maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)", WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)" }}>
       {/* Hidden measurement container — renders each card at natural height */}
       <div ref={measureRef} aria-hidden className="pointer-events-none absolute left-0 right-0 -z-10 opacity-0">
         {testimonials.map((t) => (

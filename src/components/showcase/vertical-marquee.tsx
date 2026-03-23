@@ -120,9 +120,7 @@ export function VerticalMarquee({ testimonials, speed = "normal", autoplay = tru
 
   return (
     <div className={getFontClass(config)}>
-      <div className="relative mx-auto h-[400px] max-w-md overflow-hidden">
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-gradient-to-b from-[var(--background)] to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-16 bg-gradient-to-t from-[var(--background)] to-transparent" />
+      <div className="relative mx-auto h-[400px] max-w-md overflow-hidden" style={{ maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)", WebkitMaskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)" }}>
         <div ref={trackRef}>
           {doubled.map((t, i) => (
             <MarqueeCard key={`m-${i}`} t={t} config={config} />
