@@ -49,7 +49,7 @@ const softwareSchema = {
   publisher: { "@id": "https://laudica.com/#organization" },
   featureList: [
     "Testimonial collection forms",
-    "Paste-to-import from tweets and text",
+    "CSV and text import with source tracking",
     "9 showcase display styles",
     "Contextual tag-based walls",
     "Embeddable widgets (HTML, React, iFrame)",

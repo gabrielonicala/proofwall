@@ -44,7 +44,7 @@ const pages = [
     tags: ["features", "speed"],
     testimonials: [
       {
-        text: "I pasted 50 tweet URLs and had a wall in under 10 minutes.",
+        text: "I imported 50 testimonials from a CSV and had a wall in under 10 minutes.",
         author: "Emily Rodriguez",
         rating: 5,
       },

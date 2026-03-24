@@ -8,7 +8,7 @@ const steps = [
     icon: Link2,
     step: "01",
     title: "Collect",
-    desc: "Send a beautiful branded form, or just paste a tweet URL. Your best proof already exists — grab it.",
+    desc: "Send a beautiful branded form, import from CSV, or add manually. Your best proof already exists — grab it.",
   },
   {
     icon: Tags,

@@ -201,13 +201,12 @@ export default function DocsPage() {
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground">
-                  Paste-to-Import
+                  Import
                 </h3>
                 <p className="leading-relaxed text-muted-foreground">
-                  Paste a tweet URL or any block of text and Laudica will
-                  parse it into a testimonial. For tweets, it automatically
-                  extracts the author, handle, avatar, and content. For plain
-                  text, you can assign the author details after import.
+                  Paste blocks of text or upload a CSV and Laudica will parse
+                  them into testimonials. You can assign author details, ratings,
+                  and an optional source URL after import.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground">
@@ -673,7 +672,7 @@ export default function DocsPage() {
                 <p className="leading-relaxed text-muted-foreground">
                   See where your testimonials come from at a glance. The source
                   breakdown shows the distribution across collection forms,
-                  manual entries, paste imports, and CSV uploads.
+                  manual entries, text imports, and CSV uploads.
                 </p>
 
                 <h3 className="text-lg font-medium text-foreground">

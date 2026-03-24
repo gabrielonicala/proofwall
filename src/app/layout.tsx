@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s | Laudica",
   },
   description:
-    "Collect stunning social proof. Deploy it strategically. Watch your conversions climb. 9 beautiful showcase styles, smart contextual walls, and paste-to-import.",
+    "Collect stunning social proof. Deploy it strategically. Watch your conversions climb. 9 beautiful showcase styles, smart contextual walls, and easy CSV import.",
   keywords: [
     "testimonials",
     "social proof",
