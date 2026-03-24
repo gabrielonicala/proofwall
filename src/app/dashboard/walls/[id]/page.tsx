@@ -241,7 +241,7 @@ export default function WallEditorPage() {
     };
   }, [filteredForManage, excludedIds]);
 
-  // Compute iframe zoom to simulate full viewport width
+  // Compute iframe scale to simulate full viewport width
   useEffect(() => {
     if (previewWidth !== "full") { setIframeZoom(1); return; }
     const el = previewContainerRef.current;
@@ -253,7 +253,9 @@ export default function WallEditorPage() {
     }
     calc();
     window.addEventListener("resize", calc);
-    return () => window.removeEventListener("resize", calc);
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    return () => { window.removeEventListener("resize", calc); ro.disconnect(); };
   }, [previewWidth, loading]);
 
   // Send preview data to iframe
@@ -832,10 +834,10 @@ export default function WallEditorPage() {
                 </div>
 
                 {/* Horizontal padding */}
-                <div className="space-y-2">
+                <div className={`space-y-2 ${previewWidth !== "full" ? "opacity-40 pointer-events-none" : ""}`}>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Horizontal padding</span>
-                    <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{config.embedPaddingX ?? 3}rem</span>
+                    <span>Horizontal padding{previewWidth !== "full" ? " (desktop only)" : ""}</span>
+                    <span className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-foreground">{previewWidth !== "full" ? "1" : (config.embedPaddingX ?? 3)}rem</span>
                   </div>
                   <div className="relative flex items-center">
                     <input
@@ -1150,7 +1152,7 @@ export default function WallEditorPage() {
             ref={iframeRef}
             src="/embed/preview"
             title="Wall preview"
-            className={previewWidth !== "full" ? `mx-auto block h-full border-0 ${previewWidthClass}` : ""}
+            className={previewWidth !== "full" ? `mx-auto block h-full w-full border-0 ${previewWidthClass}` : ""}
             style={previewWidth === "full" && iframeZoom < 1 ? {
               border: "none",
               width: `${100 / iframeZoom}%`,

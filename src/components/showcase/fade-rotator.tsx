@@ -17,9 +17,11 @@ interface Props {
 function RotatorContent({ t, config }: { t: Testimonial; config?: ShowcaseConfig }) {
   return (
     <>
-      <p className="mb-6 text-lg font-light leading-relaxed text-foreground/90 sm:text-xl md:text-2xl">
-        &ldquo;{t.text}&rdquo;
-      </p>
+      <div className="mb-6 flex flex-1 items-center">
+        <p className="text-lg font-light leading-relaxed text-foreground/90 sm:text-xl md:text-2xl">
+          &ldquo;{t.text}&rdquo;
+        </p>
+      </div>
       {shouldShow("showRating", config) && (
         <div className="mb-3 flex justify-center gap-0.5">
           {Array.from({ length: 5 }).map((_, si) => (
@@ -113,6 +115,8 @@ export function FadeRotator({ testimonials, speed = "normal", autoplay = true, p
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
               transition={{ duration: 0.8, ease: "easeInOut" }}
+              className="flex flex-col"
+              style={contentHeight ? { minHeight: contentHeight } : undefined}
             >
               <RotatorContent t={t} config={config} />
             </motion.div>

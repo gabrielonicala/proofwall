@@ -68,11 +68,12 @@ export default function EmbedPreviewPage() {
       {isCustom && config.bgColor && !config.bgFade && (
         <style dangerouslySetInnerHTML={{ __html: `body{background:${config.bgColor}!important}` }} />
       )}
+      <style dangerouslySetInnerHTML={{ __html: `@media(max-width:768px){.laudica-embed{padding-left:1rem!important;padding-right:1rem!important}}` }} />
       <div
-        className={isLight ? "light" : ""}
+        className={`laudica-embed ${isLight ? "light" : ""}`}
         style={{
           minHeight: "100px",
-          padding: `${config.embedPadding ?? 3}rem max(1rem, min(${config.embedPaddingX ?? 3}rem, 3vw))`,
+          padding: `${config.embedPadding ?? 3}rem ${config.embedPaddingX ?? 3}rem`,
           ...themeVars,
           ...fadeStyle,
         }}
