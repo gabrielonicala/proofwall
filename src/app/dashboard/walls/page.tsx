@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useProject } from "@/hooks/use-project";
 import { usePlan } from "@/hooks/use-plan";
@@ -59,7 +59,8 @@ const PREVIEW_RENDER_HEIGHT = 450;
 const PREVIEW_SCALE = PREVIEW_DISPLAY_HEIGHT / PREVIEW_RENDER_HEIGHT;
 
 // Styles that look better at a narrower render width
-const NARROW_PREVIEW_STYLES = new Set(["masonry", "minimal-list"]);
+const NARROW_PREVIEW_STYLES = new Set(["masonry", "minimal-list", "fade-rotator", "orbit"]);
+const EXTRA_NARROW_STYLES = new Set(["spotlight-stack"]);
 
 export default function WallsPage() {
   const { project } = useProject();
@@ -68,6 +69,8 @@ export default function WallsPage() {
   const [walls, setWalls] = useState<Wall[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [miniPreviewScale, setMiniPreviewScale] = useState(PREVIEW_SCALE);
+  const miniPreviewRef = useRef<HTMLDivElement>(null);
 
   const fetchData = useCallback(async () => {
     if (!project) return;
@@ -107,6 +110,22 @@ export default function WallsPage() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  // Compute mini preview scale: render at viewport width, scale to card width
+  useEffect(() => {
+    const el = miniPreviewRef.current;
+    if (!el) return;
+    function calc() {
+      const cardW = el!.clientWidth;
+      const viewportW = window.innerWidth;
+      if (cardW > 0 && viewportW > 0) setMiniPreviewScale(cardW / viewportW);
+    }
+    calc();
+    window.addEventListener("resize", calc);
+    const ro = new ResizeObserver(calc);
+    ro.observe(el);
+    return () => { window.removeEventListener("resize", calc); ro.disconnect(); };
+  }, [loading]);
 
   function getWallTestimonials(wall: Wall): Testimonial[] {
     let filtered = [...testimonials];
@@ -282,6 +301,7 @@ export default function WallsPage() {
 
                 {/* Mini preview with exact theme */}
                 <div
+                  ref={miniPreviewRef}
                   className={`relative overflow-hidden border-t border-border ${isLight ? "light" : ""}`}
                   style={{
                     height: PREVIEW_DISPLAY_HEIGHT,
@@ -295,18 +315,24 @@ export default function WallsPage() {
                 >
                   {wallTestimonials.length > 0 ? (
                     <div
-                      className={`pointer-events-none flex items-center ${isLight ? "light" : ""}`}
+                      className={`pointer-events-none ${isLight ? "light" : ""}`}
                       style={{
-                        width: NARROW_PREVIEW_STYLES.has(wall.style)
-                          ? `${70 / PREVIEW_SCALE}%`
-                          : `${100 / PREVIEW_SCALE}%`,
-                        height: PREVIEW_RENDER_HEIGHT,
-                        transform: `scale(${PREVIEW_SCALE})`,
-                        transformOrigin: "top left",
-                        marginLeft: NARROW_PREVIEW_STYLES.has(wall.style)
-                          ? `${(100 - 70) / 2}%`
-                          : undefined,
                         ...themeVars,
+                        ...(NARROW_PREVIEW_STYLES.has(wall.style) || EXTRA_NARROW_STYLES.has(wall.style) ? (() => {
+                          const scale = EXTRA_NARROW_STYLES.has(wall.style) ? PREVIEW_SCALE * 0.75 : PREVIEW_SCALE;
+                          const pct = EXTRA_NARROW_STYLES.has(wall.style) ? 50 : 70;
+                          return {
+                            width: `${pct / scale}%`,
+                            transform: `scale(${scale})`,
+                            transformOrigin: "top left",
+                            marginLeft: `${(100 - pct) / 2}%`,
+                          };
+                        })() : {
+                          width: `${100 / miniPreviewScale}%`,
+                          transform: `scale(${miniPreviewScale})`,
+                          transformOrigin: "top left",
+                        }),
+                        padding: `0 ${wallConfig.embedPaddingX ?? 3}rem`,
                         background: wallConfig.bgFade
                           ? "transparent"
                           : isCustom && wallConfig.bgColor
@@ -316,12 +342,14 @@ export default function WallsPage() {
                               : "var(--background)",
                       }}
                     >
-                      <div className="w-full">
-                        <EmbedShowcase
-                          style={wall.style as WallStyle}
-                          config={wallConfig}
-                          testimonials={wallTestimonials}
-                        />
+                      <div className="flex w-full items-center" style={{ minHeight: NARROW_PREVIEW_STYLES.has(wall.style) ? PREVIEW_RENDER_HEIGHT : EXTRA_NARROW_STYLES.has(wall.style) ? PREVIEW_RENDER_HEIGHT / 0.75 : `${PREVIEW_DISPLAY_HEIGHT / miniPreviewScale}px` }}>
+                        <div className="w-full">
+                          <EmbedShowcase
+                            style={wall.style as WallStyle}
+                            config={wallConfig}
+                            testimonials={wallTestimonials}
+                          />
+                        </div>
                       </div>
                     </div>
                   ) : (
