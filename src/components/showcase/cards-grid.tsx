@@ -17,21 +17,28 @@ const GAP = 20; // gap-5 = 1.25rem = 20px
 export function CardsGrid({ testimonials, config, fillRows }: Props & { fillRows?: boolean }) {
   const card = getCardClasses(config);
   const shouldFill = fillRows ?? config?.fillRows ?? false;
-  const gridRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const [visibleCount, setVisibleCount] = useState(testimonials.length);
+  const [colCount, setColCount] = useState(0);
 
   const recalc = useCallback(() => {
-    if (!shouldFill) { setVisibleCount(testimonials.length); return; }
-    const el = gridRef.current;
+    const el = wrapperRef.current;
     if (!el) return;
     const width = el.clientWidth;
     const cols = Math.max(1, Math.floor((width + GAP) / (COL_MIN + GAP)));
-    const fullRows = Math.floor(testimonials.length / cols);
-    setVisibleCount(fullRows > 0 ? fullRows * cols : testimonials.length);
+
+    if (shouldFill) {
+      const fullRows = Math.floor(testimonials.length / cols);
+      setVisibleCount(fullRows > 0 ? fullRows * cols : testimonials.length);
+    } else {
+      setVisibleCount(testimonials.length);
+    }
+
+    setColCount(cols);
   }, [testimonials.length, shouldFill]);
 
   useEffect(() => {
-    const el = gridRef.current;
+    const el = wrapperRef.current;
     if (!el) return;
     recalc();
     const ro = new ResizeObserver(recalc);
@@ -41,8 +48,13 @@ export function CardsGrid({ testimonials, config, fillRows }: Props & { fillRows
 
   const visible = testimonials.slice(0, visibleCount);
 
+  // Cap columns at card count so there are never empty tracks → no drift
+  const effectiveCols = colCount > 0 ? Math.min(colCount, visible.length) : visible.length;
+  const gridMaxWidth = effectiveCols * COL_MIN + Math.max(0, effectiveCols - 1) * GAP;
+
   return (
-    <div ref={gridRef} className={`grid gap-5 ${getFontClass(config)}`} style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))" }}>
+    <div ref={wrapperRef}>
+    <div className={`grid gap-5 ${getFontClass(config)}`} style={{ gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))", maxWidth: colCount > 0 ? `${gridMaxWidth}px` : undefined, margin: "0 auto" }}>
       {visible.map((t, i) => (
         <motion.div
           key={t.id}
@@ -94,6 +106,7 @@ export function CardsGrid({ testimonials, config, fillRows }: Props & { fillRows
           Powered by Laudica
         </div>
       )}
+    </div>
     </div>
   );
 }
