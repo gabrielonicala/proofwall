@@ -37,7 +37,7 @@ export const sampleTestimonials: Testimonial[] = [
     authorTitle: "Marketing Director",
     authorCompany: "Quilla",
     authorPhoto: "https://api.dicebear.com/7.x/avataaars/svg?seed=emily",
-    text: "I pasted 50 tweet URLs and had a stunning testimonials wall in under 10 minutes. No other tool makes collecting social proof this effortless.",
+    text: "I pasted 50 testimonials and had a stunning wall ready in under 10 minutes. No other tool makes collecting social proof this effortless.",
     rating: 5,
     tags: ["speed", "features"],
   },
